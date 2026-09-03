@@ -1,0 +1,1005 @@
+{
+  "_schema": "composicion/1 — curso de la sección Componer",
+  "modulos": [
+    {
+      "id": "intro",
+      "parte": "Fundamentos",
+      "titulo": "Qué es componer",
+      "resumen": "Componer es tomar decisiones sobre el sonido en el tiempo. No hace falta inspiración mágica: hace falta un método y mucho probar.",
+      "bloques": [
+        {
+          "tipo": "texto",
+          "texto": "Componer es **organizar el sonido en el tiempo con una intención**. No es esperar a que llegue una melodía perfecta: es tomar una idea pequeña —dos compases, un ritmo, un giro de acordes— y **trabajarla** hasta que sostiene una pieza entera."
+        },
+        {
+          "tipo": "texto",
+          "texto": "## Los materiales"
+        },
+        {
+          "tipo": "texto",
+          "texto": "Todo lo que decides al componer cae en uno de estos cinco terrenos, que ya conoces de la teoría:"
+        },
+        {
+          "tipo": "lista",
+          "items": [
+            "**Melodía** — la línea principal, lo que se canta o se silba.",
+            "**Armonía** — los acordes y cómo se encadenan; el \"color\" y la tensión.",
+            "**Ritmo** — las duraciones, los acentos, el groove.",
+            "**Timbre** — con qué suena cada cosa y cómo se combinan.",
+            "**Forma** — el plano a gran escala: qué se repite, qué contrasta, cuándo llega el clímax."
+          ]
+        },
+        {
+          "tipo": "clave",
+          "titulo": "Regla de oro",
+          "texto": "Repetición para que se entienda; contraste para que no aburra; variación para tener las dos cosas a la vez. Casi toda la música vive de dosificar estos tres ingredientes."
+        },
+        {
+          "tipo": "texto",
+          "texto": "## El proceso"
+        },
+        {
+          "tipo": "texto",
+          "texto": "Un flujo habitual, aunque cada quien lo adapta:"
+        },
+        {
+          "tipo": "lista",
+          "items": [
+            "**Idea** — una semilla: un motivo, un ritmo, una progresión, un ambiente.",
+            "**Boceto** — la extiendes rápido y sin juzgar: una melodía sobre unos acordes, un esquema de secciones.",
+            "**Desarrollo** — la transformas: secuencias, variaciones, contrastes, transiciones.",
+            "**Forma** — ordenas las secciones, decides proporciones y el punto culminante.",
+            "**Revisión** — dejas reposar, escuchas con oídos frescos, quitas lo que sobra, terminas."
+          ]
+        },
+        {
+          "tipo": "texto",
+          "texto": "## Empezar con límites"
+        },
+        {
+          "tipo": "texto",
+          "texto": "La página en blanco paraliza. Ponte **restricciones** a propósito: \"una melodía de 8 compases, solo con notas de la escala de DO, en 3/4, que empiece y acabe en la tónica\". Los límites no cierran puertas: te dan por dónde empezar a empujar."
+        },
+        {
+          "tipo": "clave",
+          "titulo": "En esta sección",
+          "texto": "Cada módulo explica una herramienta concreta —del motivo a la forma sonata— con un diagrama animado y ejemplos que suenan. Léelos en orden o salta al que necesites."
+        }
+      ],
+      "verTambien": [
+        "wiki-teoria-formas",
+        "wiki-teoria-armonia",
+        "wiki-historia-teoria-evolucion"
+      ]
+    },
+    {
+      "id": "motivo",
+      "parte": "La idea y su desarrollo",
+      "titulo": "El motivo: la semilla de una pieza",
+      "resumen": "Un motivo es una célula de pocas notas, reconocible, que puede generar música entera si sabes transformarla.",
+      "bloques": [
+        {
+          "tipo": "texto",
+          "texto": "Un **motivo** es la unidad musical más pequeña con identidad propia: unas pocas notas con un perfil melódico y un ritmo reconocibles. Las **cuatro notas** iniciales de la Quinta Sinfonía de Beethoven (tres cortas y una larga, bajando una tercera) impregnan los cuatro movimientos de la obra."
+        },
+        {
+          "tipo": "audio",
+          "archivo": "comp_motivo",
+          "titulo": "El motivo de la Quinta y tres transformaciones"
+        },
+        {
+          "tipo": "texto",
+          "texto": "En ese audio oyes el motivo original y luego **la misma idea cambiada**: repetida un grado más abajo, con el salto invertido (sube en vez de bajar) y \"aumentada\" (el doble de lenta). Sigue siendo el mismo motivo."
+        },
+        {
+          "tipo": "texto",
+          "texto": "## Cómo se transforma un motivo"
+        },
+        {
+          "tipo": "lista",
+          "items": [
+            "**Repetición** — dilo otra vez, igual. Fija la idea en el oído.",
+            "**Transposición** — el mismo dibujo empezando en otra nota.",
+            "**Secuencia** — repeticiones encadenadas que suben o bajan por grados (el recurso más productivo del Barroco).",
+            "**Inversión** — das la vuelta a los intervalos: lo que subía, baja.",
+            "**Retrogradación** — el motivo leído de atrás hacia delante.",
+            "**Aumentación / disminución** — el mismo motivo al doble o a la mitad de velocidad.",
+            "**Fragmentación** — te quedas solo con un trozo (a menudo el final) y lo repites.",
+            "**Ampliación** — añades notas o alargas un salto.",
+            "**Ornamentación** — rellenas con notas de paso, floreos, adornos.",
+            "**Cambio de armonía** — el mismo motivo sobre otro acorde suena nuevo."
+          ]
+        },
+        {
+          "tipo": "clave",
+          "titulo": "Truco",
+          "texto": "Escribe tu motivo en una esquina del papel. Cada vez que te atasques, aplícale una transformación de la lista y sigue. La pieza \"se escribe sola\" cuando el material es coherente."
+        },
+        {
+          "tipo": "texto",
+          "texto": "## Motivo rítmico"
+        },
+        {
+          "tipo": "texto",
+          "texto": "El motivo no tiene por qué ser melódico: puede ser **solo un ritmo** (corto-corto-corto-largo). Un ritmo característico, repetido y variado, da unidad aunque cambien las notas. Gran parte de la música de cine y del rock funciona así."
+        },
+        {
+          "tipo": "diagrama",
+          "nombre": "jerarquia_frase",
+          "pie": "De la célula a la obra: el motivo forma frases, las frases forman períodos, y los períodos forman secciones.",
+          "alto": 210
+        }
+      ],
+      "verTambien": [
+        "wiki-teoria-formas",
+        "wiki-comp-beethoven",
+        "wiki-comp-brahms"
+      ]
+    },
+    {
+      "id": "frase",
+      "parte": "La idea y su desarrollo",
+      "titulo": "Frase, período y la estructura de 8 compases",
+      "resumen": "La música respira en frases. Dos frases que se responden —una que pregunta y otra que contesta— forman el ladrillo de casi todo.",
+      "bloques": [
+        {
+          "tipo": "texto",
+          "texto": "Una **frase** es una unidad musical con sentido completo, como una oración hablada. Suele durar **4 compases** y termina en una cadencia (una fórmula de reposo). La música \"respira\" al final de cada frase."
+        },
+        {
+          "tipo": "texto",
+          "texto": "## Antecedente y consecuente"
+        },
+        {
+          "tipo": "texto",
+          "texto": "El esquema más común: una primera frase (**antecedente**) que acaba en una **semicadencia** —reposa en la dominante, queda \"abierta\", como una pregunta— y una segunda frase (**consecuente**) que empieza igual pero acaba en una **cadencia auténtica** —reposa en la tónica, \"cierra\", como una respuesta—. Juntas forman un **período** de 8 compases."
+        },
+        {
+          "tipo": "diagrama",
+          "nombre": "antecedente_consecuente",
+          "pie": "El antecedente pregunta y deja la frase en el aire; el consecuente responde y la cierra.",
+          "alto": 190
+        },
+        {
+          "tipo": "clave",
+          "titulo": "Por qué funciona",
+          "texto": "El oído reconoce enseguida \"esto ya lo oí, pero ahora termina distinto\". Repetición (el arranque igual) + contraste (el final): las dos fuerzas a la vez."
+        },
+        {
+          "tipo": "texto",
+          "texto": "## La \"sentence\" (frase-oración)"
+        },
+        {
+          "tipo": "texto",
+          "texto": "Otra construcción clásica de 8 compases, muy usada por Mozart y Beethoven: **presentación** (2 compases con una idea básica + 2 compases repitiéndola, quizá transportada) → **continuación** (fragmentación y aceleración: trozos más cortos, armonía más rápida) → **cadencia** (2 compases de cierre). Va de lo estable a lo inestable a la resolución."
+        },
+        {
+          "tipo": "texto",
+          "texto": "## Frases irregulares"
+        },
+        {
+          "tipo": "texto",
+          "texto": "4 + 4 es el molde, no la ley. Las frases se **alargan** (prolongando una cadencia, repitiendo el final) o se **acortan** (elidiendo, empalmando el final de una con el principio de la siguiente). Una frase de 5 o de 7 compases bien hecha suena natural; lo importante es que el oído la perciba como una unidad."
+        }
+      ],
+      "verTambien": [
+        "wiki-teoria-formas",
+        "wiki-teoria-armonia",
+        "wiki-comp-mozart"
+      ]
+    },
+    {
+      "id": "formas-pequenas",
+      "parte": "La forma",
+      "titulo": "Formas pequeñas: binaria, ternaria, rondó, variaciones",
+      "resumen": "Cuatro moldes que resuelven cómo ordenar unas cuantas secciones para que una pieza breve tenga unidad y variedad.",
+      "bloques": [
+        {
+          "tipo": "texto",
+          "texto": "Cuando ya tienes un par de ideas contrastantes (llámalas **A** y **B**), necesitas un **plan** para ordenarlas. Estas son las plantas más habituales de la música breve."
+        },
+        {
+          "tipo": "diagrama",
+          "nombre": "formas_pequenas",
+          "pie": "Cuatro maneras de ordenar unas pocas secciones. A = idea principal, B y C = contrastes.",
+          "alto": 210
+        },
+        {
+          "tipo": "texto",
+          "texto": "## Binaria (A B)"
+        },
+        {
+          "tipo": "texto",
+          "texto": "Dos secciones, a menudo con cada mitad repetida (‖: A :‖ ‖: B :‖). En la música barroca la sección A suele **modular** de la tónica a la dominante, y la B hace el **camino de vuelta**. Es la forma de casi todas las danzas de una suite."
+        },
+        {
+          "tipo": "texto",
+          "texto": "## Ternaria (A B A)"
+        },
+        {
+          "tipo": "texto",
+          "texto": "Vas a un contraste y **regresas** al material inicial. El da capo del aria barroca, el minueto con su trío, el scherzo. La vuelta de A puede venir adornada o abreviada. Es la forma más \"satisfactoria\" para el oído: se cierra el círculo."
+        },
+        {
+          "tipo": "texto",
+          "texto": "## Rondó (A B A C A …)"
+        },
+        {
+          "tipo": "texto",
+          "texto": "Un **estribillo** (A) que reaparece entre episodios distintos (B, C, D…). Da sensación de vuelta a casa una y otra vez; muy usado en finales alegres de sonatas y sinfonías."
+        },
+        {
+          "tipo": "texto",
+          "texto": "## Tema y variaciones"
+        },
+        {
+          "tipo": "texto",
+          "texto": "Enuncias un **tema** y luego lo transformas una y otra vez conservando su esqueleto (su melodía, su bajo o su longitud). Cada variación cambia algo: el ritmo, el registro, el modo (mayor↔menor), la textura, el carácter."
+        },
+        {
+          "tipo": "audio",
+          "archivo": "comp_tema",
+          "titulo": "El tema (8 compases)"
+        },
+        {
+          "tipo": "audio",
+          "archivo": "comp_variacion",
+          "titulo": "Una variación: la misma melodía, más adornada"
+        },
+        {
+          "tipo": "clave",
+          "titulo": "Cuando lo que se repite es el bajo",
+          "texto": "Si la idea fija es una línea de bajo corta que se repite sin parar y las variaciones ocurren encima, se llama **passacaglia** o **chacona** (el final de la 4.ª Sinfonía de Brahms, la Chacona para violín solo de Bach)."
+        }
+      ],
+      "verTambien": [
+        "wiki-teoria-formas",
+        "wiki-comp-haydn",
+        "wiki-comp-brahms"
+      ]
+    },
+    {
+      "id": "sonata",
+      "parte": "La forma",
+      "titulo": "La forma sonata: un argumento con la tonalidad",
+      "resumen": "El plan del primer movimiento clásico: plantea un conflicto de tonalidades, lo desarrolla y lo resuelve.",
+      "bloques": [
+        {
+          "tipo": "texto",
+          "texto": "La **forma sonata** es el plan más influyente de la música instrumental de los últimos 250 años: rige el primer movimiento de sonatas, cuartetos, sinfonías y conciertos. Su idea genial es convertir la **tonalidad en argumento dramático**."
+        },
+        {
+          "tipo": "diagrama",
+          "nombre": "forma_sonata",
+          "pie": "Tres grandes bloques. La exposición plantea una tensión de tonalidades; el desarrollo la agita; la reexposición la resuelve trayendo todo a la tónica.",
+          "alto": 220
+        },
+        {
+          "tipo": "texto",
+          "texto": "## Exposición"
+        },
+        {
+          "tipo": "lista",
+          "items": [
+            "**Primer tema**, en la tónica: enérgico, afirmativo.",
+            "**Puente** (o transición): modula, lleva la música a otra tonalidad.",
+            "**Segundo tema**, en la dominante (o en la relativa mayor si la obra es menor): más lírico, contrastante.",
+            "**Codeta**: cierra la exposición con firmeza. Solía repetirse entera."
+          ]
+        },
+        {
+          "tipo": "texto",
+          "texto": "## Desarrollo"
+        },
+        {
+          "tipo": "texto",
+          "texto": "La zona de **máxima inestabilidad**. Los temas se **fragmentan**, se **combinan**, se llevan por tonalidades lejanas, se someten a secuencias y a contrapunto. No suele haber material nuevo: se \"discute\" el que ya conocemos. Termina en una **retransición** que prepara la vuelta, casi siempre sobre un pedal de dominante."
+        },
+        {
+          "tipo": "texto",
+          "texto": "## Reexposición"
+        },
+        {
+          "tipo": "texto",
+          "texto": "Vuelven el primer tema, el puente y el segundo tema **en el mismo orden**, pero ahora **todo en la tónica**. Ese es el golpe maestro: la tensión estructural de la exposición (dos tonalidades en pugna) se **resuelve** al escuchar el segundo tema, por fin, en casa. Puede cerrar una **coda**."
+        },
+        {
+          "tipo": "clave",
+          "titulo": "Escúchalo así",
+          "texto": "No sigas los temas como melodías bonitas: sigue **dónde está la música**. \"Ya salimos de la tónica… estamos lejos… volvemos… y ahora esto que antes sonaba en otro tono suena en el de casa\". Ese viaje es la obra."
+        }
+      ],
+      "verTambien": [
+        "wiki-teoria-formas",
+        "wiki-historia-clasicismo",
+        "wiki-comp-beethoven"
+      ]
+    },
+    {
+      "id": "armonia",
+      "parte": "Melodía y armonía",
+      "titulo": "Armonía para componer: progresiones que funcionan",
+      "resumen": "No necesitas inventar acordes raros. Necesitas entender qué hace cada acorde y encadenarlos con dirección.",
+      "bloques": [
+        {
+          "tipo": "texto",
+          "texto": "Al componer, la armonía hace dos cosas: **sostiene** la melodía y **crea un discurso** de tensión y reposo. Para eso basta con pensar en **funciones**, no en acordes sueltos."
+        },
+        {
+          "tipo": "diagrama",
+          "nombre": "funciones_tonales",
+          "pie": "Cada acorde de la tonalidad cumple una función: reposo (tónica), alejamiento (subdominante) o tensión (dominante). El discurso típico va T → S → D → T.",
+          "alto": 190
+        },
+        {
+          "tipo": "texto",
+          "texto": "## Progresiones que casi siempre funcionan"
+        },
+        {
+          "tipo": "lista",
+          "items": [
+            "**I – V – vi – IV** — cuatro acordes que giran sin cerrar; base de cientos de canciones pop.",
+            "**ii – V – I** — subdominante → dominante → tónica en su forma más pura; la célula del jazz.",
+            "**I – vi – IV – V** — la progresión \"de los 50\", del doo-wop.",
+            "**i – ♭VII – ♭VI – V** — la cadencia andaluza (LAm–SOL–FA–MI), de sabor español y flamenco.",
+            "**I – IV – I – V** / **I – IV – V** — la lógica del blues y del rock primitivo."
+          ]
+        },
+        {
+          "tipo": "audio",
+          "archivo": "comp_prog_pop",
+          "titulo": "I – V – vi – IV  (DO – SOL – LAm – FA)"
+        },
+        {
+          "tipo": "audio",
+          "archivo": "comp_prog_25",
+          "titulo": "ii – V – I  (Dm7 – G7 – Cmaj7)"
+        },
+        {
+          "tipo": "audio",
+          "archivo": "comp_andaluza",
+          "titulo": "Cadencia andaluza  (LAm – SOL – FA – MI)"
+        },
+        {
+          "tipo": "texto",
+          "texto": "## El bajo es una melodía"
+        },
+        {
+          "tipo": "texto",
+          "texto": "El error más común del principiante: mover los acordes \"en bloque\", todos a la vez, con el bajo saltando de fundamental en fundamental. Haz que **el bajo camine** por grados conjuntos siempre que puedas (usando inversiones), y que las voces internas se muevan poco. La armonía suena mil veces mejor solo con eso."
+        },
+        {
+          "tipo": "texto",
+          "texto": "## Ritmo armónico"
+        },
+        {
+          "tipo": "texto",
+          "texto": "Es **cada cuánto cambia el acorde**. Un acorde por compás suena estable; dos por compás, más movido; medio compás cada cuatro compases, muy en calma. Acelerar el ritmo armónico hacia una cadencia aumenta la tensión; frenarlo relaja."
+        },
+        {
+          "tipo": "diagrama",
+          "nombre": "circulo_quintas",
+          "pie": "El círculo de quintas: tonalidades vecinas (a un paso) se diferencian en una sola alteración, y modular entre ellas suena natural.",
+          "alto": 220
+        }
+      ],
+      "verTambien": [
+        "wiki-teoria-armonia",
+        "wiki-teoria-tonalidad",
+        "wiki-teoria-cifrado",
+        "wiki-cur-progresion"
+      ]
+    },
+    {
+      "id": "cadencias",
+      "parte": "Melodía y armonía",
+      "titulo": "Cadencias: cómo puntuar la música",
+      "resumen": "Las cadencias son los signos de puntuación de la armonía: dicen si una frase termina, hace una pausa o se queda en el aire.",
+      "bloques": [
+        {
+          "tipo": "texto",
+          "texto": "Una **cadencia** es una fórmula de dos o tres acordes que marca el final de una frase. Elegir la cadencia adecuada es como elegir entre punto, coma o puntos suspensivos."
+        },
+        {
+          "tipo": "diagrama",
+          "nombre": "cadencias",
+          "pie": "Las tres cadencias sobre las que se construye casi todo el discurso tonal.",
+          "alto": 180
+        },
+        {
+          "tipo": "texto",
+          "texto": "## Las principales"
+        },
+        {
+          "tipo": "lista",
+          "items": [
+            "**Auténtica (V → I)** — el punto final. **Perfecta** si los dos acordes van en estado fundamental y la melodía cae en la tónica; **imperfecta** si hay inversiones o la melodía acaba en otra nota.",
+            "**Plagal (IV → I)** — la cadencia \"amén\": más blanda, sin sensible. Buena para epílogos y codas.",
+            "**Semicadencia (… → V)** — termina en la dominante. Deja la frase \"abierta\": es la coma. Cierra el antecedente de un período.",
+            "**Rota o de engaño (V → vi)** — la dominante promete la tónica y entrega su sustituto. Aplaza el reposo; sirve para alargar una frase o crear sorpresa.",
+            "**Frigia (iv⁶ → V, en menor)** — giro descendente, muy barroco, para enlazar hacia una sección en la dominante."
+          ]
+        },
+        {
+          "tipo": "audio",
+          "archivo": "cadencia_autentica",
+          "titulo": "Cadencia auténtica  V – I"
+        },
+        {
+          "tipo": "audio",
+          "archivo": "cadencia_plagal",
+          "titulo": "Cadencia plagal  IV – I"
+        },
+        {
+          "tipo": "audio",
+          "archivo": "cadencia_rota",
+          "titulo": "Cadencia rota  V – vi"
+        },
+        {
+          "tipo": "clave",
+          "titulo": "Consejo de forma",
+          "texto": "Reserva la **auténtica perfecta** para los finales importantes (el de una sección, el de la obra). Si la usas en cada frase, la música suena a lista de puntos y pierde impulso. Para los finales de frase intermedios, usa semicadencias e imperfectas."
+        }
+      ],
+      "verTambien": [
+        "wiki-teoria-armonia",
+        "wiki-teoria-cifrado",
+        "wiki-teoria-tonalidad"
+      ]
+    },
+    {
+      "id": "melodia",
+      "parte": "Melodía y armonía",
+      "titulo": "Cómo escribir una buena melodía",
+      "resumen": "Una melodía memorable tiene forma: un contorno claro, una nota más alta que las demás, tensión que se resuelve y sitio para respirar.",
+      "bloques": [
+        {
+          "tipo": "texto",
+          "texto": "No hay fórmula para \"la melodía perfecta\", pero las melodías que se recuerdan comparten rasgos concretos que sí se pueden trabajar."
+        },
+        {
+          "tipo": "texto",
+          "texto": "## Contorno"
+        },
+        {
+          "tipo": "texto",
+          "texto": "El **dibujo** que traza la melodía en el aire. Cuatro perfiles básicos, que puedes combinar:"
+        },
+        {
+          "tipo": "diagrama",
+          "nombre": "contorno_melodico",
+          "pie": "Arco (sube y baja), onda (ondula), escalera (asciende o desciende por grados) y zigzag (alterna saltos). Una buena melodía suele tener un contorno reconocible.",
+          "alto": 210
+        },
+        {
+          "tipo": "lista",
+          "items": [
+            "**Arco** — sube hacia un punto y vuelve. El más natural para una frase cantada.",
+            "**Onda** — ondula alrededor de una nota central; sensación de calma.",
+            "**Escalera** — grados conjuntos en una dirección; sensación de esfuerzo o de meta.",
+            "**Zigzag** — saltos alternos; enérgico, pero cansa si abusas."
+          ]
+        },
+        {
+          "tipo": "texto",
+          "texto": "## La nota clímax"
+        },
+        {
+          "tipo": "texto",
+          "texto": "Toda buena melodía tiene **una sola nota más alta**, y llega **una vez**, cerca de un punto fuerte de la frase (a menudo hacia sus dos tercios). Si tocas la nota más alta cinco veces, ninguna es el clímax. Guárdala."
+        },
+        {
+          "tipo": "texto",
+          "texto": "## Notas del acorde y notas de paso"
+        },
+        {
+          "tipo": "texto",
+          "texto": "En los tiempos fuertes, apóyate en **notas del acorde** que suena debajo: dan estabilidad. Entre ellas, muévete con **notas de paso y floreos** por grados conjuntos: dan fluidez. Una melodía que solo usa notas del acorde suena a arpegio; una que las ignora, suena desafinada."
+        },
+        {
+          "tipo": "audio",
+          "archivo": "comp_notas_paso",
+          "titulo": "Primero solo notas del acorde; luego, con notas de paso"
+        },
+        {
+          "tipo": "texto",
+          "texto": "## Tensión y reposo"
+        },
+        {
+          "tipo": "texto",
+          "texto": "Aleja la melodía de la tónica para crear ganas de volver; acércala y resuélvela en la tónica para dar descanso. La **sensible** (el 7.º grado) \"tira\" hacia la tónica: úsala para prometer el final. Reserva la tónica en tiempo fuerte para los momentos de cierre."
+        },
+        {
+          "tipo": "texto",
+          "texto": "## Respiración"
+        },
+        {
+          "tipo": "texto",
+          "texto": "Deja **silencios**. Una melodía sin huecos agobia y no se puede cantar. Piensa dónde respiraría alguien al cantarla, y pon ahí una nota larga o un silencio. Esos huecos son también donde el acompañamiento puede \"contestar\"."
+        },
+        {
+          "tipo": "clave",
+          "titulo": "Prueba de fuego",
+          "texto": "Si puedes **cantarla de memoria** al día siguiente de haberla escrito, vas bien. Si necesitas la partitura para recordarla, probablemente le falta forma."
+        }
+      ],
+      "verTambien": [
+        "wiki-teoria-escalas",
+        "wiki-teoria-intervalos",
+        "wiki-teoria-ornamentacion",
+        "wiki-cur-earworms"
+      ]
+    },
+    {
+      "id": "por-que-suenan",
+      "parte": "Melodía y armonía",
+      "titulo": "Por qué suenan bien los acordes",
+      "resumen": "La octava, la quinta y la tercera mayor no son un invento: están dentro de cada sonido, en la serie de armónicos.",
+      "bloques": [
+        {
+          "tipo": "texto",
+          "texto": "Cuando una cuerda o una columna de aire vibra, no suena a una sola frecuencia: suena la **fundamental** y, más flojos, sus múltiplos enteros. Esa colección es la **serie de armónicos**, y de ella sale buena parte de la armonía que usamos."
+        },
+        {
+          "tipo": "diagrama",
+          "nombre": "serie_armonicos",
+          "pie": "Los primeros armónicos de un DO grave. La naturaleza \"regala\", en este orden, la octava, la quinta y la tercera mayor.",
+          "alto": 210
+        },
+        {
+          "tipo": "texto",
+          "texto": "## Consonancia = proporción simple"
+        },
+        {
+          "tipo": "texto",
+          "texto": "Dos notas suenan tanto más \"fundidas\" cuanto más simple es la proporción entre sus frecuencias: octava 2:1, quinta 3:2, cuarta 4:3, tercera mayor 5:4. Son justo los primeros escalones de la serie. Las **disonancias** (segunda, séptima, tritono) tienen proporciones complejas y por eso \"piden\" resolver."
+        },
+        {
+          "tipo": "clave",
+          "titulo": "Para componer",
+          "texto": "Si quieres un acorde estable y luminoso, apílalo con octavas, quintas y terceras mayores en el registro medio-agudo (como la serie). Si quieres tensión, mete segundas y séptimas cerca del grave, donde el oído las nota más ásperas."
+        },
+        {
+          "tipo": "texto",
+          "texto": "## El 7.º armónico y el temperamento"
+        },
+        {
+          "tipo": "texto",
+          "texto": "Algunos armónicos no caen exactamente donde el piano los pondría: el 7.º (un SI♭) suena 31 *cents* más bajo. Por eso el temperamento igual es un **compromiso**: afina todo un poco \"mal\" para que cualquier tonalidad sea usable. Al componer para voces o cuerdas, esa flexibilidad de afinación es una herramienta expresiva."
+        }
+      ],
+      "verTambien": [
+        "wiki-teoria-acustica",
+        "wiki-teoria-intervalos",
+        "wiki-teoria-temperamento"
+      ]
+    },
+    {
+      "id": "modos-color",
+      "parte": "Melodía y armonía",
+      "titulo": "Modos y color: componer sin la dominante",
+      "resumen": "Cambiar la nota que actúa de centro cambia el \"sabor\" de las mismas siete notas. Los modos dan colores que la tonalidad mayor-menor no tiene.",
+      "bloques": [
+        {
+          "tipo": "texto",
+          "texto": "Un **modo** es una escala definida por la nota que se toma como centro. Con las mismas siete notas, según cuál sea la tónica, obtienes siete colores distintos."
+        },
+        {
+          "tipo": "diagrama",
+          "nombre": "modos_brillo",
+          "pie": "Los siete modos ordenados de más brillante (Lidio) a más oscuro (Locrio). Cada paso baja una nota un semitono. A la derecha, la nota que identifica cada modo.",
+          "alto": 220
+        },
+        {
+          "tipo": "escala",
+          "tonicaIdx": 0,
+          "pasos": [
+            2,
+            2,
+            2,
+            1,
+            2,
+            2,
+            1
+          ],
+          "titulo": "Modo lidio sobre DO (la 4ª sube: FA♯). Suena luminoso y suspendido."
+        },
+        {
+          "tipo": "escala",
+          "tonicaIdx": 0,
+          "pasos": [
+            2,
+            1,
+            2,
+            2,
+            2,
+            1,
+            2
+          ],
+          "titulo": "Modo dórico sobre DO (menor, pero con la 6ª mayor: LA natural)."
+        },
+        {
+          "tipo": "texto",
+          "texto": "## Cómo componer modal"
+        },
+        {
+          "tipo": "lista",
+          "items": [
+            "**Pon un pedal** o un acorde que no se mueva: fija el centro. Sin él, el oído \"recoloca\" la tónica en el mayor o menor de siempre.",
+            "**Empieza y reposa** en la tónica del modo.",
+            "**Haz sonar mucho la nota característica** (la 4ª aumentada del lidio, la 2ª menor del frigio, la 7ª menor del mixolidio…), y en tiempo fuerte.",
+            "**Evita la cadencia V–I funcional**: si fuerzas la sensible, destruyes el ambiente modal y vuelves a la tonalidad."
+          ]
+        },
+        {
+          "tipo": "clave",
+          "titulo": "Dónde se usa",
+          "texto": "Jazz modal (dórico en \"So What\"), folk celta (mixolidio), música española y flamenca (frigio, a menudo con la 3ª mayor), y bandas sonoras (el lidio para el asombro; el frigio y el locrio para la amenaza)."
+        }
+      ],
+      "verTambien": [
+        "wiki-teoria-modos",
+        "wiki-teoria-escalas",
+        "wiki-historia-jazz"
+      ]
+    },
+    {
+      "id": "ritmo-groove",
+      "parte": "Ritmo y textura",
+      "titulo": "Ritmo y groove: construir por capas",
+      "resumen": "El ritmo se compone como la melodía: con un motivo, repetición, variación y tensión contra el compás.",
+      "bloques": [
+        {
+          "tipo": "texto",
+          "texto": "El **ritmo** tiene tres capas que conviene no mezclar: el **pulso** (la palpitación regular), el **compás** (cómo se agrupan los pulsos, con acentos fuertes y débiles) y el **ritmo** propiamente dicho (el patrón concreto de duraciones, que puede ir a favor o en contra del compás)."
+        },
+        {
+          "tipo": "texto",
+          "texto": "## Un motivo rítmico"
+        },
+        {
+          "tipo": "texto",
+          "texto": "Igual que hay motivos melódicos, hay **motivos rítmicos**: un patrón breve y reconocible (por ejemplo, \"corchea con puntillo + semicorchea\") que repites y varías a lo largo de la pieza. Da unidad aunque cambien las notas."
+        },
+        {
+          "tipo": "texto",
+          "texto": "## Tensión contra el compás"
+        },
+        {
+          "tipo": "lista",
+          "items": [
+            "**Síncopa** — una nota empieza en parte débil y se prolonga sobre la fuerte siguiente, robándole el acento.",
+            "**Contratiempo** — atacas la parte débil y dejas la fuerte en silencio.",
+            "**Anacrusa** — una o más notas débiles antes del primer tiempo fuerte; da impulso al arranque.",
+            "**Hemiola** — durante unos compases el ritmo suena en 3 donde el compás dice 2 (o al revés).",
+            "**Ostinato** — un patrón corto que se repite sin cambiar, como base sobre la que ocurre lo demás."
+          ]
+        },
+        {
+          "tipo": "clave",
+          "titulo": "El groove",
+          "texto": "En la música popular, el \"groove\" es el encaje exacto entre bajo y batería, con micro-adelantos y micro-retrasos deliberados. Se construye **por capas**: primero el bombo y la caja, luego el bajo (dialogando con el bombo), luego el resto. Si el esqueleto de dos capas ya mueve el pie, vas bien."
+        },
+        {
+          "tipo": "texto",
+          "texto": "## Compases irregulares"
+        },
+        {
+          "tipo": "texto",
+          "texto": "5/8, 7/8, 5/4… suman grupos desiguales de 2 y 3 (un 7/8 puede ser 2+2+3). Muy usados en la música balcánica, en Bartók y en el rock progresivo. Para componerlos, siente la agrupación (LARGO-corto-corto…), no cuentes las corcheas una a una."
+        }
+      ],
+      "verTambien": [
+        "wiki-teoria-ritmo",
+        "wiki-historia-jazz",
+        "wiki-danza-social-latina"
+      ]
+    },
+    {
+      "id": "textura",
+      "parte": "Ritmo y textura",
+      "titulo": "Textura y acompañamiento",
+      "resumen": "Cuántas voces suenan a la vez y qué hace cada una: melodía, bajo, armonía y ritmo son cuatro papeles, no cuatro instrumentos.",
+      "bloques": [
+        {
+          "tipo": "texto",
+          "texto": "La **textura** es el \"tejido\" del sonido: cuántas líneas suenan a la vez y qué relación tienen. Cambiar de textura es uno de los recursos más eficaces para articular una forma."
+        },
+        {
+          "tipo": "texto",
+          "texto": "## Los cuatro papeles"
+        },
+        {
+          "tipo": "texto",
+          "texto": "En casi cualquier arreglo hay cuatro funciones, que pueden repartirse entre pocos o muchos instrumentos:"
+        },
+        {
+          "tipo": "lista",
+          "items": [
+            "**Melodía** — la línea principal.",
+            "**Bajo** — la nota más grave; define el acorde y camina como una segunda melodía.",
+            "**Armonía** — las notas que rellenan el acorde (acordes tenidos, pads, guitarra rasgueada).",
+            "**Ritmo** — la capa que marca el pulso y el groove (batería, percusión, un patrón repetido)."
+          ]
+        },
+        {
+          "tipo": "texto",
+          "texto": "## Tipos de acompañamiento"
+        },
+        {
+          "tipo": "lista",
+          "items": [
+            "**Acordes en bloque** — todo el acorde a la vez; sencillo y sólido.",
+            "**Bajo de Alberti** — el acorde desplegado en un patrón fijo (grave-agudo-medio-agudo); el sonido del Clasicismo.",
+            "**Arpegios** — el acorde nota a nota; fluido, \"de guitarra\".",
+            "**Contrapunto simple** — una segunda voz con vida melódica propia que dialoga con la melodía.",
+            "**Pedal / drone** — una nota fija sostenida bajo todo lo demás."
+          ]
+        },
+        {
+          "tipo": "texto",
+          "texto": "## Densidad como recurso"
+        },
+        {
+          "tipo": "texto",
+          "texto": "Empieza con poco (voz y un instrumento), añade capas hacia el estribillo o el clímax, y **quita capas** en un puente o una estrofa íntima. El contraste de densidad cuenta tanto como el de melodía."
+        },
+        {
+          "tipo": "diagrama",
+          "nombre": "formas_pequenas",
+          "pie": "La textura suele cambiar entre secciones: A más llena, B más desnuda, y así se marca la forma.",
+          "alto": 210
+        }
+      ],
+      "verTambien": [
+        "wiki-teoria-textura",
+        "wiki-teoria-contrapunto",
+        "wiki-teoria-timbre"
+      ]
+    },
+    {
+      "id": "desarrollar",
+      "parte": "El oficio",
+      "titulo": "Desarrollar y variar: alargar una idea sin aburrir",
+      "resumen": "El problema real de componer no es tener ideas: es hacer que una idea dure tres minutos sin cansar.",
+      "bloques": [
+        {
+          "tipo": "texto",
+          "texto": "Tienes ocho compases que te gustan. ¿Cómo llegas a una pieza? Con las tres fuerzas de siempre —repetición, contraste, variación— y unas cuantas técnicas concretas para estirar el material."
+        },
+        {
+          "tipo": "texto",
+          "texto": "## Repetir con cambio"
+        },
+        {
+          "tipo": "texto",
+          "texto": "La regla práctica: **nunca repitas algo exactamente más de una vez**. A la tercera, cambia algo: sube una octava, cambia la armonía debajo, añade un instrumento, quita uno, varía el final. El oído quiere reconocer y a la vez que le sorprendan un poco."
+        },
+        {
+          "tipo": "texto",
+          "texto": "## Técnicas de desarrollo"
+        },
+        {
+          "tipo": "lista",
+          "items": [
+            "**Secuencia** — repite el motivo subiendo o bajando por grados.",
+            "**Fragmentación** — quédate con un trozo del motivo y repítelo, cada vez más corto: acelera la sensación.",
+            "**Ampliación** — alarga una nota o un salto; hace la idea más grande.",
+            "**Combinar motivos** — haz sonar dos ideas de la pieza a la vez.",
+            "**Cambio de modo** — pasa la idea de mayor a menor (o al revés).",
+            "**Re-armonización** — la misma melodía sobre acordes distintos.",
+            "**Inversión / retrogradación** — la idea del revés."
+          ]
+        },
+        {
+          "tipo": "texto",
+          "texto": "## Transición y retransición"
+        },
+        {
+          "tipo": "texto",
+          "texto": "Entre dos secciones estables hace falta un puente **inestable**: armonía que modula, ritmo que se agita, dinámica que crece o decrece. Y antes de que vuelva una sección importante, una **retransición** que prepare la vuelta (a menudo un pedal de dominante y un *crescendo*). Los puentes son donde se nota el oficio."
+        },
+        {
+          "tipo": "clave",
+          "titulo": "Cuándo parar",
+          "texto": "Una sección ha durado lo suficiente cuando el oyente empieza a anticipar lo que viene. Ahí, cambia. Es mejor quedarse corto que largo."
+        }
+      ],
+      "verTambien": [
+        "wiki-teoria-formas",
+        "wiki-comp-beethoven",
+        "wiki-comp-brahms"
+      ]
+    },
+    {
+      "id": "orquestacion",
+      "parte": "El oficio",
+      "titulo": "Arreglo y orquestación: quién toca qué",
+      "resumen": "La misma música suena transparente o embarrada según cómo la repartas entre los instrumentos y las octavas.",
+      "bloques": [
+        {
+          "tipo": "texto",
+          "texto": "**Orquestar** (o arreglar) es decidir qué instrumento toca cada cosa, en qué octava, cuándo entra y cuándo calla. Un mismo acorde de cuatro notas puede sonar cristalino o compacto según cómo lo dispongas."
+        },
+        {
+          "tipo": "texto",
+          "texto": "## Principios básicos"
+        },
+        {
+          "tipo": "lista",
+          "items": [
+            "**Registro** — cada instrumento tiene una zona cómoda y varias con color propio. Escribir fuera de ella suena forzado (a veces lo quieres).",
+            "**Espaciado** — deja más aire entre las voces graves y júntalas más arriba (como la serie de armónicos). Voces graves apretadas = barro.",
+            "**Doblar** — dos instrumentos en la misma línea la refuerzan; a la octava, la ensanchan; una crea un color mixto nuevo.",
+            "**Tutti y solo** — no lo toques todo siempre. Guarda el \"todos a la vez\" para los clímax; un solo desnudo destaca por contraste.",
+            "**Melodía por encima** — normalmente la melodía debe ser la voz más aguda, o destacar por timbre y dinámica si va en medio."
+          ]
+        },
+        {
+          "tipo": "texto",
+          "texto": "## Transparencia"
+        },
+        {
+          "tipo": "texto",
+          "texto": "Si algo no se oye, casi nunca es cuestión de subir el volumen: es que otra cosa ocupa su mismo registro. **Haz sitio**: sube o baja una línea de octava, adelgaza el acompañamiento, silencia lo que no aporte en ese momento. Menos capas bien colocadas ganan a muchas amontonadas."
+        },
+        {
+          "tipo": "clave",
+          "titulo": "En el ordenador",
+          "texto": "Todo esto vale igual con instrumentos virtuales: los mismos principios de registro, espaciado y \"hacer sitio\" deciden que una maqueta suene profesional o a demo."
+        }
+      ],
+      "verTambien": [
+        "wiki-teoria-timbre",
+        "wiki-inst-familias",
+        "wiki-prod-mezcla"
+      ]
+    },
+    {
+      "id": "gran-escala",
+      "parte": "El oficio",
+      "titulo": "La forma a gran escala y cómo terminar",
+      "resumen": "Introducción, desarrollo, clímax y coda: una pieza necesita un plan de proporciones y un punto de máxima intensidad.",
+      "bloques": [
+        {
+          "tipo": "texto",
+          "texto": "Más allá de la frase y la sección, una pieza necesita un **plano general**: por dónde empieza, hacia dónde va y cómo cierra."
+        },
+        {
+          "tipo": "texto",
+          "texto": "## Las partes de una pieza"
+        },
+        {
+          "tipo": "lista",
+          "items": [
+            "**Introducción** — prepara el ambiente, la tonalidad, el tempo. Puede ser un compás o una sección entera. Opcional.",
+            "**Cuerpo** — la exposición y el desarrollo del material (tus secciones A, B, C…).",
+            "**Clímax** — el punto de **máxima intensidad**: suele estar hacia los dos tercios de la pieza, no en el centro ni al final. Se llega con registro agudo, dinámica fuerte, densidad máxima o ritmo armónico rápido.",
+            "**Coda** — el cierre: confirma la tónica, baja la energía, deja al oyente en reposo. Una cadencia plagal o un pedal de tónica van bien aquí."
+          ]
+        },
+        {
+          "tipo": "texto",
+          "texto": "## Proporciones"
+        },
+        {
+          "tipo": "texto",
+          "texto": "Evita que todas las secciones duren lo mismo: cansa. Alarga la que lleva el peso dramático, acorta las de transición. Un recurso clásico es hacer cada sección algo más corta que la anterior hacia el final, para acelerar la sensación."
+        },
+        {
+          "tipo": "texto",
+          "texto": "## Cómo terminar"
+        },
+        {
+          "tipo": "lista",
+          "items": [
+            "**Cadencia auténtica perfecta** en la tónica: el final \"de concierto\".",
+            "**Fundido** (*fade out*): recurso de estudio, no de partitura.",
+            "**Final abierto**: acabar sin resolver, en una disonancia o en la dominante; deja inquietud.",
+            "**Vuelta al principio**: cerrar con el material de la introducción, para dar sensación de círculo."
+          ]
+        },
+        {
+          "tipo": "clave",
+          "titulo": "Error común",
+          "texto": "No sabes cómo terminar porque la pieza en realidad ya había terminado dos minutos antes. Si te cuesta cerrar, prueba a recortar: quizá el final estaba antes de lo que creías."
+        }
+      ],
+      "verTambien": [
+        "wiki-teoria-formas",
+        "wiki-comp-mahler",
+        "wiki-tm-estructura"
+      ]
+    },
+    {
+      "id": "formas-populares",
+      "parte": "El oficio",
+      "titulo": "Formas de la canción popular",
+      "resumen": "El blues de 12 compases, el AABA de 32, la estructura estrofa-estribillo-puente y el \"drop\": moldes con nombre para la música de hoy.",
+      "bloques": [
+        {
+          "tipo": "texto",
+          "texto": "La música popular tiene sus propios moldes de forma, tan establecidos como la sonata en su época. Conocerlos te ahorra reinventar la rueda."
+        },
+        {
+          "tipo": "texto",
+          "texto": "## Blues de 12 compases"
+        },
+        {
+          "tipo": "texto",
+          "texto": "Doce compases con un esquema de acordes casi fijo: **I-I-I-I / IV-IV-I-I / V-IV-I-V**. La letra suele ser **AAB** (una frase, la misma frase, y una que responde). Base del blues, gran parte del rock and roll y muchos temas de jazz."
+        },
+        {
+          "tipo": "texto",
+          "texto": "## Forma de 32 compases (AABA)"
+        },
+        {
+          "tipo": "texto",
+          "texto": "Cuatro secciones de 8 compases: **A** (el tema principal), **A** (igual, con final distinto), **B** (el \"puente\" o *bridge*: contrasta, suele modular) y **A** (vuelve el tema). Es el molde de los estándares de Tin Pan Alley y del *Great American Songbook*."
+        },
+        {
+          "tipo": "texto",
+          "texto": "## Estrofa – estribillo – puente"
+        },
+        {
+          "tipo": "texto",
+          "texto": "La forma dominante del pop y el rock modernos: **estrofa** (avanza la historia, melodía más hablada), **pre-estribillo** (opcional, sube la tensión), **estribillo** (el gancho, lo que se repite y se recuerda), y un **puente** hacia el final que contrasta antes del último estribillo. Muchas veces el último estribillo sube medio tono."
+        },
+        {
+          "tipo": "texto",
+          "texto": "## El \"drop\" y el gancho"
+        },
+        {
+          "tipo": "texto",
+          "texto": "En la electrónica de baile, la estructura gira en torno a la tensión: **build-up** (todo crece y se filtra) → **drop** (entra el groove completo y el bajo). En toda la música popular manda el **hook**: la frase de 2-4 segundos —melódica, rítmica o de producción— que se te queda pegada."
+        },
+        {
+          "tipo": "clave",
+          "titulo": "Consejo",
+          "texto": "Elige el molde antes de escribir la letra entera: saber que \"aquí va el estribillo y tiene que ser lo más pegadizo\" cambia cómo escribes todo lo demás."
+        }
+      ],
+      "verTambien": [
+        "wiki-teoria-formas",
+        "wiki-historia-popular",
+        "wiki-historia-jazz",
+        "wiki-cur-progresion"
+      ]
+    },
+    {
+      "id": "rutina",
+      "parte": "El oficio",
+      "titulo": "Una rutina para componer",
+      "resumen": "Componer es un hábito, no un rayo de inspiración. Estas costumbres ayudan a empezar, a avanzar y —lo más difícil— a terminar.",
+      "bloques": [
+        {
+          "tipo": "texto",
+          "texto": "La inspiración existe, pero llega **mientras trabajas**, no antes. Estas son costumbres que usan muchos compositores para que aparezca más a menudo."
+        },
+        {
+          "tipo": "lista",
+          "items": [
+            "**Ponte un límite y un temporizador.** \"20 minutos, 8 compases, solo escala de SOL\". El límite mata la página en blanco.",
+            "**Boceta rápido y feo.** Primero cantidad, luego calidad. No juzgues mientras generas; ya filtrarás después.",
+            "**Tócalo y cántalo en voz alta.** Lo que suena bien en la cabeza a veces no funciona; el cuerpo detecta lo que no fluye.",
+            "**Grábate.** Un móvil basta. Las mejores ideas se olvidan en diez minutos.",
+            "**Déjalo reposar.** Vuelve al día siguiente: oirás con claridad qué sobra y qué falta.",
+            "**Roba estructuras, no notas.** Analiza una canción que te guste, copia su forma y sus proporciones, y rellénala con tu material.",
+            "**Pide oídos.** Enseña un boceto a alguien y mira su cara en el segundo 20, no lo que te diga después.",
+            "**Termina.** Una pieza acabada y regular enseña más que diez geniales a medias. Ponte una fecha y entrega."
+          ]
+        },
+        {
+          "tipo": "clave",
+          "titulo": "Cuando te atascas",
+          "texto": "Vuelve a tu motivo y aplícale una transformación de la lista del módulo 2. O cambia una restricción: otro compás, otro tempo, otra tónica. El bloqueo casi siempre es tener demasiadas opciones abiertas."
+        }
+      ],
+      "verTambien": [
+        "wiki-historia-teoria-evolucion",
+        "wiki-comp-boulanger",
+        "wiki-mitos-genio"
+      ]
+    }
+  ]
+}

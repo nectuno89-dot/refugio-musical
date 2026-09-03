@@ -1,0 +1,9559 @@
+# -*- coding: utf-8 -*-
+"""
+expand_wiki.py — reescribe artículos de la wiki con versiones profundas y
+detalladas, sin recortar teoría ni historia.
+
+Uso:  python tools/expand_wiki.py
+Efecto: para cada id en NUEVOS, sustituye 'resumen', 'cuerpo', 'verTambien'
+y 'fuentes' del artículo con ese id en assets/content/wiki.json.
+Conserva seccion, categoria, titulo, audio, imagen.
+Es idempotente y se puede ejecutar tantas veces como haga falta.
+
+Este archivo se irá ampliando sección a sección (teoria, historia,
+compositores, instrumentos, produccion, teatro, teatro_musical, danza,
+mitos, curiosidades).
+"""
+
+import json
+import os
+import sys
+
+RUTA = os.path.join(os.path.dirname(__file__), "..", "assets", "content", "wiki.json")
+
+# Fuentes reutilizables ------------------------------------------------------
+W = lambda t, u: {"titulo": t, "url": u}
+LIBRO = lambda t: {"titulo": t, "url": ""}
+
+F_ZAMACOIS = LIBRO("Joaquín Zamacois, «Teoría de la música» (Labor, 2 vols.)")
+F_PISTON = LIBRO("Walter Piston, «Harmony» (Norton)")
+F_SCHOENBERG = LIBRO("Arnold Schoenberg, «Tratado de armonía» (Real Musical)")
+F_RIMSKI = LIBRO("Nikolái Rimski-Kórsakov, «Principios de orquestación»")
+F_ADLER = LIBRO("Samuel Adler, «El estudio de la orquestación» (Idea Books)")
+F_FUX = LIBRO("Johann Joseph Fux, «Gradus ad Parnassum» (1725)")
+F_HELMHOLTZ = LIBRO("Hermann von Helmholtz, «On the Sensations of Tone» (1863)")
+F_GROVE = W("Grove Music Online (Oxford)", "https://www.oxfordmusiconline.com/")
+
+
+# =========================================================================
+#  TEORÍA MUSICAL
+# =========================================================================
+NUEVOS = {
+
+# -------------------------------------------------------------------------
+"wiki-teoria-sonido": dict(
+    resumen="Qué es un sonido por dentro, cómo llega a tu oído y las cuatro "
+            "cualidades con las que la música juega para hacer música.",
+    cuerpo=[
+        "Un sonido es, en el fondo, **aire que vibra**. Algo se mueve —una "
+        "cuerda, tus cuerdas vocales, la piel de un tambor—, empuja las "
+        "moléculas de aire que tiene al lado, y ese empujón se transmite de "
+        "molécula en molécula, como una ola, hasta tu oído. Ahí el tímpano "
+        "vibra con esa ola, la cadena de huesecillos la amplifica y el oído "
+        "interno la convierte en señales que tu cerebro interpreta como música "
+        "(o como ruido). Sirve cualquier medio elástico —el agua, la madera, "
+        "un metal—; el único sitio donde no hay sonido es el vacío, por muy "
+        "fuerte que grites.",
+
+        "El sonido no es instantáneo. En el aire a 20 °C viaja a unos 343 metros "
+        "por segundo (algo más rápido si sube la temperatura, mucho más rápido "
+        "en el agua o en un sólido). Por eso en un concierto al aire libre los "
+        "músicos lejanos parecen ir «retrasados», y por eso un director marca "
+        "con antelación: el sonido tarda un tiempo apreciable en cruzar una "
+        "orquesta grande.",
+
+        "## Sonido y ruido",
+        "Cuando la vibración es periódica —se repite con un patrón regular— el "
+        "oído le asigna una altura definida y hablamos de sonido musical o "
+        "«nota». Cuando la vibración es aperiódica o caótica la percibimos como "
+        "ruido, sin altura clara (el siseo de una consonante, un platillo, la "
+        "estática). La frontera no es absoluta: la música usa constantemente "
+        "sonidos de altura imprecisa (caja, bombo, escobillas, sonidos "
+        "«soplados») como material expresivo, y géneros enteros (musique "
+        "concrète, noise, buena parte de la percusión) trabajan justamente en "
+        "esa zona intermedia.",
+
+        "## Las cuatro cualidades del sonido",
+        "Cualquier sonido se puede describir con cuatro cosas, y son "
+        "independientes entre sí: puedes cambiar una sin tocar las demás. "
+        "**Altura** (o tono): si el sonido es agudo o grave. "
+        "Depende de la frecuencia de la vibración, medida en hercios (Hz), es "
+        "decir, ciclos por segundo. A más frecuencia, más agudo. El oído humano "
+        "sano percibe aproximadamente de 20 Hz a 20 000 Hz, y esa capacidad se "
+        "reduce con la edad, sobre todo en los agudos. La nota de referencia "
+        "internacional es el LA central a 440 Hz (LA4).",
+
+        "**Duración**: cuánto tiempo se mantiene el sonido. En la partitura se "
+        "escribe con las figuras (redonda, blanca, negra…) y sus silencios, "
+        "siempre en relación con un pulso. La duración incluye también la forma "
+        "en que el sonido empieza y termina —su envolvente—: el ataque brusco de "
+        "un piano frente a la entrada progresiva de un violín con arco cambian "
+        "por completo el carácter aunque la nota «dure» lo mismo.",
+
+        "**Intensidad** (volumen o dinámica): si el sonido es fuerte o débil. "
+        "Depende de la amplitud de la onda —cuánta energía transporta— y se mide "
+        "en decibelios (dB), una escala logarítmica: cada 10 dB más se percibe "
+        "aproximadamente como «el doble de fuerte», y un aumento de 6 dB "
+        "corresponde a duplicar la presión sonora. En música no se anota un "
+        "valor absoluto sino una gradación relativa, de pianississimo (ppp) a "
+        "fortississimo (fff), siempre dependiente del instrumento y del "
+        "contexto.",
+
+        "**Timbre** (o «color»): lo que nos permite distinguir una guitarra de "
+        "un piano, o dos voces humanas, aunque toquen exactamente la misma nota "
+        "con el mismo volumen. El timbre depende de qué armónicos acompañan al "
+        "sonido fundamental y en qué proporción, y de los transitorios de ataque "
+        "y extinción. Es el parámetro más rico y el más difícil de medir con un "
+        "solo número.",
+
+        "## De las cualidades a la música",
+        "Hacer música es organizar esas cuatro cosas en el tiempo, a "
+        "propósito. Si pones **alturas una detrás de otra**, tienes una "
+        "**melodía**; si suenan **a la vez**, **armonía**; el juego de las "
+        "duraciones y los acentos es el **ritmo**; cómo se mezclan los timbres "
+        "y cuántas líneas suenan a la vez es la **textura**; y cómo se ordena "
+        "todo a lo grande —las secciones, lo que se repite, lo que contrasta— "
+        "es la **forma**. Todo lo demás que verás en teoría es, básicamente, el "
+        "detalle de cómo se ha hecho esto a lo largo de la historia.",
+
+        "## Cómo oímos: una percepción logarítmica",
+        "La relación entre física y percepción no es lineal. Multiplicar la "
+        "frecuencia por dos (por ejemplo, de 220 a 440 Hz) se oye siempre como "
+        "«la misma nota más aguda»: es la octava, y por eso las notas se repiten "
+        "cíclicamente con el mismo nombre. Del mismo modo, lo que el oído juzga "
+        "como «pasos iguales» de volumen son multiplicaciones de energía, no "
+        "sumas. Esta naturaleza logarítmica del oído explica que la música "
+        "occidental divida la octava en partes proporcionales y que la dinámica "
+        "se mida en decibelios.",
+    ],
+    verTambien=["wiki-teoria-notacion", "wiki-teoria-ritmo", "wiki-teoria-acustica",
+                "wiki-teoria-timbre", "wiki-teoria-temperamento"],
+    fuentes=[F_ZAMACOIS, F_HELMHOLTZ,
+             W("Wikipedia — Sonido", "https://es.wikipedia.org/wiki/Sonido"),
+             W("Wikipedia — Psicoacústica", "https://es.wikipedia.org/wiki/Psicoac%C3%BAstica")],
+),
+
+# -------------------------------------------------------------------------
+"wiki-teoria-notacion": dict(
+    resumen="El sistema con el que Occidente escribe la música: pentagrama, "
+            "claves, nombres de las notas, registro y su desarrollo histórico "
+            "desde los neumas hasta hoy.",
+    cuerpo=[
+        "La notación es la forma de **escribir la música**. Con ella apuntas "
+        "dos cosas a la vez: **qué nota** (cuanto más arriba en el pentagrama, "
+        "más aguda) y **cuándo y cuánto dura** (la forma de la figura y su "
+        "sitio de izquierda a derecha). Alrededor se añaden signos para el "
+        "volumen, el ataque de cada nota, la velocidad, el fraseo… No es la "
+        "única manera de escribir música —hay tablaturas, cifrados, notaciones "
+        "hechas de dibujos y sistemas de otras culturas— pero es la más "
+        "extendida y la que usa esta app.",
+
+        "## El pentagrama",
+        "El pentagrama es una rejilla de cinco líneas y cuatro espacios que se "
+        "numeran de abajo hacia arriba. Cada línea y cada espacio representa una "
+        "altura; subir un espacio o una línea equivale a avanzar un grado en la "
+        "escala. Cuanto más arriba se sitúa una nota, más aguda suena. Cuando la "
+        "música se sale de esas cinco líneas se dibujan **líneas adicionales** "
+        "(cortas, por encima o por debajo). La elección histórica de cinco "
+        "líneas es un compromiso: suficientes para abarcar el ámbito de una voz "
+        "sin necesitar demasiadas líneas adicionales, pocas para que el ojo las "
+        "abarque de un vistazo. En época medieval se usaron pentagramas de "
+        "cuatro líneas (todavía hoy en el canto gregoriano) y de hasta once.",
+
+        "## Las claves",
+        "Una **clave** es un signo al principio del pentagrama que fija qué "
+        "altura concreta corresponde a una de las líneas; a partir de ahí "
+        "quedan determinadas todas las demás. Hay tres claves, situadas en "
+        "distintas líneas:",
+        "**Clave de sol** en segunda línea: coloca el SOL4 en esa línea. Es la "
+        "clave de los registros agudos y medios: voces de soprano y contralto, "
+        "violín, flauta, oboe, trompeta, mano derecha del piano, guitarra "
+        "(esta última suena una octava más grave de lo escrito).",
+        "**Clave de fa** en cuarta línea: coloca el FA3 en esa línea. Es la "
+        "clave de los graves: voces de bajo y barítono, violonchelo, "
+        "contrabajo, fagot, trombón, tuba, mano izquierda del piano.",
+        "**Clave de do** en tercera o cuarta línea: coloca el DO4 (el «do "
+        "central») en esa línea. La de tercera se llama clave de contralto y la "
+        "usa hoy sobre todo la viola; la de cuarta es la clave de tenor, usada "
+        "en los pasajes agudos del violonchelo, el fagot y el trombón. "
+        "Antiguamente había una clave de do para cada voz, precisamente para "
+        "evitar líneas adicionales.",
+        "¿Por qué tantas claves? Pura comodidad: cada instrumento o voz usa la "
+        "que le deja casi toda su música dentro del pentagrama, sin llenarlo de "
+        "líneas adicionales. El piano usa dos pentagramas a la vez, unidos por "
+        "una llave: normalmente clave de sol arriba y de fa abajo.",
+
+        "## Los nombres de las notas",
+        "Las siete notas naturales, en el orden de la escala, son **DO, RE, MI, "
+        "FA, SOL, LA, SI**. Este sistema silábico procede de un himno latino a "
+        "san Juan que Guido d'Arezzo usó en el siglo XI: cada verso empezaba una "
+        "nota más arriba y con las sílabas Ut, Re, Mi, Fa, Sol, La (el «Ut» se "
+        "cambió por «Do» en el siglo XVII y se añadió el «Si», de Sancte "
+        "Iohannes). El mundo anglosajón y alemán usa **letras**: A, B, C, D, E, "
+        "F, G equivalen a LA, SI, DO, RE, MI, FA, SOL. Cuidado con Alemania: "
+        "allí «H» es el SI natural y «B» es el SI bemol. En esta aplicación "
+        "puedes alternar entre DO-RE-MI y C-D-E.",
+
+        "## Registro: la misma nota en distintas octavas",
+        "«DO» no señala una sola tecla: señala **todos los DO**, que se van "
+        "repitiendo octava tras octava. Para decir de cuál hablas se usa la "
+        "**notación científica de alturas**: un número indica la octava, y el "
+        "número cambia justo al pasar de SI a DO. El DO central del piano es "
+        "DO4 (C4), a 261,6 Hz; "
+        "el LA de referencia inmediatamente encima es LA4 = 440 Hz; el piano "
+        "estándar va de LA0 a DO8. Otros sistemas (Helmholtz, con C, c, c′, c″) "
+        "coexisten en textos antiguos.",
+
+        "## Anatomía de la nota escrita",
+        "Cada nota tiene una **cabeza** (hueca o rellena, según la figura), casi "
+        "siempre una **plica** (el palito vertical: hacia arriba si la nota está "
+        "por debajo de la línea central, hacia abajo si está por encima) y, en "
+        "las figuras rápidas, uno o varios **corchetes** que se agrupan en "
+        "**barras** cuando van seguidas. Delante puede llevar una **alteración** "
+        "(sostenido, bemol, becuadro) y encima o debajo, signos de "
+        "articulación, digitación o adorno.",
+
+        "## Del neuma a la partitura moderna",
+        "Hacia los siglos IX-X se anotaba el canto con **neumas**: signos "
+        "colocados sobre el texto que recordaban el perfil melódico a quien ya "
+        "conocía la melodía, sin indicar alturas exactas. El gran salto lo dio "
+        "**Guido d'Arezzo** (c. 1025): trazó líneas de referencia con una altura "
+        "fija (una roja para FA, una amarilla para DO) y colocó los neumas sobre "
+        "ellas; nació el pentagrama y la lectura «a primera vista». Después "
+        "llegaron la **notación cuadrada** del canto, la **notación mensural** "
+        "(siglos XIII-XVI), que por primera vez fijó duraciones precisas, y "
+        "hacia 1600 la notación fue tomando el aspecto actual: barras de compás "
+        "regulares, figuras redondeadas, líneas divisorias. La imprenta musical "
+        "(Petrucci, 1501) y luego el grabado estandarizaron los signos.",
+
+        "## Lo que la notación no dice",
+        "Una partitura es una guía, no una grabación. No fija el timbre exacto, "
+        "ni el rubato, ni miles de matices de afinación y ataque que el "
+        "intérprete aporta según el estilo y la época. Cuanto más antigua es la "
+        "música, más deja a criterio del músico (ornamentación, dinámica, "
+        "instrumentación); la música del siglo XX tendió a anotarlo casi todo, y "
+        "algunos compositores volvieron después a notaciones abiertas.",
+    ],
+    verTambien=["wiki-teoria-sonido", "wiki-teoria-ritmo", "wiki-teoria-tono-semitono",
+                "wiki-teoria-escalas", "wiki-historia-medieval", "wiki-historia-notacion"],
+    fuentes=[F_ZAMACOIS, F_GROVE,
+             W("Wikipedia — Notación musical", "https://es.wikipedia.org/wiki/Notaci%C3%B3n_musical"),
+             W("Wikipedia — Guido d'Arezzo", "https://es.wikipedia.org/wiki/Guido_d%27Arezzo")],
+),
+
+# -------------------------------------------------------------------------
+"wiki-teoria-ritmo": dict(
+    resumen="Cómo se organiza la música en el tiempo: pulso, figuras y su "
+            "proporción, compás simple y compuesto, acento métrico, síncopa, "
+            "tempo y polirritmia.",
+    cuerpo=[
+        "El ritmo es **cómo se reparten los sonidos y los silencios en el "
+        "tiempo**. Hay tres capas y conviene no mezclarlas: el **pulso** (esa "
+        "palpitación regular que marcas con el pie), el **compás** (cómo se "
+        "agrupan esos pulsos, con unos más fuertes y otros más flojos) y el "
+        "**ritmo** en sí (el dibujo concreto de duraciones de una melodía, que "
+        "puede ir con el pulso o llevarle la contraria).",
+
+        "## Las figuras y su proporción",
+        "Las figuras no dicen una duración en segundos: dicen una duración "
+        "**relativa**. Lo que dura de verdad una negra depende del tempo. Lo "
+        "que sí es fijo es la proporción entre ellas, y va de dos en dos: cada "
+        "figura vale la mitad de la anterior. "
+        "Redonda = 2 blancas = 4 negras = 8 corcheas = 16 semicorcheas = 32 "
+        "fusas = 64 semifusas. Cada figura tiene su **silencio** equivalente, "
+        "con la misma duración pero sin sonido.",
+        "Para obtener duraciones que no encajan en esa división binaria se usan "
+        "tres recursos. El **puntillo** añade a la figura la mitad de su valor "
+        "(negra con puntillo = negra + corchea = tres corcheas); el doble "
+        "puntillo añade además la mitad de esa mitad. La **ligadura de unión** "
+        "suma dos figuras de igual altura en un solo sonido sostenido, incluso "
+        "a través de la línea divisoria. Y los **grupos irregulares** parten "
+        "una figura en un número de partes que no es potencia de dos: el "
+        "tresillo mete tres notas donde caben dos, el dosillo dos donde caben "
+        "tres, y así con quintillos, seisillos, etc.",
+
+        "## El compás",
+        "El compás agrupa los pulsos en paquetes iguales, separados por "
+        "**líneas divisorias**, con una jerarquía de acentos: la primera parte "
+        "(el «tiempo fuerte») es la más acentuada, y dentro de cada parte "
+        "también hay subdivisiones fuertes y débiles. Esta jerarquía métrica es "
+        "lo que hace que un vals «suene a vals» aunque no haya percusión.",
+        "La **fórmula de compás** son dos cifras. En los compases simples, la "
+        "**cifra superior** dice cuántas partes hay (2, 3 o 4) y la **inferior** "
+        "qué figura vale una parte (2 = blanca, 4 = negra, 8 = corchea). Así, "
+        "3/4 son tres negras por compás; 2/2 (o «alla breve», ¢) son dos "
+        "blancas; 4/4 son cuatro negras y es tan común que se marca con una C.",
+
+        "## Compases simples y compuestos",
+        "En un **compás simple** cada parte se divide de forma natural en dos "
+        "(la negra en dos corcheas). En un **compás compuesto** cada parte se "
+        "divide en tres: la unidad de parte es una figura con puntillo. Aquí la "
+        "lectura de la fórmula cambia: en 6/8 la cifra superior (6) cuenta las "
+        "corcheas, pero la música se siente en **dos** partes de tres corcheas "
+        "cada una (negra con puntillo). Por eso 6/8 (dos pulsos ternarios) no "
+        "es lo mismo que 3/4 (tres pulsos binarios) aunque ambos sumen seis "
+        "corcheas: el juego entre los dos, la **hemiola**, es un recurso "
+        "rítmico clásico (Brahms, la música latinoamericana, «America» de "
+        "«West Side Story»).",
+        "Existen además compases de **amalgama** o irregulares (5/8, 7/8, 5/4), "
+        "que suman grupos desiguales de dos y tres (un 7/8 puede ser 2+2+3 o "
+        "3+2+2), muy presentes en la música balcánica, en Bartók, en "
+        "Stravinski y en el rock progresivo.",
+
+        "## Acento, síncopa y contratiempo",
+        "El **acento métrico** es el que impone el compás. Cuando la música lo "
+        "respeta, el ritmo suena «cuadrado»; cuando lo contradice, aparece "
+        "tensión. La **síncopa** es un sonido que empieza en parte o "
+        "subdivisión débil y se prolonga sobre la fuerte siguiente, robándole "
+        "el acento. El **contratiempo** ataca la parte débil pero deja la "
+        "fuerte en silencio. La **anacrusa** es una o varias notas débiles que "
+        "preceden al primer tiempo fuerte (el arranque de muchos himnos y "
+        "canciones). El swing del jazz, el groove del funk y casi toda la "
+        "música de baile viven de estos desajustes controlados.",
+
+        "## El tempo",
+        "El tempo es la velocidad del pulso. Se indica de dos maneras. Con "
+        "**términos italianos**, que además sugieren carácter: Grave, Largo, "
+        "Adagio, Andante («andando»), Moderato, Allegro («alegre»), Vivace, "
+        "Presto, Prestissimo, más modificadores (molto, poco, non troppo, "
+        "assai) y transiciones (accelerando, ritardando, rallentando, «a "
+        "tempo»). Y con **marca metronómica** («negra = 120»), que fija cuántas "
+        "de esas figuras entran en un minuto; el metrónomo mecánico lo "
+        "popularizó Maelzel hacia 1815 y Beethoven fue de los primeros en usarlo.",
+        "El **rubato** («robado») es la flexibilidad expresiva del tempo: se "
+        "adelanta y se retrasa sin perder el pulso global, devolviendo luego lo "
+        "«robado». Es esencial en Chopin, en el lied y en casi toda "
+        "interpretación viva.",
+
+        "## Varias capas rítmicas a la vez",
+        "Cuando suenan simultáneamente ritmos que dividen el pulso de forma "
+        "distinta (tres contra dos, cuatro contra tres) hablamos de "
+        "**polirritmia**; cuando cada voz está en un compás diferente, de "
+        "**polimetría**. Son la columna vertebral de gran parte de la música "
+        "africana y afroamericana, y un recurso frecuente en Ligeti, Reich y "
+        "Elliott Carter. En el otro extremo, mucha música tradicional y "
+        "contemporánea prescinde del compás regular y usa notación proporcional "
+        "o pulsos libres.",
+    ],
+    verTambien=["wiki-teoria-notacion", "wiki-teoria-formas", "wiki-teoria-dinamica-agogica",
+                "wiki-historia-jazz", "wiki-danza-panorama"],
+    fuentes=[F_ZAMACOIS,
+             W("Wikipedia — Compás (música)", "https://es.wikipedia.org/wiki/Comp%C3%A1s_(m%C3%BAsica)"),
+             W("Wikipedia — Síncopa (música)", "https://es.wikipedia.org/wiki/S%C3%ADncopa_(m%C3%BAsica)"),
+             W("Wikipedia — Tempo", "https://es.wikipedia.org/wiki/Tempo")],
+),
+
+# -------------------------------------------------------------------------
+"wiki-teoria-tono-semitono": dict(
+    resumen="La unidad de medida de las alturas: semitono y tono, los signos "
+            "que alteran las notas, la enarmonía y por qué la ortografía "
+            "musical distingue DO♯ de RE♭.",
+    cuerpo=[
+        "Para medir «cuánto» separa a dos notas necesitas una unidad. En la "
+        "música occidental esa unidad es el **semitono**: el paso más pequeño "
+        "que hay, el que va de una tecla del piano a la de al lado, sea blanca "
+        "o negra. Dos semitonos seguidos son un **tono**. Y si necesitas hilar "
+        "más fino, cada semitono se parte en 100 **cents** (así que la octava "
+        "entera son 1200).",
+
+        "## El teclado como mapa",
+        "El teclado del piano te enseña todo esto de un vistazo. Entre casi "
+        "todas las notas blancas seguidas hay una tecla negra en medio: eso es "
+        "un tono (DO-RE, RE-MI, FA-SOL, SOL-LA, LA-SI). Pero **entre MI y FA, y "
+        "entre SI y DO, no hay negra en medio**: ahí solo hay un semitono. Esa "
+        "pequeña irregularidad —cinco tonos y dos semitonos por octava— es la "
+        "que le da forma a la escala mayor y la razón de que cada tonalidad se "
+        "toque un poco distinta.",
+
+        "## Las alteraciones",
+        "Los signos que modifican una nota en un semitono se llaman "
+        "alteraciones. El **sostenido (♯)** sube la nota un semitono; el "
+        "**bemol (♭)** la baja un semitono; el **becuadro (♮)** cancela "
+        "cualquier alteración anterior y devuelve la nota a su estado natural. "
+        "Existen además el **doble sostenido (𝄪)**, que sube un tono, y el "
+        "**doble bemol (♭♭)**, que baja un tono; aparecen cuando la lógica de "
+        "la escala lo exige (en SOL♯ menor la sensible es FA𝄪, no SOL "
+        "natural).",
+
+        "## Armadura y accidentales",
+        "Las alteraciones pueden aparecer en dos sitios. En la **armadura**, "
+        "justo después de la clave: entonces valen para toda la obra, en todas "
+        "las octavas, y definen la tonalidad. O como **accidentales**, dentro "
+        "de un compás: entonces solo valen desde donde aparecen hasta el final "
+        "de ese compás y solo en esa octava (salvo que una ligadura de unión "
+        "las prolongue). La línea divisoria «borra» las accidentales. Los "
+        "sostenidos de la armadura se escriben siempre en el mismo orden —FA, "
+        "DO, SOL, RE, LA, MI, SI— y los bemoles en el orden inverso —SI, MI, "
+        "LA, RE, SOL, DO, FA—.",
+
+        "## Enarmonía",
+        "En el sistema temperado actual, una misma tecla puede escribirse de "
+        "varias maneras: DO♯ y RE♭ suenan idénticos, igual que MI♯ y FA, o SI y "
+        "DO♭. Esas grafías distintas de un mismo sonido se llaman "
+        "**enarmónicas**. La enarmonía es una comodidad de escritura, pero "
+        "esconde una idea importante: escribir bien no es indiferente.",
+
+        "## Por qué DO♯ no es «lo mismo» que RE♭",
+        "Aunque suenen igual en el piano, DO♯ y RE♭ cumplen funciones distintas "
+        "y por eso se escriben distinto. La regla básica es que **cada grado de "
+        "la escala usa una letra distinta**. En la escala de RE mayor, el "
+        "segundo grado tiene que ser una especie de MI y el tercero una especie "
+        "de FA♯; escribir un «SOL♭» donde toca un «FA♯» rompería la secuencia "
+        "de letras y haría la partitura ilegible. Del mismo modo, una nota que "
+        "va a subir (una sensible, una nota de paso ascendente) se escribe con "
+        "sostenido, y una que va a bajar, con bemol: la grafía anticipa el "
+        "movimiento. Esta distinción, que llamamos **semitono diatónico** "
+        "(entre dos letras distintas, DO-RE♭) frente a **semitono cromático** "
+        "(misma letra, DO-DO♯), era además audible en los temperamentos "
+        "antiguos y sigue siéndolo en cantantes y cuerdas sin trastes, que "
+        "afinan la sensible un poco más alta cuando «tira» hacia la tónica.",
+    ],
+    verTambien=["wiki-teoria-notacion", "wiki-teoria-escalas", "wiki-teoria-intervalos",
+                "wiki-teoria-tonalidad", "wiki-teoria-temperamento"],
+    fuentes=[F_ZAMACOIS,
+             W("Wikipedia — Semitono", "https://es.wikipedia.org/wiki/Semitono"),
+             W("Wikipedia — Enarmonía", "https://es.wikipedia.org/wiki/Enarmon%C3%ADa")],
+),
+
+# -------------------------------------------------------------------------
+"wiki-teoria-escalas": dict(
+    resumen="Qué es una escala, cómo se nombran sus grados, la escala mayor y "
+            "las tres menores en detalle, y el resto de escalas de uso común "
+            "(pentatónicas, blues, cromática, simétricas y modales).",
+    cuerpo=[
+        "Una escala es una **fila de notas ordenadas**, de grave a aguda, que "
+        "sigue siempre el mismo **patrón de tonos y semitonos**. Ese patrón —y "
+        "no las notas concretas— es lo que le da su sabor: si coges el mismo "
+        "patrón y lo empiezas en otra nota, tienes la misma escala en otra "
+        "tonalidad, con el mismo carácter. Las escalas son la materia prima de "
+        "casi todo: de ahí salen las melodías y, apilando sus notas de tres en "
+        "tres, también los acordes.",
+
+        "## Los grados y sus nombres",
+        "A cada nota de la escala se le llama **grado**, y se numera con cifras "
+        "romanas del I al VII. Cada grado tiene además un nombre que dice para "
+        "qué sirve: I **tónica** (el centro, donde la música descansa), II "
+        "**supertónica**, III **mediante** (a mitad de camino entre tónica y "
+        "dominante; es la que decide si suena mayor o menor), IV "
+        "**subdominante**, V **dominante** (el punto de máxima tensión, a una "
+        "quinta de la tónica), VI **superdominante** o **submediante**, y VII "
+        "**sensible** cuando está a un semitono de la tónica y «tira» hacia "
+        "ella, o **subtónica** cuando está a un tono.",
+
+        "## La escala mayor",
+        "Su patrón, empezando por la tónica, es **T–T–S–T–T–T–S** (tono, tono, "
+        "semitono, tono, tono, tono, semitono). Sobre DO son exactamente las "
+        "siete teclas blancas: DO–RE–MI–FA–SOL–LA–SI–DO. Sobre SOL: "
+        "SOL–LA–SI–DO–RE–MI–FA♯–SOL (aparece el FA♯ para respetar el patrón). "
+        "Sobre FA: FA–SOL–LA–SI♭–DO–RE–MI–FA. La escala mayor tiene dos "
+        "semitonos, entre los grados III-IV y VII-I, y es la base del sistema "
+        "tonal y de la sensación de «música alegre o luminosa».",
+
+        "## Las tres escalas menores",
+        "La **menor natural** tiene el patrón **T–S–T–T–S–T–T**. Sobre LA son "
+        "otra vez las teclas blancas, pero empezando en LA: "
+        "LA–SI–DO–RE–MI–FA–SOL–LA. Suena melancólica o grave. Su problema es "
+        "que el VII grado (SOL) está a un tono de la tónica: no hay sensible, y "
+        "las cadencias pierden fuerza.",
+        "La **menor armónica** resuelve eso subiendo el VII grado un semitono "
+        "(SOL♯ en LA menor). Recupera la sensible y una dominante mayor potente, "
+        "pero a cambio abre un intervalo de segunda aumentada (tono y medio) "
+        "entre el VI y el VII grado (FA–SOL♯), que da un sabor «oriental» muy "
+        "reconocible.",
+        "La **menor melódica** suaviza ese salto subiendo también el VI grado, "
+        "pero solo al ascender (LA–SI–DO–RE–MI–FA♯–SOL♯–LA); al descender "
+        "vuelve a la menor natural. En el jazz se usa la versión ascendente en "
+        "todo el recorrido (la llamada «menor melódica real» o «jazz minor»), "
+        "muy fértil porque de sus rotaciones salen escalas como el modo lidio "
+        "dominante o la escala alterada.",
+
+        "## Relativas y homónimas",
+        "Dos escalas son **relativas** si comparten las mismas notas y la misma "
+        "armadura pero tienen distinta tónica: DO mayor y LA menor son "
+        "relativas (la menor relativa está una tercera menor por debajo de la "
+        "mayor). Son **homónimas** (o paralelas) si comparten tónica pero no "
+        "notas: DO mayor y DO menor. Pasar de una a su homónima es el recurso "
+        "expresivo de «lo mismo pero en sombra».",
+
+        "## Escalas de cinco notas y de blues",
+        "La **pentatónica mayor** quita de la escala mayor los dos grados que "
+        "generan más roce (el IV y el VII): DO–RE–MI–SOL–LA. Sin semitonos, "
+        "encaja sobre casi cualquier acorde y es la base de incontables músicas "
+        "populares de todo el mundo. La **pentatónica menor** es su relativa "
+        "(LA–DO–RE–MI–SOL). La **escala de blues** añade a la pentatónica menor "
+        "una nota cromática de paso, la *blue note* (el V♭ / IV♯): "
+        "LA–DO–RE–MI♭–MI–SOL, seis notas que llevan el color del blues, el rock "
+        "y el jazz.",
+
+        "## Cromática y escalas simétricas",
+        "La **escala cromática** usa los doce semitonos de la octava. Al "
+        "escribirla se prefieren sostenidos al ascender y bemoles al descender. "
+        "Las **escalas simétricas** repiten el mismo intervalo: la de **tonos "
+        "enteros** (seis notas a distancia de tono: DO–RE–MI–FA♯–SOL♯–LA♯), "
+        "asociada a Debussy, disuelve toda sensación de tónica; la **octatónica "
+        "o disminuida** alterna tono y semitono (ocho notas), muy usada por "
+        "Rimski-Kórsakov, Stravinski, Messiaen y en el jazz sobre acordes "
+        "disminuidos y dominantes. Por ser simétricas, se transponen a sí "
+        "mismas y solo existen unas pocas distintas.",
+
+        "## Modos y otras tradiciones",
+        "Rotando la escala mayor —empezándola por cada uno de sus grados— se "
+        "obtienen los **siete modos** (jónico, dórico, frigio, lidio, "
+        "mixolidio, eólico, locrio), tratados en su propio artículo. Y más allá "
+        "del sistema occidental, muchas culturas organizan la melodía con "
+        "colecciones propias: los *ragas* de la India (que además llevan "
+        "asociados un momento del día, un estado de ánimo y giros melódicos "
+        "obligados), los *maqāmāt* árabes (con intervalos de tres cuartos de "
+        "tono), o las escalas *sléndro* y *pélog* del gamelán indonesio, que no "
+        "encajan en el semitono occidental.",
+
+        "## Cómo estudiarlas",
+        "Una escala no se aprende de verdad recitándola: se aprende tocándola "
+        "en todas las tonalidades, ascendente y descendente, con una digitación "
+        "cómoda y regular, y sobre todo **reconociéndola de oído** y usándola "
+        "para improvisar pequeñas melodías. El explorador de escalas de esta "
+        "app te deja oír y ver cada una sobre el teclado y el pentagrama.",
+    ],
+    verTambien=["wiki-teoria-tono-semitono", "wiki-teoria-modos", "wiki-teoria-intervalos",
+                "wiki-teoria-tonalidad", "wiki-teoria-armonia"],
+    fuentes=[F_ZAMACOIS,
+             W("Wikipedia — Escala musical", "https://es.wikipedia.org/wiki/Escala_musical"),
+             W("Wikipedia — Escala pentatónica", "https://es.wikipedia.org/wiki/Escala_pentat%C3%B3nica")],
+),
+
+# -------------------------------------------------------------------------
+"wiki-teoria-intervalos": dict(
+    resumen="La distancia entre dos notas medida por su número y su calidad: "
+            "cómo se nombran, cuántos semitonos tiene cada uno, la inversión, "
+            "y por qué unos suenan estables y otros tensos.",
+    cuerpo=[
+        "Un intervalo es, sin más, **la distancia entre dos notas**. Es una "
+        "idea pequeña que está en todas partes: una melodía es una fila de "
+        "intervalos, un acorde son varios sonando a la vez, y las escalas se "
+        "miden en intervalos desde la tónica. Para nombrar uno hay que decir "
+        "dos cosas: **cuánto** (el número) y **de qué tipo** (la calidad).",
+
+        "## El número",
+        "El número se saca contando **nombres de nota** de una a otra, con las "
+        "dos puntas incluidas. De DO a MI cuentas DO-RE-MI: tres, así que es "
+        "una **tercera**. De DO a SOL, cinco nombres: una **quinta**. De una "
+        "nota a sí misma, **unísono** («primera»); a esa misma nota una octava "
+        "más arriba, **octava**. Como cuentas nombres y no distancias, el "
+        "número por sí solo no basta: DO-MI y DO-MI♭ son las dos «terceras», "
+        "pero no suenan igual. Ahí entra la calidad.",
+
+        "## La calidad",
+        "La calidad dice si ese intervalo es un poco más ancho o más estrecho. "
+        "Los intervalos van en dos familias. El **unísono, la cuarta, la "
+        "quinta y la octava** pueden ser **justos** (J), **aumentados** (A, un "
+        "semitono más) o **disminuidos** (d, un semitono menos). La **segunda, "
+        "la tercera, la sexta y la séptima** pueden ser **mayores** (M), "
+        "**menores** (m, un semitono menos que la mayor), **aumentadas** (un "
+        "semitono más que la mayor) o **disminuidas** (un semitono menos que la "
+        "menor). No existen «cuartas mayores» ni «terceras justas»: son "
+        "categorías distintas.",
+
+        "## Tabla de intervalos dentro de la octava",
+        "Medidos en semitonos: 2ª menor = 1 · 2ª mayor = 2 · 3ª menor = 3 · 3ª "
+        "mayor = 4 · 4ª justa = 5 · 4ª aumentada / 5ª disminuida = 6 (el "
+        "tritono) · 5ª justa = 7 · 6ª menor = 8 · 6ª mayor = 9 · 7ª menor = 10 "
+        "· 7ª mayor = 11 · 8ª justa = 12. Un mismo número de semitonos puede "
+        "corresponder a intervalos con distinto nombre según cómo se escriban "
+        "las notas (6 semitonos son un tritono, se llame 4ª aumentada o 5ª "
+        "disminuida): son intervalos **enarmónicos**.",
+
+        "## Melódico o armónico, simple o compuesto",
+        "Un intervalo es **melódico** si sus dos notas suenan sucesivamente, y "
+        "**armónico** si suenan a la vez. Es **ascendente** o **descendente** "
+        "según la dirección. Es **simple** si cabe en una octava y **compuesto** "
+        "si la supera: la novena es una segunda más una octava, la oncena una "
+        "cuarta, la trecena una sexta. En los acordes extendidos del jazz esas "
+        "cifras (9, 11, 13) se usan constantemente.",
+
+        "## La inversión",
+        "Invertir un intervalo es subir la nota grave una octava (o bajar la "
+        "aguda). Hay dos reglas: los **números suman 9** (la tercera invierte "
+        "en sexta, la segunda en séptima, la cuarta en quinta, el unísono en "
+        "octava) y la **calidad se invierte**: mayor ↔ menor, aumentado ↔ "
+        "disminuido, y **justo se mantiene justo**. Así, una 3ª mayor "
+        "(DO-MI) invertida es una 6ª menor (MI-DO). El tritono es el único que "
+        "al invertirse sigue siendo tritono, lo que explica parte de su "
+        "ambigüedad.",
+
+        "## Consonancia y disonancia",
+        "Los intervalos también se ordenan por lo estables o tensos que suenan, "
+        "y eso tiene una razón física: cuanto más sencilla es la proporción "
+        "entre sus dos frecuencias, más «fundidos» y tranquilos los oímos. "
+        "**Consonancias perfectas**: "
+        "unísono (1:1), octava (2:1), quinta justa (3:2) —y, según el contexto, "
+        "la cuarta justa (4:3), que es consonante entre voces superiores pero "
+        "se trata como disonancia cuando la forma el bajo—. **Consonancias "
+        "imperfectas**: terceras y sextas (proporciones algo más complejas, "
+        "5:4, 6:5…), la base del sonido «dulce» de la armonía tonal. "
+        "**Disonancias**: segundas, séptimas y el tritono, que piden "
+        "resolución. Esta jerarquía no es una ley física absoluta —cada estilo "
+        "y cada época ha movido la frontera— pero organiza toda la armonía "
+        "clásica y el contrapunto.",
+
+        "## El tritono",
+        "El tritono (tres tonos: la 4ª aumentada o la 5ª disminuida) es la "
+        "disonancia más característica del sistema tonal. Es el intervalo que "
+        "se forma entre la sensible y la subdominante de una tonalidad (SI-FA "
+        "en DO mayor) y el corazón del acorde de dominante con séptima: su "
+        "tendencia a cerrarse hacia la tercera de la tónica (SI→DO, FA→MI) es "
+        "el motor de la cadencia. En la Edad Media se le apodó *diabolus in "
+        "musica* por lo difícil que era de cantar y de encajar en el "
+        "contrapunto; nunca estuvo «prohibido» por la Iglesia, es un mito.",
+
+        "## Cómo reconocerlos de oído",
+        "Un método clásico es asociar cada intervalo ascendente y descendente "
+        "al comienzo de una canción conocida: la 4ª justa ascendente con el "
+        "arranque de un himno, la 6ª mayor con «My Bonnie», el tritono con "
+        "«Maria» de «West Side Story», la 7ª mayor por su aspereza "
+        "característica. El objetivo final es oír el intervalo directamente, sin "
+        "muleta.",
+    ],
+    verTambien=["wiki-teoria-tono-semitono", "wiki-teoria-acordes", "wiki-teoria-armonia",
+                "wiki-teoria-acustica", "wiki-teoria-contrapunto"],
+    fuentes=[F_ZAMACOIS, F_PISTON,
+             W("Wikipedia — Intervalo (música)", "https://es.wikipedia.org/wiki/Intervalo_(m%C3%BAsica)"),
+             W("Wikipedia — Tritono", "https://es.wikipedia.org/wiki/Tritono")],
+),
+
+# -------------------------------------------------------------------------
+"wiki-teoria-acordes": dict(
+    resumen="Cómo se construyen los acordes apilando terceras, los cuatro "
+            "tipos de tríada, las inversiones, la disposición de las voces y "
+            "las notas que no pertenecen al acorde.",
+    cuerpo=[
+        "Un acorde son **tres o más notas que suenan juntas** y que el oído "
+        "toma como un bloque. La forma habitual de montarlos en la música "
+        "occidental es **apilar terceras**: coges una nota de partida (la "
+        "**fundamental** o raíz) y vas subiendo de tres en tres. Se pueden "
+        "montar también por cuartas (Debussy, Bartók, el jazz modal), por "
+        "quintas o amontonando notas pegadas (*clusters*), pero la armonía "
+        "tonal es, casi siempre, de terceras.",
+
+        "## La tríada",
+        "Sube dos terceras desde la fundamental y tienes la **tríada**, el "
+        "acorde de tres notas: fundamental, **tercera** y **quinta**. Sobre "
+        "DO: DO – MI – SOL. La **tercera** es la que decide el color (alegre o "
+        "melancólico); la **quinta** da cuerpo y firmeza.",
+
+        "## Los cuatro tipos de tríada",
+        "Según cómo sean las dos terceras que apilas: **mayor** = 3ª "
+        "mayor + 3ª menor, con 5ª justa (DO-MI-SOL); suena luminosa, estable. "
+        "**Menor** = 3ª menor + 3ª mayor, con 5ª justa (DO-MI♭-SOL); suena "
+        "grave, íntima. **Disminuida** = dos 3ª menores, con 5ª disminuida "
+        "(DO-MI♭-SOL♭); inestable, tensa, pide resolver. **Aumentada** = dos "
+        "3ª mayores, con 5ª aumentada (DO-MI-SOL♯); ambigua, «flotante», "
+        "simétrica. Cambiar solo la tercera convierte una tríada mayor en menor "
+        "y viceversa; cambiar solo la quinta da la aumentada o la disminuida.",
+
+        "## Estado fundamental e inversiones",
+        "Lo que define el acorde es qué notas lo forman, no cuál queda abajo. "
+        "Si en el bajo está la **fundamental**, el acorde está en **estado "
+        "fundamental**. Si está la **tercera**, en **primera inversión** (se "
+        "cifra «6» en números romanos, porque desde el bajo se oyen una 6ª y "
+        "una 3ª). Si está la **quinta**, en **segunda inversión** (se cifra "
+        "«6/4»). Las inversiones permiten que el bajo se mueva por grados "
+        "conjuntos y suene melódico en lugar de saltar de fundamental en "
+        "fundamental; la segunda inversión es más inestable y se usa en "
+        "contextos concretos (cadencial, de paso, de floreo).",
+
+        "## Disposición: el mismo acorde, mil sonidos",
+        "Una vez elegidas las notas, hay que repartirlas entre las voces o "
+        "manos. En **disposición cerrada** las voces superiores están lo más "
+        "juntas posible; en **abierta**, separadas. Se pueden **duplicar** "
+        "notas (en la tríada de cuatro voces se suele duplicar la fundamental) "
+        "y hay que cuidar la **conducción de voces**: que cada voz se mueva "
+        "poco, se eviten las quintas y octavas paralelas y la sensible resuelva "
+        "hacia la tónica. El mismo acorde de DO mayor suena completamente "
+        "distinto según esté cerrado y agudo, abierto y grave, o repartido "
+        "entre toda una orquesta.",
+
+        "## Notas que no son del acorde",
+        "En una textura real, sobre un acorde suenan además notas melódicas que "
+        "no le pertenecen y que se resuelven enseguida. Las principales: "
+        "**nota de paso** (une dos notas del acorde por grados conjuntos), "
+        "**floreo** o bordadura (sale de una nota del acorde y vuelve a ella), "
+        "**apoyatura** (entra a contratiempo, disuena y resuelve bajando), "
+        "**retardo** (una nota del acorde anterior se queda «pegada» y resuelve "
+        "tarde), **anticipación** (llega antes de tiempo la nota del acorde "
+        "siguiente), **escapada** y **nota pedal** (una nota, casi siempre en "
+        "el bajo, se mantiene fija mientras la armonía cambia por encima). "
+        "Distinguir la nota del acorde de la nota de adorno es la clave para "
+        "analizar cualquier partitura.",
+
+        "## Más allá de la tríada",
+        "Añadiendo una tercera más se llega a los **acordes de séptima** "
+        "(cuatro notas), y después a los de novena, oncena y trecena, tratados "
+        "en el artículo sobre cifrado. Cuando las notas del acorde no suenan a "
+        "la vez sino sucesivamente, tenemos un **arpegio**, recurso melódico y "
+        "de acompañamiento omnipresente (el bajo Alberti clásico, los "
+        "*fingerpickings* de guitarra).",
+
+        "## Cómo se anota el análisis",
+        "En el análisis con **números romanos**, la cifra indica el grado de la "
+        "escala sobre el que se construye el acorde y su forma indica la "
+        "calidad: mayúscula para acordes mayores (I, IV, V), minúscula para "
+        "menores (ii, iii, vi), «°» para disminuido (vii°) y «+» para aumentado. "
+        "Los números árabes añadidos (6, 6/4, 7) señalan la inversión y las "
+        "séptimas.",
+    ],
+    verTambien=["wiki-teoria-intervalos", "wiki-teoria-cifrado", "wiki-teoria-armonia",
+                "wiki-teoria-tonalidad", "wiki-teoria-contrapunto"],
+    fuentes=[F_PISTON, F_SCHOENBERG, F_ZAMACOIS,
+             W("Wikipedia — Acorde", "https://es.wikipedia.org/wiki/Acorde")],
+),
+
+# -------------------------------------------------------------------------
+"wiki-teoria-cifrado": dict(
+    resumen="Los dos sistemas para escribir la armonía sin partitura completa: "
+            "el cifrado americano de letras (con todas sus extensiones) y el "
+            "bajo continuo barroco del que desciende.",
+    cuerpo=[
+        "El cifrado es la **taquigrafía de los acordes**: una forma de decir "
+        "qué acorde suena sin dibujar todas sus notas en el pentagrama. Hay "
+        "dos sistemas que se usan para cosas distintas: el **cifrado "
+        "americano** (letras y símbolos, el de las canciones de jazz, pop y "
+        "rock) y el **análisis con números romanos** (que coloca cada acorde "
+        "como un grado dentro de una tonalidad, y sirve para estudiar cómo "
+        "funciona una pieza). Los dos vienen del **bajo continuo** del "
+        "Barroco.",
+
+        "## Cifrado americano: la base",
+        "Cada acorde se nombra con la **letra de su fundamental** (A = LA, "
+        "B = SI, C = DO…) seguida de símbolos que indican su tipo. Sin nada "
+        "más, la letra significa tríada mayor: **C** es DO mayor. Una **m** "
+        "minúscula indica menor: **Cm** es DO menor. El símbolo **°** o "
+        "**dim** indica disminuido; **+** o **aug**, aumentado. **sus4** "
+        "sustituye la tercera por la cuarta justa (DO-FA-SOL) y **sus2** por la "
+        "segunda (DO-RE-SOL): acordes «suspendidos», sin color mayor ni menor, "
+        "que suelen resolver a la tríada.",
+
+        "## Séptimas",
+        "Añadir una séptima a la tríada da los acordes de cuatro notas más "
+        "usados. **C7** (séptima de dominante): tríada mayor + 7ª menor "
+        "(DO-MI-SOL-SI♭); dentro lleva un tritono (MI-SI♭) y por eso «pide» "
+        "resolver. **Cmaj7** o **CΔ** (séptima mayor): tríada mayor + 7ª mayor "
+        "(DO-MI-SOL-SI); sonido suave, «jazzístico», de reposo. **Cm7** (menor "
+        "séptima): tríada menor + 7ª menor (DO-MI♭-SOL-SI♭). **Cm7♭5** o "
+        "**Cø** (semidisminuido): tríada disminuida + 7ª menor; es el acorde "
+        "sobre el VII grado del modo mayor y el II del menor. **C°7** "
+        "(disminuido de séptima): tríada disminuida + 7ª disminuida "
+        "(DO-MI♭-SOL♭-SI♭♭); todo terceras menores, simétrico, muy inestable. "
+        "**Cm(maj7)** (menor con séptima mayor): sonido tenso y refinado, "
+        "típico de la tónica menor con sensible.",
+
+        "## Extensiones y alteraciones",
+        "Si sigues apilando terceras por encima de la séptima llegas a la "
+        "**novena** (9), la **oncena** (11) y la **trecena** (13); cuando "
+        "escribes «C9» se sobreentiende que la séptima también está. Estas "
+        "notas de más se llaman "
+        "**tensiones** y se pueden alterar: **♭9, ♯9, ♯11, ♭13** son las "
+        "tensiones características del acorde de dominante alterado del jazz "
+        "(«C7alt»). Un **6** añade la sexta a la tríada sin séptima (C6 = "
+        "DO-MI-SOL-LA); **add9** añade la novena sin la séptima. Una **barra** "
+        "indica qué nota va en el bajo: **C/E** es DO mayor con MI en el bajo "
+        "(primera inversión); **C/G**, con SOL; un bajo ajeno al acorde ("
+        "**C/D**) crea un color de tensión suave.",
+
+        "## Lo que el cifrado no dice",
+        "El cifrado americano fija las notas del acorde pero **no** su "
+        "disposición, ni la octava, ni qué tensiones tocar, ni la conducción de "
+        "voces: todo eso lo decide el intérprete según el estilo. Un mismo "
+        "«Dm7 – G7 – Cmaj7» escrito en una *lead sheet* del Real Book puede "
+        "sonar de mil maneras distintas.",
+
+        "## El origen: el bajo continuo",
+        "En el Barroco (c. 1600-1750) las partituras solían dar solo la línea "
+        "del bajo con **cifras** debajo, y el teclista o el tañedor de laúd "
+        "«realizaba» los acordes improvisando sobre ellas. Las cifras indican "
+        "los intervalos a construir sobre el bajo: sin cifra, tríada en estado "
+        "fundamental; **6** = primera inversión; **6/4** = segunda inversión; "
+        "**7** = acorde de séptima; **6/5, 4/3, 2** = sus inversiones; una "
+        "alteración suelta afecta a la tercera sobre el bajo, y una cifra "
+        "tachada o con almohadilla indica que ese intervalo va alterado. Este "
+        "sistema entrena a pensar la armonía **desde el bajo hacia arriba**, y "
+        "sigue siendo la mejor escuela para entender las inversiones y la "
+        "conducción de voces.",
+    ],
+    verTambien=["wiki-teoria-acordes", "wiki-teoria-armonia", "wiki-teoria-modos",
+                "wiki-historia-barroco", "wiki-historia-jazz"],
+    fuentes=[F_PISTON,
+             LIBRO("Mark Levine, «The Jazz Theory Book» (Sher Music)"),
+             W("Wikipedia — Bajo continuo", "https://es.wikipedia.org/wiki/Bajo_continuo"),
+             W("Wikipedia — Cifrado americano", "https://es.wikipedia.org/wiki/Cifrado_(m%C3%BAsica)")],
+),
+
+# -------------------------------------------------------------------------
+"wiki-teoria-tonalidad": dict(
+    resumen="Cómo una nota central y su escala organizan toda una obra: la "
+            "armadura, las 15 tonalidades, el círculo de quintas, la "
+            "modulación, el transporte y los límites del sistema tonal.",
+    cuerpo=[
+        "La **tonalidad** es el «sistema operativo» de la música occidental "
+        "entre 1650 y 1900 más o menos, y todavía el de casi toda la música "
+        "popular. La idea es sencilla: una nota, la **tónica**, hace de centro "
+        "de gravedad —de casa—; su escala aporta las siete notas «de la "
+        "familia»; y todo lo demás se oye en relación con ese centro, como más "
+        "cerca o más lejos de casa, más en reposo o más en tensión.",
+
+        "## La sensible, motor de la tonalidad",
+        "El elemento que más define una tonalidad es la **sensible**: el "
+        "séptimo grado, a un semitono de la tónica, con una fortísima "
+        "atracción hacia ella. Ese semitono ascendente (SI→DO en DO mayor), "
+        "combinado con el descenso de la subdominante hacia la tercera (FA→MI), "
+        "forma el tritono que resuelve en la cadencia y que «confirma» dónde "
+        "está la tónica. Por eso la escala menor necesita alterar su VII grado "
+        "para tener tonalidad plena.",
+
+        "## La armadura y las 15 tonalidades",
+        "Cada tonalidad mayor y cada tonalidad menor tienen una **armadura**: "
+        "el grupo de sostenidos o bemoles, escritos tras la clave, que "
+        "mantienen la escala correcta a lo largo de toda la obra. Hay una "
+        "tonalidad sin alteraciones (DO mayor / LA menor) y, a partir de ella, "
+        "siete con sostenidos y siete con bemoles, más varias equivalencias "
+        "enarmónicas (SI mayor = DO♭ mayor; FA♯ mayor = SOL♭ mayor; DO♯ mayor = "
+        "RE♭ mayor). En la práctica se usan **15 armaduras**. Cada tonalidad "
+        "mayor comparte armadura con una **menor relativa**, una tercera menor "
+        "por debajo.",
+
+        "## El círculo de quintas",
+        "Coloca las doce tonalidades en círculo, cada una una **quinta justa** "
+        "por encima de la anterior —DO, SOL, RE, LA, MI, SI, FA♯…—, y a los "
+        "doce pasos vuelves al punto de partida (gracias al temperamento "
+        "igual). Cada "
+        "paso en sentido horario **añade un sostenido** a la armadura (y el "
+        "nuevo sostenido es siempre la sensible de la nueva tonalidad); cada "
+        "paso en sentido antihorario, siguiendo cuartas —DO, FA, SI♭, MI♭…—, "
+        "**añade un bemol**. El círculo es un mapa de parentesco: **tonalidades "
+        "vecinas** (a un paso) comparten seis de sus siete notas y suenan "
+        "próximas; tonalidades opuestas en el círculo son las más ajenas. Es la "
+        "herramienta más útil para saber qué armadura tiene cada tono y qué "
+        "modulaciones sonarán suaves.",
+
+        "## Modular y tonicalizar",
+        "**Modular** es cambiar de tonalidad dentro de una obra y confirmar el "
+        "nuevo centro con una cadencia. Los tipos principales: **diatónica** o "
+        "por acorde pivote (un acorde común a las dos tonalidades hace de "
+        "bisagra), **cromática** (una voz se altera para forzar el giro), "
+        "**enarmónica** (un acorde se reinterpreta —típicamente el disminuido "
+        "de séptima o la sexta aumentada— y abre una puerta lejana) y "
+        "**directa** o «por sorpresa» (se salta sin preparación, el clásico "
+        "subir medio tono el último estribillo de una balada). Cuando el giro "
+        "es breve y no se instala del todo se habla de **tonicalización**: se "
+        "pone momentáneamente una **dominante secundaria** (V/V, V/vi…) delante "
+        "de un grado que no es la tónica para darle brillo pasajero.",
+
+        "## Transportar",
+        "**Transportar** es mover toda la música el mismo intervalo, sin "
+        "cambiar ninguna relación interna: la pieza suena igual, más aguda o "
+        "más grave. Se hace por comodidad de una voz o de un instrumento, o "
+        "porque el instrumento es **transpositor** (un clarinete «en SI♭» "
+        "escrito en DO suena un tono más bajo; una trompeta «en SI♭» igual). "
+        "Saber transportar a vista es una destreza básica para acompañantes y "
+        "directores.",
+
+        "## Los límites del sistema",
+        "A lo largo del siglo XIX la armonía se fue cromatizando (Wagner, "
+        "Liszt, Mahler): tantas alteraciones y modulaciones que el centro tonal "
+        "se difuminaba. Hacia 1908 Schoenberg dio el paso a la **atonalidad** "
+        "—renunciar a toda tónica— y luego al **dodecafonismo**. En paralelo, "
+        "el impresionismo y buena parte del jazz y el folk trabajan con "
+        "**centros modales** (una nota central pero sin la dominante funcional "
+        "de la tonalidad). La tonalidad clásica es, por tanto, un sistema "
+        "histórico concreto, extraordinariamente potente pero no universal.",
+    ],
+    verTambien=["wiki-teoria-escalas", "wiki-teoria-armonia", "wiki-teoria-tono-semitono",
+                "wiki-teoria-modos", "wiki-historia-romanticismo", "wiki-historia-siglo-xx"],
+    fuentes=[F_PISTON, F_SCHOENBERG,
+             W("Wikipedia — Tonalidad", "https://es.wikipedia.org/wiki/Tonalidad_(m%C3%BAsica)"),
+             W("Wikipedia — Círculo de quintas", "https://es.wikipedia.org/wiki/C%C3%ADrculo_de_quintas")],
+),
+
+# -------------------------------------------------------------------------
+"wiki-teoria-armonia": dict(
+    resumen="Los acordes propios de una tonalidad, las tres funciones "
+            "(tónica, subdominante, dominante), la conducción por el círculo, "
+            "las cadencias y las dominantes secundarias.",
+    cuerpo=[
+        "La armonía tonal va de dos cosas: **qué acordes «pegan»** dentro de "
+        "una tonalidad, y **en qué orden ponerlos** para que la música respire "
+        "—que tense y afloje, que se aleje de casa y vuelva—. La pieza clave "
+        "es el **grado**: el acorde que sale de construir sobre cada nota de "
+        "la escala. Y la idea que lo ordena todo es que **cada grado tiene un "
+        "papel** (una función), como los personajes de una historia.",
+
+        "## El campo armónico mayor",
+        "Si sobre cada nota de la escala mayor vas apilando terceras, salen "
+        "siete acordes, uno por grado. Con tres notas (tríadas): **I** mayor, "
+        "**ii** menor, "
+        "**iii** menor, **IV** mayor, **V** mayor, **vi** menor, **vii°** "
+        "disminuido. Con la séptima: **Imaj7, ii7, iii7, IVmaj7, V7, vi7, "
+        "viiø7**. En DO mayor: Cmaj7, Dm7, Em7, Fmaj7, G7, Am7, Bø7. Fíjate en "
+        "que **solo el V lleva séptima menor** (G7): es el único acorde de "
+        "dominante del campo, y su tritono interno (SI-FA) es lo que apunta a "
+        "la tónica.",
+
+        "## El campo armónico menor",
+        "El modo menor tiene tres escalas, así que da más juego. Con la menor "
+        "natural salen: i, ii°, ♭III, iv, v, ♭VI, ♭VII. Pero para tener una "
+        "dominante que «tire» de verdad se usa la **sensible** de la menor "
+        "armónica, y entonces el V se vuelve **mayor** (E7 en LA menor), "
+        "aparecen un **vii°** disminuido y un curioso **♭III+** aumentado. En "
+        "la práctica se van cogiendo acordes de las tres escalas según haga "
+        "falta: iv menor y IV mayor, ♭VI y vi, v menor y V mayor.",
+
+        "## Las tres funciones",
+        "Cada grado gravita hacia una de tres funciones. **Tónica** (I, y como "
+        "sustitutos vi y iii): reposo, estabilidad, «casa». **Subdominante** "
+        "(IV, y como sustituto ii): tensión suave, «salir de casa». "
+        "**Dominante** (V y vii°, y en menor también ♭VII prestado): máxima "
+        "tensión, «necesidad de volver». El discurso armónico típico va "
+        "T → S → D → T. Los **sustitutos** permiten repetir una función "
+        "cambiando el color (poner vi donde iría I para una cadencia rota, "
+        "poner ii donde iría IV).",
+
+        "## Cómo se encadenan los acordes",
+        "El movimiento de fundamentales más fuerte es **por quinta "
+        "descendente** (V→I, ii→V, vi→ii…): es el que recorre el círculo de "
+        "quintas y da la sensación de «progreso» y resolución. El movimiento "
+        "**por segunda** (IV→V, I→ii) es más suave y ascendente; el movimiento "
+        "**por tercera** (I→vi, I→iii) conserva notas comunes y suena "
+        "«lateral». Una **marcha armónica** o secuencia repite el mismo patrón "
+        "de acordes descendiendo o ascendiendo por grados (la progresión "
+        "«circular» ii-V encadenada de tantos estándares de jazz).",
+
+        "## Las cadencias",
+        "Una cadencia es la fórmula que puntúa el final de una frase. "
+        "**Auténtica** (V–I): la conclusión por excelencia; es **perfecta** si "
+        "ambos acordes van en estado fundamental y la melodía cae en la tónica, "
+        "e **imperfecta** si hay inversiones o la melodía acaba en otra nota. "
+        "**Plagal** (IV–I): la cadencia «amén», más blanda, sin sensible. "
+        "**Semicadencia** (…–V): termina en la dominante, deja la frase "
+        "«abierta», a la espera. **Rota** o de engaño (V–vi): la dominante "
+        "promete la tónica y entrega su sustituto, aplazando el reposo. "
+        "**Frigia** (iv⁶–V en menor): giro cadencial descendente muy usado en "
+        "el Barroco.",
+
+        "## Dominantes secundarias y sustituto tritonal",
+        "Para dar brillo a un grado que no es la tónica se le antepone su "
+        "propia dominante: **V/V** (en DO mayor, un D7 que resuelve en G), "
+        "**V/vi**, **V/ii**… Son acordes con una alteración ajena a la "
+        "tonalidad que crean una mini-cadencia interna. El **sustituto "
+        "tritonal** (muy jazzístico) reemplaza un V7 por el acorde de "
+        "dominante situado a un tritono (D♭7 en lugar de G7): comparten el "
+        "tritono interno, así que resuelve igual de bien pero con el bajo "
+        "bajando cromáticamente.",
+
+        "## Dos ejemplos",
+        "Pop: **I–V–vi–IV** (C–G–Am–F), cuatro acordes que giran sin cadencia "
+        "fuerte, base de cientos de éxitos. Barroco/jazz: **ii–V–I** (Dm7–G7–"
+        "Cmaj7), subdominante → dominante → tónica en su forma más pura, la "
+        "célula con la que se construyen los estándares. Analizar por qué "
+        "«funcionan» —qué función cumple cada acorde y hacia dónde tira— es el "
+        "objetivo de toda la armonía.",
+    ],
+    verTambien=["wiki-teoria-acordes", "wiki-teoria-cifrado", "wiki-teoria-tonalidad",
+                "wiki-teoria-modos", "wiki-teoria-contrapunto", "wiki-historia-barroco"],
+    fuentes=[F_PISTON, F_SCHOENBERG,
+             LIBRO("Diether de la Motte, «Armonía» (Idea Books)"),
+             W("Wikipedia — Cadencia (música)", "https://es.wikipedia.org/wiki/Cadencia_(m%C3%BAsica)")],
+),
+
+# -------------------------------------------------------------------------
+"wiki-teoria-modos": dict(
+    resumen="Las siete escalas que se obtienen rotando la mayor: su fórmula, "
+            "su nota característica, su brillo relativo, su origen medieval y "
+            "su uso para improvisar y componer música modal.",
+    cuerpo=[
+        "Un **modo** es una escala en la que lo importante no son solo las "
+        "notas, sino **cuál de ellas hace de centro**. Coge la escala de DO "
+        "mayor y, en vez de empezar y acabar en DO, empieza y acaba en RE: las "
+        "notas son las mismas, pero los dos semitonos caen en otro sitio y el "
+        "resultado suena distinto. Eso es un modo. Hazlo desde cada grado y "
+        "tienes siete modos, los llamados modos «griegos» (el nombre es de "
+        "tradición, no de la Grecia antigua).",
+
+        "## Los siete modos sobre las teclas blancas",
+        "Tomando la escala de DO mayor: **Jónico** (de DO a DO) = la escala "
+        "mayor. **Dórico** (RE a RE): menor con la 6ª mayor. **Frigio** (MI a "
+        "MI): menor con la 2ª menor. **Lidio** (FA a FA): mayor con la 4ª "
+        "aumentada. **Mixolidio** (SOL a SOL): mayor con la 7ª menor. **Eólico** "
+        "(LA a LA) = la escala menor natural. **Locrio** (SI a SI): la 2ª y la "
+        "5ª menores, tríada disminuida sobre la tónica; apenas se usa como "
+        "centro real.",
+
+        "## La nota característica",
+        "Cada modo se reconoce por la nota que lo diferencia de la escala mayor "
+        "o menor «normal» con la misma tónica. Comparado con el menor natural: "
+        "el **dórico** tiene la **6ª mayor** (RE dórico lleva SI natural, no "
+        "SI♭); el **frigio**, la **2ª menor** (MI frigio lleva FA natural). "
+        "Comparado con el mayor: el **lidio** tiene la **4ª aumentada** (FA "
+        "lidio lleva SI natural); el **mixolidio**, la **7ª menor** (SOL "
+        "mixolidio lleva FA natural). Resaltar esa nota —y evitar la tónica del "
+        "modo «padre»— es lo que hace que una melodía suene realmente modal y "
+        "no como un mayor o un menor a los que les falta resolver.",
+
+        "## El brillo",
+        "Se puede ordenar los modos de más «brillante» (más notas altas) a más "
+        "«oscuro»: **Lidio → Jónico → Mixolidio → Dórico → Eólico → Frigio → "
+        "Locrio**. Cada paso baja una nota un semitono. Es una forma útil de "
+        "recordarlos y de elegir color: para algo luminoso y suspendido, "
+        "lidio; para algo grave y tenso, frigio.",
+
+        "## Origen medieval",
+        "El sistema modal organizó el canto llano y la polifonía hasta el "
+        "Barroco. Los teóricos medievales definían ocho modos eclesiásticos por "
+        "su **finalis** (nota final), su **ámbito** y su **repercussio** (nota "
+        "de recitado), y distinguían modos **auténticos** y **plagales** (la "
+        "misma finalis pero distinto registro). Con la consolidación de la "
+        "tonalidad, jónico y eólico —mayor y menor— absorbieron a los demás. El "
+        "interés moderno por los modos renació con el nacionalismo del XIX, el "
+        "impresionismo y, sobre todo, el **jazz modal** de finales de los años "
+        "50 (Miles Davis, «Kind of Blue»).",
+
+        "## Modos en la práctica",
+        "**Jazz modal**: una pieza se queda muchos compases sobre un solo "
+        "acorde y se improvisa con su modo («So What» son 16 compases de RE "
+        "dórico y 8 de MI♭ dórico). **Folk y música celta**: mixolidio y dórico "
+        "por todas partes. **Flamenco y música española**: el modo **frigio**, "
+        "a menudo con la 3ª mayor (la «escala andaluza» o frigio dominante), y "
+        "la cadencia andaluza Am–G–F–E. **Música de cine**: el **lidio** para "
+        "el asombro y lo maravilloso (John Williams), el frigio y el locrio "
+        "para la amenaza.",
+
+        "## Improvisar modalmente",
+        "Tres consejos prácticos: (1) mantén un **pedal** o un acorde estático "
+        "que fije el centro, porque sin él el oído «recoloca» la tónica en el "
+        "mayor padre; (2) **empieza y reposa** en la tónica del modo; (3) "
+        "**haz sonar la nota característica** a menudo y en tiempo fuerte. "
+        "Evita las notas que crearían una cadencia tonal (no fuerces la "
+        "sensible en el dórico o el mixolidio), porque destruirían el ambiente "
+        "modal.",
+
+        "## Modos de la menor melódica",
+        "Igual que se rota la escala mayor, se rota la menor melódica y salen "
+        "siete modos más, muy usados en el jazz: destacan el **lidio "
+        "dominante** (o «lidio ♭7», 4.º modo: ideal sobre dominantes con ♯11) y "
+        "la **escala alterada** o **superlocrio** (7.º modo: todas las "
+        "tensiones alteradas, para el V7alt que resuelve en menor).",
+    ],
+    verTambien=["wiki-teoria-escalas", "wiki-teoria-armonia", "wiki-teoria-tonalidad",
+                "wiki-historia-medieval", "wiki-historia-jazz"],
+    fuentes=[F_ZAMACOIS,
+             LIBRO("Mark Levine, «The Jazz Theory Book»"),
+             W("Wikipedia — Modo (música)", "https://es.wikipedia.org/wiki/Modo_(m%C3%BAsica)"),
+             W("Wikipedia — Jazz modal", "https://es.wikipedia.org/wiki/Jazz_modal")],
+),
+
+# -------------------------------------------------------------------------
+"wiki-teoria-textura": dict(
+    resumen="Cuántas líneas suenan a la vez y qué relación guardan entre sí: "
+            "monofonía, homofonía, polifonía y heterofonía, con ejemplos por "
+            "época y en la música popular.",
+    cuerpo=[
+        "La textura describe el «tejido» sonoro de un fragmento: cuántas voces "
+        "o líneas suenan simultáneamente y cómo se relacionan (¿una manda y las "
+        "demás acompañan? ¿son todas independientes? ¿hacen todas lo mismo?). "
+        "Es de lo primero que capta el oído, y una de las herramientas más "
+        "eficaces para dar forma a una pieza: cambiar de textura marca "
+        "secciones, crea contraste y dirige la atención.",
+
+        "## Monofonía",
+        "Una sola línea melódica, sin ningún acompañamiento armónico, la cante "
+        "una persona o mil al unísono. Es la textura del **canto gregoriano**, "
+        "de gran parte de la música tradicional de melodía sola, de un "
+        "instrumento solista sin acompañar. No es «pobre»: concentra toda la "
+        "atención en el perfil melódico, el ritmo y el texto.",
+
+        "## Homofonía",
+        "Una **melodía principal claramente destacada** con un acompañamiento "
+        "subordinado. Es la textura dominante desde el Clasicismo y "
+        "prácticamente la única de la canción popular: voz + guitarra, voz + "
+        "piano, solista + orquesta que «rellena». Un caso particular es la "
+        "**homorritmia** (u homofonía en bloque): todas las voces se mueven con "
+        "el mismo ritmo, como en un coral luterano o en un himno; hay varias "
+        "notas a la vez, pero forman acordes, no líneas independientes.",
+
+        "## Polifonía (o contrapunto)",
+        "**Dos o más líneas melódicas independientes**, cada una con su propio "
+        "perfil y su propio ritmo, que suenan a la vez y encajan formando una "
+        "armonía correcta. Ninguna es un mero acompañamiento. Es la gran "
+        "conquista de la música europea entre el Renacimiento (Josquin, "
+        "Palestrina) y el Barroco (la fuga de Bach). Puede ser **imitativa** "
+        "(las voces se van pasando el mismo motivo, como en un canon o una "
+        "fuga) o **no imitativa** (líneas distintas desde el principio).",
+
+        "## Heterofonía",
+        "Varias voces interpretan **la misma melodía a la vez, pero cada una "
+        "con adornos, ritmos o variantes ligeramente distintos**. No es "
+        "polifonía (no hay líneas realmente independientes) ni unísono (no "
+        "coinciden del todo). Es habitual en la música tradicional de muchas "
+        "culturas: el *maqam* árabe, el *gagaku* japonés, el *heterophony* de "
+        "la música de Oriente Próximo, ciertas prácticas del folclore europeo, "
+        "y aparece también cuando una sección de jazz «dobla» un tema con "
+        "libertades.",
+
+        "## La textura como recurso formal",
+        "Casi ninguna obra mantiene una sola textura. Una fuga alterna "
+        "**exposiciones** (todas las voces con el tema) y **episodios** (menos "
+        "voces, más ligeros). Una sinfonía clásica contrasta un tema "
+        "acompañado (homofonía) con un pasaje de desarrollo donde los "
+        "instrumentos se imitan (polifonía). Un tema de rock pasa de voz sola "
+        "(casi monofonía) a toda la banda entrando de golpe. En la música del "
+        "siglo XX aparecen texturas nuevas: **masas sonoras** y "
+        "**micropolifonía** (Ligeti, Penderecki), donde tantas líneas se "
+        "superponen que se dejan de oír por separado y solo se percibe una "
+        "nube que cambia de densidad y de registro.",
+
+        "## Cómo se analiza",
+        "Para describir la textura conviene fijarse en: el **número de voces "
+        "reales**, cuál lleva el material principal, si el acompañamiento es "
+        "acórdico o figurado (arpegios, bajo Alberti), el **espaciado** entre "
+        "voces (juntas y agudas suena brillante; separadas y graves, oscuro) y "
+        "los **cambios** de textura a lo largo del fragmento.",
+    ],
+    verTambien=["wiki-teoria-contrapunto", "wiki-teoria-timbre", "wiki-teoria-formas",
+                "wiki-historia-renacimiento", "wiki-historia-medieval"],
+    fuentes=[F_ZAMACOIS,
+             W("Wikipedia — Textura (música)", "https://es.wikipedia.org/wiki/Textura_(m%C3%BAsica)"),
+             W("Wikipedia — Homofonía", "https://es.wikipedia.org/wiki/Homofon%C3%ADa")],
+),
+
+# -------------------------------------------------------------------------
+"wiki-teoria-contrapunto": dict(
+    resumen="El arte de combinar melodías independientes: las reglas del "
+            "contrapunto de especies, la imitación y el canon, y la fuga como "
+            "su forma más elaborada.",
+    cuerpo=[
+        "El contrapunto es el arte de **hacer sonar juntas dos o más "
+        "melodías** que ya funcionan cada una por su cuenta. El nombre viene "
+        "del latín *punctus contra punctum*, «nota contra nota». Es la otra "
+        "cara de la armonía: la armonía piensa hacia arriba, en acordes; el "
+        "contrapunto piensa hacia los lados, en líneas que, al cruzarse, van "
+        "formando esos mismos acordes.",
+
+        "## El contrapunto de especies",
+        "El método clásico para aprenderlo, codificado por **Fux** en el "
+        "*Gradus ad Parnassum* (1725) y usado por Haydn, Mozart, Beethoven y "
+        "hasta hoy, parte de un **cantus firmus** (una melodía dada en redondas) "
+        "sobre la que se añade una voz en cinco fases de dificultad creciente, "
+        "las «especies»: **1.ª** nota contra nota; **2.ª** dos notas contra una; "
+        "**3.ª** cuatro contra una; **4.ª** notas sincopadas, que introduce el "
+        "**retardo** (una consonancia se prolonga hasta volverse disonancia y "
+        "luego resuelve bajando); **5.ª** contrapunto **florido**, que combina "
+        "todas.",
+
+        "## Las reglas básicas",
+        "Buena parte del oficio se resume en unos pocos principios: usar "
+        "**consonancias** en los tiempos fuertes y tratar las disonancias solo "
+        "como nota de paso, floreo o retardo bien resuelto; **prohibir las "
+        "quintas y las octavas paralelas** (dos voces que se mueven a la vez "
+        "manteniendo ese intervalo pierden su independencia y «se funden»); "
+        "preferir el **movimiento contrario** y el **oblicuo** al directo; que "
+        "cada voz tenga un **único clímax** y un perfil cantable, con más "
+        "grados conjuntos que saltos, y compensando cada salto grande con un "
+        "movimiento en sentido opuesto; y cerrar con una **cláusula** en la que "
+        "la sensible sube a la tónica.",
+
+        "## Recursos de imitación",
+        "El contrapunto imitativo hace que las voces compartan material. La "
+        "**imitación** libre repite un motivo en otra voz, no necesariamente "
+        "igual. El **canon** lo lleva al extremo: una voz reproduce a otra nota "
+        "por nota, a cierta distancia de tiempo y de altura (canon a la octava, "
+        "a la quinta…). Hay cánones **por aumentación** o **disminución** (la "
+        "imitación va al doble o a la mitad de velocidad), **por inversión** "
+        "(los intervalos se dan la vuelta: lo que subía, baja) y **cancrizantes** "
+        "o «de cangrejo» (la segunda voz es la primera leída de atrás hacia "
+        "delante). El **contrapunto invertible** (a la octava, a la décima, a "
+        "la duodécima) está escrito para que se pueda intercambiar cuál voz va "
+        "arriba y cuál abajo sin que aparezcan errores.",
+
+        "## La fuga",
+        "La fuga es la forma contrapuntística más desarrollada. Comienza con la "
+        "**exposición**: una voz sola presenta el **sujeto** (el tema); cuando "
+        "termina, una segunda voz responde con la **respuesta** (el sujeto "
+        "transportado a la dominante, **real** si es transporte exacto o "
+        "**tonal** si se ajusta algún intervalo), mientras la primera continúa "
+        "con el **contrasujeto**; van entrando así todas las voces. Después se "
+        "alternan **episodios** (secciones de transición, sin el sujeto "
+        "completo, que modulan) con nuevas **entradas** del sujeto en distintas "
+        "tonalidades. Recursos habituales: el **estrecho** (*stretto*: las "
+        "entradas se solapan antes de que la anterior acabe, aumentando la "
+        "tensión) y el **pedal** de dominante o de tónica cerca del final. "
+        "«El clave bien temperado» de Bach es el catálogo de referencia.",
+
+        "## Palestrina y Bach: dos estilos",
+        "Se suele estudiar en dos «estilos» históricos: el **estilo antiguo** "
+        "o *stile antico* (Palestrina, siglo XVI), vocal, diatónico, de "
+        "disonancias muy controladas, base del contrapunto «modal»; y el "
+        "**estilo tonal** (Bach, siglo XVIII), instrumental, con armonía "
+        "funcional, cromatismo y una escritura más libre.",
+
+        "## Por qué se sigue estudiando",
+        "Escribir contrapunto —aunque hoy casi nadie componga fugas— sigue "
+        "siendo el mejor entrenamiento para dominar la **conducción de voces**, "
+        "oír varias líneas a la vez y dar vida melódica a las voces internas. "
+        "Su lógica reaparece en las líneas de bajo del jazz, en los arreglos "
+        "corales del pop, en la música de videojuegos y en la de cine.",
+    ],
+    verTambien=["wiki-teoria-textura", "wiki-teoria-armonia", "wiki-teoria-formas",
+                "wiki-historia-barroco", "wiki-historia-renacimiento"],
+    fuentes=[F_FUX,
+             LIBRO("Knud Jeppesen, «Counterpoint: The Polyphonic Vocal Style of the Sixteenth Century»"),
+             W("Wikipedia — Contrapunto", "https://es.wikipedia.org/wiki/Contrapunto"),
+             W("Wikipedia — Fuga (música)", "https://es.wikipedia.org/wiki/Fuga_(m%C3%BAsica)")],
+),
+
+# -------------------------------------------------------------------------
+"wiki-teoria-formas": dict(
+    resumen="Los planes de construcción de una pieza: de la frase al período, "
+            "las formas pequeñas (binaria, ternaria, rondó, variaciones), la "
+            "forma sonata y las formas de la música popular.",
+    cuerpo=[
+        "La forma es **el plano de una pieza**: cómo se reparten las "
+        "secciones, qué se repite, qué contrasta y qué se transforma. Por "
+        "debajo hay solo tres ideas, que se combinan hasta el infinito: "
+        "**repetir** (da unidad y se te queda en la cabeza), **contrastar** "
+        "(da variedad y un respiro) y **variar / desarrollar** (cambiar una "
+        "idea sin que deje de reconocerse).",
+
+        "## Las unidades pequeñas",
+        "El ladrillo más pequeño es el **motivo**: unas pocas notas "
+        "reconocibles, como las cuatro que abren la Quinta de Beethoven. "
+        "Los motivos forman **frases** (unidades con sentido, que suelen "
+        "«respirar» cada 4 compases) y dos frases complementarias —una que "
+        "pregunta y acaba en semicadencia, otra que responde y cierra con "
+        "cadencia auténtica— forman un **período**. Con periodos se construyen "
+        "las secciones (A, B, C…).",
+
+        "## Formas pequeñas",
+        "**Binaria** (AB o ‖: A :‖ ‖: B :‖): dos secciones, la primera va de la "
+        "tónica a la dominante y la segunda regresa; típica de las danzas "
+        "barrocas. **Ternaria** (ABA): se va a un contraste y se vuelve al "
+        "material inicial; el da capo del aria barroca, el minueto con trío, el "
+        "*scherzo*. **Rondó** (ABACA, ABACABA…): un estribillo (A) que reaparece "
+        "entre episodios distintos; frecuente en finales alegres. **Tema y "
+        "variaciones**: una idea que vuelve una y otra vez transformada en el "
+        "ritmo, la armonía, el modo, el registro o el carácter, conservando su "
+        "esqueleto (melódico o de bajo). Cuando lo que se repite es un bajo "
+        "obstinado se llama **passacaglia** o **chacona**.",
+
+        "## La forma sonata",
+        "Es el plan más influyente de la música instrumental clásica y "
+        "romántica; rige, sobre todo, el primer movimiento de sonatas, "
+        "cuartetos, sinfonías y conciertos. Tiene tres partes: **exposición** "
+        "—un primer tema en la tónica, un **puente** que modula, un segundo "
+        "tema (más lírico) en la dominante o en la relativa mayor, y una "
+        "conclusión; se solía repetir entera—; **desarrollo** —los temas se "
+        "fragmentan, se combinan y viajan por tonalidades lejanas, es la zona "
+        "de máxima inestabilidad—; y **reexposición** —vuelven los dos temas, "
+        "pero ahora **los dos en la tónica**, resolviendo la tensión "
+        "estructural—. Puede haber una **introducción** lenta y una **coda** "
+        "final. Entender la sonata es entender cómo la tonalidad se convierte "
+        "en argumento dramático.",
+
+        "## Formas de varios movimientos",
+        "La **sinfonía** y la sonata clásicas tienen cuatro movimientos: "
+        "rápido (forma sonata), lento, minueto o scherzo, y final rápido "
+        "(rondó o sonata). El **concierto** añade a la forma sonata una doble "
+        "exposición (orquesta y luego solista) y una **cadenza**. La **suite** "
+        "barroca encadena danzas contrastantes (allemande, courante, "
+        "sarabande, gigue y otras). La **fuga** y el **canon** son a la vez "
+        "técnica y forma (ver contrapunto).",
+
+        "## Formas vocales",
+        "**Estrófica**: la misma música para todas las estrofas (el himno, "
+        "muchas canciones populares). **Through-composed** (*durchkomponiert*): "
+        "música nueva y continua que sigue el texto sin repetir (muchos lieder "
+        "de Schubert). En la ópera se alternan el **recitativo** (declamado, "
+        "hace avanzar la acción) y el **aria** (lírica, detiene el tiempo para "
+        "expresar un estado), además de dúos, coros y concertantes.",
+
+        "## Formas de la música popular",
+        "Tienen su propia tradición: el **blues de 12 compases** (I-I-I-I / "
+        "IV-IV-I-I / V-IV-I-V), la **forma de 32 compases AABA** de los "
+        "estándares de Tin Pan Alley, y la moderna secuencia **estrofa – "
+        "estribillo – (pre-estribillo) – puente**, con recursos como el "
+        "*drop* en la música electrónica de baile o la subida de medio tono "
+        "en el último estribillo. Cambian los nombres, pero los principios "
+        "—repetición, contraste, variación— son los mismos.",
+    ],
+    verTambien=["wiki-teoria-ritmo", "wiki-teoria-contrapunto", "wiki-teoria-armonia",
+                "wiki-historia-clasicismo", "wiki-tm-numero"],
+    fuentes=[LIBRO("Charles Rosen, «El estilo clásico» (Alianza)"),
+             LIBRO("William Caplin, «Classical Form»"),
+             W("Wikipedia — Forma musical", "https://es.wikipedia.org/wiki/Forma_musical"),
+             W("Wikipedia — Forma sonata", "https://es.wikipedia.org/wiki/Forma_sonata")],
+),
+
+# -------------------------------------------------------------------------
+"wiki-teoria-timbre": dict(
+    resumen="Por qué cada instrumento y cada voz suenan distinto —espectro, "
+            "envolvente, transitorios— y cómo la orquestación combina esos "
+            "colores.",
+    cuerpo=[
+        "El timbre es el **«color» del sonido**: lo que hace que un oboe y un "
+        "violín tocando exactamente el mismo LA, igual de fuerte y de largo, "
+        "sigan siendo inconfundibles. No es una sola cosa que puedas medir con "
+        "un número: depende sobre todo de tres.",
+
+        "## Qué determina el timbre",
+        "**El espectro**: qué armónicos (parciales) acompañan al sonido "
+        "fundamental y en qué proporción. Un sonido con muchos armónicos "
+        "agudos suena brillante o áspero (la trompeta *forte*, la cuerda "
+        "*sul ponticello*); uno con pocos, redondo y dulce (la flauta grave, "
+        "el diapasón). **La envolvente**: cómo evoluciona el volumen a lo largo "
+        "de la nota —ataque, caída, mantenimiento y extinción—. Un piano tiene "
+        "ataque instantáneo y extinción larga sin mantenimiento; un órgano, "
+        "ataque y corte casi cuadrados; un violín, un ataque que el "
+        "instrumentista modela con el arco. **Los transitorios de ataque**: los "
+        "ruidos brevísimos del inicio (el golpe de lengua, el roce del arco, "
+        "el macillo). Son decisivos: si a una grabación de piano se le recorta "
+        "el ataque, cuesta reconocer que es un piano.",
+
+        "## Registros dentro de un mismo instrumento",
+        "Casi ningún instrumento tiene un timbre único: cambia por zonas. El "
+        "clarinete tiene el grave *chalumeau* (oscuro, líquido), un registro "
+        "medio algo pálido y un agudo penetrante. El violín es cálido en la "
+        "cuerda SOL y brillante en la MI. La voz pasa por registros (de pecho, "
+        "mixto, de cabeza, falsete). Orquestar bien exige conocer esas zonas.",
+
+        "## Las familias de la orquesta",
+        "**Cuerda frotada** (violín, viola, violonchelo, contrabajo): la base "
+        "flexible de la orquesta; admite arco (*arco*), pizzicato, sordina, "
+        "trémolo, armónicos, *sul ponticello* y *sul tasto*, *col legno*. "
+        "**Viento madera** (flauta, oboe, clarinete, fagot, más piccolo, corno "
+        "inglés, clarinete bajo, contrafagot): cada uno con una personalidad "
+        "muy marcada; ágiles, buenos para solos y para color. **Viento metal** "
+        "(trompa, trompeta, trombón, tuba): potencia y empaque; usan sordinas "
+        "de muchos tipos. **Percusión**: de altura definida (timbales, "
+        "xilófono, marimba, celesta, campanas) o indefinida (caja, bombo, "
+        "platillos, triángulo). Aparte quedan el **arpa**, los **teclados** y, "
+        "en el siglo XX, los **electrófonos**.",
+
+        "## Instrumentos transpositores",
+        "Muchos vientos suenan en una altura distinta de la escrita, para que "
+        "el intérprete use siempre la misma digitación al cambiar de "
+        "instrumento de la familia: un clarinete o una trompeta «en SI♭» suenan "
+        "un tono por debajo de lo escrito; una trompa «en FA», una quinta por "
+        "debajo; el piccolo y el contrabajo suenan una octava distinta. El "
+        "director y el orquestador leen constantemente esas transposiciones.",
+
+        "## Orquestar",
+        "Orquestar es decidir **quién toca qué**: qué instrumento lleva la "
+        "melodía, cómo se reparte la armonía, cuándo doblar una línea para "
+        "reforzarla, cuándo dejar que un color quede desnudo, cómo hacer un "
+        "*crescendo* sumando instrumentos, cómo lograr un *tutti* que no sea "
+        "barro. Un mismo acorde de cuatro notas puede sonar transparente o "
+        "compacto, frío o cálido, según en qué octavas y con qué instrumentos "
+        "se disponga. Los tratados de referencia son los de **Berlioz** "
+        "(revisado por Strauss), **Rimski-Kórsakov**, **Piston** y **Adler**. "
+        "Hoy la orquestación también se practica en el ordenador, con "
+        "bibliotecas de sonidos, para maquetas de cine y videojuegos.",
+    ],
+    verTambien=["wiki-teoria-acustica", "wiki-teoria-sonido", "wiki-teoria-textura",
+                "wiki-inst-familias", "wiki-historia-romanticismo"],
+    fuentes=[F_RIMSKI, F_ADLER, F_HELMHOLTZ,
+             W("Wikipedia — Timbre (música)", "https://es.wikipedia.org/wiki/Timbre_(m%C3%BAsica)")],
+),
+
+# -------------------------------------------------------------------------
+"wiki-teoria-dinamica-agogica": dict(
+    resumen="Los matices que dan vida a la partitura: la dinámica (volumen), "
+            "la agógica (flexibilidad del tempo) y la articulación (cómo se "
+            "ataca y se une cada nota).",
+    cuerpo=[
+        "Una partitura fija las notas, pero la música «viva» está en los "
+        "matices que el intérprete añade: cuánto volumen, cuánta prisa, cómo "
+        "empieza y termina cada sonido. Se agrupan en tres apartados —dinámica, "
+        "agógica y articulación— y son, juntos, lo que separa una ejecución "
+        "mecánica de una interpretación.",
+
+        "## Dinámica",
+        "Es el volumen y su gestión. La escala habitual, de más suave a más "
+        "fuerte: **ppp – pp – p – mp – mf – f – ff – fff** (y algún extremo "
+        "más). Las transiciones se marcan con *crescendo* (—<—), *diminuendo* o "
+        "*decrescendo* (—>—), *morendo*, *smorzando*. Hay acentos dinámicos "
+        "puntuales: **sf / sfz** (*sforzando*, un golpe), **fp** (fuerte e "
+        "inmediatamente suave), **rfz** (*rinforzando*). Dos ideas clave: la "
+        "dinámica es **relativa** (un *forte* de flauta no iguala a un *forte* "
+        "de trombón; un *piano* después de un *fff* parece más suave de lo que "
+        "es) y **contextual** (el mismo pasaje dicho *p* o *f* cuenta cosas "
+        "distintas). Históricamente, el Barroco favorecía la **dinámica de "
+        "terraza** (bloques contrastantes, sin apenas graduación), y el "
+        "Clasicismo-Romanticismo desarrolló el *crescendo* progresivo (célebre "
+        "el de la orquesta de Mannheim).",
+
+        "## Agógica",
+        "Son las pequeñas flexibilidades del tempo al servicio de la expresión. "
+        "El **rubato** («robado») adelanta y retrasa el fraseo sin alterar el "
+        "pulso global: lo que se «roba» en un sitio se «devuelve» en otro. Hay "
+        "dos prácticas: el rubato **de melodía sobre acompañamiento estable** "
+        "(la mano izquierda de Chopin mantiene el tempo, la derecha respira) y "
+        "el rubato **de conjunto** (todos ceden y aprietan a la vez). Cambios "
+        "más marcados: **accelerando**, **ritardando** / **rallentando**, "
+        "**allargando**, y la **fermata** o calderón, que suspende el pulso "
+        "sobre una nota. También cuenta el *timing*: los micro-retrasos y "
+        "adelantos que dan *groove* a una sección rítmica.",
+
+        "## Articulación",
+        "Es cómo se ataca cada nota y cómo se une (o se separa) de la "
+        "siguiente. Términos generales: **legato** (ligado, sin corte entre "
+        "notas), **portato** o *louré* (ligado pero rearticulando suavemente "
+        "cada nota), **staccato** (breve y separada), **staccatissimo** (muy "
+        "seca), **tenuto** (sostener todo el valor, apoyando), **marcato** y "
+        "**acento** (ataque reforzado). La **ligadura de fraseo** agrupa notas "
+        "en una idea (dónde «respira» la música) y no debe confundirse con la "
+        "ligadura de unión, que suma duraciones.",
+        "Cada familia tiene su vocabulario. En la **cuerda**, la articulación "
+        "depende del golpe de arco: *détaché* (una nota por arcada), *legato* "
+        "(varias por arcada), *martelé* (marcado, «martilleado»), *spiccato* "
+        "(el arco rebota), *staccato volante*, *sautillé*. En el **viento**, "
+        "del uso de la lengua: notas picadas (*staccato*), ligadas (*slur*), y "
+        "para pasajes rápidos el **doble y triple picado** (ta-ka-ta). En el "
+        "**piano**, del toque y del **pedal** de resonancia, que liga y "
+        "enriquece el sonido.",
+
+        "## Fraseo",
+        "Todo lo anterior se pone al servicio del fraseo: decidir dónde empieza "
+        "y dónde termina cada idea musical, hacia qué nota se dirige (la nota "
+        "de llegada, la **tesis**, frente al impulso previo o **arsis**), dónde "
+        "hay que respirar. Frasear una melodía es, literalmente, «decirla» con "
+        "sentido, como se dice una frase hablada: la dinámica es su volumen, la "
+        "agógica su ritmo natural y la articulación su pronunciación.",
+    ],
+    verTambien=["wiki-teoria-ritmo", "wiki-teoria-ornamentacion", "wiki-teoria-timbre",
+                "wiki-historia-romanticismo", "wiki-historia-barroco"],
+    fuentes=[F_ZAMACOIS,
+             LIBRO("Heinrich Neuhaus, «El arte del piano»"),
+             W("Wikipedia — Dinámica (música)", "https://es.wikipedia.org/wiki/Din%C3%A1mica_(m%C3%BAsica)"),
+             W("Wikipedia — Articulación (música)", "https://es.wikipedia.org/wiki/Articulaci%C3%B3n_(m%C3%BAsica)")],
+),
+
+# -------------------------------------------------------------------------
+"wiki-teoria-ornamentacion": dict(
+    resumen="Las notas de adorno que decoran una melodía: apoyatura, mordente, "
+            "grupeto y trino, su realización según la época, y la ornamentación "
+            "libre en el Barroco, el jazz y el flamenco.",
+    cuerpo=[
+        "Ornamentar es añadir **notas pequeñas y rápidas alrededor de una nota "
+        "principal** para adornarla. Sirve para varias cosas: dar gracia y "
+        "elegancia, subrayar una nota importante, marcar el fraseo y, en "
+        "instrumentos que no aguantan el sonido (el clave, el arpa), "
+        "«disimular» que la nota se apaga. En muchos estilos no es un extra "
+        "opcional: es parte de cómo suena esa música.",
+
+        "## Los adornos principales",
+        "**Apoyatura**: una nota ajena al acorde que entra en el tiempo de la "
+        "principal, disuena y resuelve por grado conjunto (casi siempre "
+        "bajando). La apoyatura **larga** toma la mitad (o más) del valor de la "
+        "nota real; la **breve** (o *acciaccatura*, con la plica tachada) es "
+        "casi instantánea y se «aplasta» contra la principal.",
+        "**Mordente**: una alternancia rápida de la nota principal con su "
+        "vecina. **Superior** si va a la nota de arriba, **inferior** (a veces "
+        "llamado *mordente* propiamente y el otro *trino breve*) si va a la de "
+        "abajo. Empieza en el tiempo de la nota.",
+        "**Grupeto**: un giro de cuatro notas alrededor de la principal "
+        "(superior – principal – inferior – principal). Puede ir **sobre** la "
+        "nota (empezando en el tiempo) o **después** de ella; escrito con un "
+        "signo en forma de S tumbada, y una alteración encima o debajo afecta a "
+        "la nota superior o inferior del giro.",
+        "**Trino**: alternancia rápida y sostenida con la nota superior "
+        "durante todo el valor de la principal. Cuestión delicada: en el "
+        "Barroco y el Clasicismo el trino solía **empezar por la nota "
+        "superior** (que actúa como apoyatura), mientras que desde el "
+        "Romanticismo se empieza por la nota escrita. Muchos trinos llevan "
+        "**preparación** (una nota antes) y **resolución** o terminación (dos "
+        "notas de cierre, a menudo con un vuelta a la inferior).",
+
+        "## Un problema de notación",
+        "Los adornos se han escrito de dos maneras: con **signos** "
+        "convencionales (tr, la S del grupeto, la línea del mordente) o con "
+        "**notas pequeñas** de adorno. Ninguna es del todo unívoca: el mismo "
+        "signo significa cosas distintas según el país y el siglo. Por eso "
+        "existen los **tratados** de interpretación —C. P. E. Bach, Quantz, "
+        "Leopold Mozart, Tosi para el canto— y la **práctica históricamente "
+        "informada**, que intenta reconstruir cómo se realizaban realmente.",
+
+        "## Ornamentación libre",
+        "Más allá de los adornos catalogados, muchos estilos dejan que el "
+        "intérprete **invente** la decoración. En el Renacimiento se "
+        "practicaban las *divisions* o *diminutions*: partir las notas largas "
+        "en figuras rápidas siguiendo fórmulas. En la música francesa barroca, "
+        "al repetir una sección (*double*) se añadía un nuevo estrato de "
+        "adornos. En el **aria da capo** operística, la repetición debía venir "
+        "ornamentada por el cantante, y hacerlo con gusto era la prueba de "
+        "fuego. La misma idea vive hoy en el **jazz** (el fraseo y los "
+        "*fill-ins*), en el **flamenco** (el melisma, el *quejío*, los giros "
+        "del cante), en la música **árabe** (el *taqsim* improvisado), en el "
+        "**folk** irlandés (*rolls*, *cuts*) y en el *riff* adornado del blues.",
+
+        "## El criterio: el buen gusto",
+        "Todos los tratados insisten en lo mismo: un exceso de adorno tapa la "
+        "melodía y cansa; bien dosificado, la hace «hablar». El adorno se pone "
+        "donde la línea lo pide —en las notas largas, en las llegadas, en las "
+        "repeticiones— y en cantidad proporcional al carácter de la pieza.",
+    ],
+    verTambien=["wiki-teoria-dinamica-agogica", "wiki-teoria-modos",
+                "wiki-historia-barroco", "wiki-historia-jazz"],
+    fuentes=[LIBRO("C. P. E. Bach, «Ensayo sobre la verdadera manera de tocar instrumentos de teclado» (1753)"),
+             LIBRO("Robert Donington, «La interpretación de la música antigua»"),
+             W("Wikipedia — Ornamento (música)", "https://es.wikipedia.org/wiki/Ornamento_(m%C3%BAsica)")],
+),
+
+# -------------------------------------------------------------------------
+"wiki-teoria-temperamento": dict(
+    resumen="Por qué no se puede afinar todo «puro» a la vez: la coma, la "
+            "afinación pitagórica y justa, los temperamentos mesotónicos e "
+            "irregulares y el temperamento igual moderno.",
+    cuerpo=[
+        "Afinar un instrumento de doce notas tiene una trampa que no hay forma "
+        "de esquivar del todo. Los intervalos que el oído oye como «puros» son "
+        "los de proporción sencilla: la octava 2:1, la quinta 3:2, la cuarta "
+        "4:3, la tercera mayor 5:4. El problema es que esas cuentas, tan "
+        "limpias por separado, **no cuadran entre sí**: si afinas todo puro en "
+        "una dirección, se te tuerce en otra.",
+
+        "## La coma",
+        "Si apilas doce quintas puras (3:2) partiendo de un DO, deberías llegar "
+        "a otro DO siete octavas más arriba. No llegas: te pasas por una "
+        "pequeña diferencia de unos 23,5 cents, la **coma pitagórica**. De modo "
+        "parecido, cuatro quintas puras deberían dar una tercera mayor pura, "
+        "pero dan una tercera algo más ancha; esa diferencia (unos 21,5 cents) "
+        "es la **coma sintónica**. Cualquier afinación de teclado tiene que "
+        "«esconder» esas comas en algún sitio.",
+
+        "## Afinación pitagórica",
+        "Todas las quintas puras salvo una, en la que se acumula toda la coma "
+        "(la «quinta del lobo», inservible). Da terceras mayores ásperas, pero "
+        "quintas y cuartas perfectas: iba bien para la monodia y el organum "
+        "medieval, donde el intervalo protagonista era la quinta.",
+
+        "## Entonación justa",
+        "Afinar cada acorde con proporciones perfectas (terceras 5:4, quintas "
+        "3:2). Suena maravilloso en un acorde estático, pero es **intransitable "
+        "en un teclado fijo**: en cuanto cambias de acorde o modulas, alguna "
+        "nota necesita dos afinaciones distintas y aparecen lobos por todas "
+        "partes. Coros a capela, cuartetos de cuerda y conjuntos vocales sí "
+        "tienden a la entonación justa **sobre la marcha**, ajustando cada nota "
+        "al acorde.",
+
+        "## Temperamentos mesotónicos",
+        "El compromiso del Renacimiento y el primer Barroco: se estrechan las "
+        "quintas un poco (por ejemplo, en un cuarto de coma sintónica cada una) "
+        "para conseguir **terceras mayores puras o casi**. A cambio, unas pocas "
+        "tonalidades quedan preciosas y el resto, con una quinta del lobo, "
+        "inutilizables. Por eso la música de esa época rara vez se aleja de "
+        "las tonalidades «con pocas alteraciones».",
+
+        "## Temperamentos irregulares o «bien temperados»",
+        "A finales del siglo XVII (Werckmeister, Kirnberger, Vallotti, Young) "
+        "se buscó repartir la coma de forma **desigual pero inteligente**: "
+        "ninguna quinta es un lobo, así que **todas las tonalidades son "
+        "usables**, pero cada una conserva un color propio (unas más dulces, "
+        "otras más tensas). Ese es el contexto de «El clave bien temperado» de "
+        "Bach: un recorrido por las 24 tonalidades que solo tiene sentido si "
+        "todas suenan, y cada una distinta. «Bien temperado» **no** significa "
+        "«temperamento igual».",
+
+        "## Temperamento igual",
+        "La solución moderna: repartir la coma **por igual** entre las doce "
+        "notas, de modo que cada semitono mida exactamente la duodécima parte "
+        "de una octava (una razón de la raíz duodécima de 2, ≈ 1,059463). "
+        "Todas las quintas quedan un pelín cortas (2 cents), todas las terceras "
+        "mayores bastante anchas (14 cents), pero **todas las tonalidades "
+        "suenan idénticas** y se puede modular a cualquier sitio y transportar "
+        "sin límite. Se impuso a lo largo del siglo XIX y es hoy el estándar de "
+        "pianos, guitarras y teclados. Su precio: salvo la octava, ningún "
+        "intervalo es acústicamente puro, y las tonalidades pierden el «color» "
+        "que tenían en los temperamentos históricos. En este sistema DO♯ y RE♭ "
+        "suenan exactamente igual.",
+
+        "## Afinación de referencia y otros sistemas",
+        "El LA de referencia ha subido con el tiempo: ~415 Hz en el Barroco, "
+        "~430 en el Clasicismo, fijado en **440 Hz** por acuerdo internacional "
+        "en 1939; muchas orquestas actuales afinan a 442-443 por brillo. Y el "
+        "temperamento igual de 12 notas no es universal: la música árabe usa un "
+        "sistema de cuartos de tono (24 notas), la clásica india habla de 22 "
+        "*shruti*, el gamelán indonesio afina cada conjunto de forma única en "
+        "sus escalas *sléndro* y *pélog*, y desde el siglo XX hay compositores "
+        "microtonales (Harry Partch, Ligeti, la corriente del *just "
+        "intonation*).",
+    ],
+    verTambien=["wiki-teoria-acustica", "wiki-teoria-tono-semitono", "wiki-teoria-intervalos",
+                "wiki-mitos-432hz", "wiki-historia-barroco"],
+    fuentes=[F_HELMHOLTZ,
+             LIBRO("Ross W. Duffin, «How Equal Temperament Ruined Harmony»"),
+             W("Wikipedia — Temperamento igual", "https://es.wikipedia.org/wiki/Temperamento_igual"),
+             W("Wikipedia — Afinación pitagórica", "https://es.wikipedia.org/wiki/Afinaci%C3%B3n_pitag%C3%B3rica")],
+),
+
+# -------------------------------------------------------------------------
+"wiki-teoria-acustica": dict(
+    resumen="La serie de armónicos: de dónde salen el timbre, los intervalos "
+            "consonantes, los armónicos de la cuerda, los tonos de Tartini y "
+            "la fundamental ausente.",
+    cuerpo=[
+        "Cuando una cuerda o una columna de aire vibra, no vibra a una sola "
+        "velocidad: lo hace a la vez entera, por mitades, por tercios, por "
+        "cuartos… y cada una de esas vibraciones suena. La más grave y fuerte "
+        "es la que oyes como «la nota»; las demás, mucho más flojitas, van "
+        "encima y son las que le dan color. En una cuerda ideal, esas "
+        "vibraciones de encima son **múltiplos exactos** de la primera: si la "
+        "nota es de 100 Hz, también suenan 200, 300, 400, 500 Hz… Todo ese "
+        "abanico es la **serie de armónicos**.",
+
+        "## La serie sobre un DO grave",
+        "Los primeros armónicos, en notas: DO – DO (una octava) – SOL (quinta) "
+        "– DO (octava) – MI (tercera mayor) – SOL – SI♭ – DO – RE – MI – FA♯… "
+        "Es decir: la propia serie reproduce, en sus primeros escalones, la "
+        "octava, la quinta, la cuarta y la tercera mayor. **No es casualidad "
+        "que la armonía occidental se construya con esos intervalos**: son los "
+        "que la naturaleza «regala» en cada sonido. Ojo: algunos armónicos no "
+        "coinciden con las notas del piano —el 7.º SI♭ suena 31 cents más bajo, "
+        "el 11.º FA♯ casi a mitad de camino entre FA y FA♯—, lo que enlaza con "
+        "el problema del temperamento.",
+
+        "## Consecuencia 1: el timbre",
+        "La **proporción** entre las amplitudes de los parciales, junto con la "
+        "envolvente y el ruido del ataque, es lo que define el timbre. Un "
+        "clarinete refuerza sobre todo los armónicos impares (de ahí su color "
+        "«hueco»); una cuerda frotada tiene un espectro rico y completo; un "
+        "diapasón es casi solo fundamental. Matemáticamente, cualquier sonido "
+        "periódico se puede descomponer en suma de senoidales (análisis de "
+        "**Fourier**), y sintetizar sumándolas.",
+
+        "## Consecuencia 2: instrumentos «naturales»",
+        "Algunos instrumentos solo pueden producir notas de la serie de "
+        "armónicos de su tubo: la **trompeta natural** y la **trompa** "
+        "barrocas, el **clarín**, el **cuerno de caza**, la **corneta de "
+        "posta**, la **trompa alpina**, el **didgeridoo**, la trompeta de los "
+        "Andes. Por eso las fanfarrias antiguas se mueven por arpegios y por "
+        "eso los agudos (armónicos altos, muy juntos) permiten melodías por "
+        "grados: el registro *clarino* de Bach. Los metales modernos añadieron "
+        "**pistones** o **vara** para rellenar los huecos entre armónicos.",
+
+        "## Consecuencia 3: armónicos en la cuerda",
+        "Rozando suavemente una cuerda en un punto exacto (la mitad, un "
+        "tercio…) se silencia la fundamental y suena solo un armónico: es el "
+        "**armónico natural**, de timbre cristalino y flautado. Apoyando "
+        "además un dedo firme se obtiene el **armónico artificial**, "
+        "transportable a cualquier altura. Guitarra, arpa, violín y contrabajo "
+        "los usan como efecto.",
+
+        "## Fenómenos relacionados",
+        "**Resonancia por simpatía**: una cuerda no pulsada vibra sola si otra "
+        "toca una nota presente en su serie (el pedal del piano, las cuerdas "
+        "simpáticas del sitar o la viola d'amore). **Tonos de Tartini** o "
+        "**sonidos resultantes**: al sonar fuerte dos notas, el oído genera un "
+        "tercer tono correspondiente a la diferencia de sus frecuencias; los "
+        "violinistas los usan para comprobar la afinación de dobles cuerdas. "
+        "**Fundamental ausente**: si suenan los armónicos 2, 3, 4… de una nota "
+        "pero no el 1.º, el cerebro «reconstruye» la fundamental que falta; por "
+        "eso un altavoz pequeño o un teléfono nos hacen oír un bajo que "
+        "físicamente no está reproduciendo.",
+
+        "## Parciales inarmónicos",
+        "No todo cuerpo vibrante da múltiplos enteros. Las **campanas**, los "
+        "**gongs**, las **placas**, los **tambores** y las láminas producen "
+        "parciales en proporciones no enteras: por eso su altura es ambigua y "
+        "su sonido, «metálico». Incluso el piano, por la rigidez de sus "
+        "cuerdas, tiene parciales un poco desafinados hacia arriba "
+        "(*inharmonicity*), y por eso se afina con las octavas ligeramente "
+        "«estiradas» para que suene bien. El estudio sistemático de todo esto "
+        "arranca con Helmholtz en el siglo XIX y es la base de la síntesis "
+        "sonora moderna.",
+    ],
+    verTambien=["wiki-teoria-timbre", "wiki-teoria-sonido", "wiki-teoria-intervalos",
+                "wiki-teoria-temperamento", "wiki-prod-sintesis"],
+    fuentes=[F_HELMHOLTZ,
+             LIBRO("Thomas D. Rossing, «The Science of Sound»"),
+             W("Wikipedia — Serie armónica (música)", "https://es.wikipedia.org/wiki/Serie_arm%C3%B3nica_(m%C3%BAsica)"),
+             W("Wikipedia — Resonancia", "https://es.wikipedia.org/wiki/Resonancia_(mec%C3%A1nica)")],
+),
+
+}  # fin NUEVOS
+
+
+# =========================================================================
+#  COMPOSITORES Y FIGURAS CLAVE
+# =========================================================================
+def _wp(nombre_es, slug_en):
+    return [W(f"Wikipedia (ES) — {nombre_es}",
+             f"https://es.wikipedia.org/wiki/{nombre_es.replace(' ', '_')}"),
+            W(f"Wikipedia (EN) — {slug_en}",
+             f"https://en.wikipedia.org/wiki/{slug_en}"),
+            F_GROVE]
+
+COMPOSITORES = {
+
+"wiki-comp-hildegarda": dict(
+    resumen="Abadesa, mística, naturalista y compositora renana; la primera "
+            "personalidad musical de Occidente con una obra amplia, firmada y "
+            "conservada.",
+    cuerpo=[
+        "Hildegarda de Bingen (1098-1179) fue monja benedictina y abadesa en "
+        "el valle del Rin, además de autora de tratados de teología, medicina "
+        "e historia natural, predicadora y consejera de papas y emperadores. En "
+        "una época en que la autoría musical rara vez se anotaba, su obra nos "
+        "ha llegado reunida y atribuida: es el primer corpus musical personal "
+        "de la historia europea.",
+
+        "## Vida y contexto",
+        "Décima hija de una familia noble, fue entregada de niña como oblata al "
+        "monasterio de Disibodenberg. Desde joven tuvo visiones que, ya madura "
+        "y con respaldo eclesiástico, plasmó en el libro «Scivias». Hacia 1150 "
+        "fundó su propio convento en Rupertsberg y luego otro en Eibingen. Su "
+        "música nació para la liturgia de esas comunidades femeninas: se cantó "
+        "en el oficio divino y en las fiestas de los santos patronos.",
+
+        "## Lenguaje y aportación",
+        "Su repertorio conservado —reunido bajo el título «Symphonia armonie "
+        "celestium revelationum»— comprende unas 77 piezas monódicas "
+        "(antífonas, responsorios, himnos, secuencias) más el drama «Ordo "
+        "Virtutum». Frente al canto gregoriano corriente, de ámbito estrecho y "
+        "movimiento por grados, la melodía de Hildegarda es reconocible por sus "
+        "**saltos amplios** (quintas, octavas), sus largos **melismas** "
+        "(muchas notas sobre una sílaba) y un ámbito que a veces supera las dos "
+        "octavas, exigente para las cantoras. Escribió también sus propios "
+        "textos, en un latín intensamente poético y lleno de imágenes de luz, "
+        "verdor (*viriditas*) y música celeste.",
+
+        "## Obras para escuchar",
+        "**Ordo Virtutum** («El orden de las Virtudes»): drama litúrgico "
+        "cantado en el que dieciséis Virtudes y el alma humana dialogan; el "
+        "Diablo es el único papel que no canta, solo grita. Es la obra de "
+        "teatro musical más antigua que se conserva completa, un siglo anterior "
+        "a los dramas litúrgicos habituales.",
+        "**O virtus Sapientiae**: antífona breve a la Sabiduría divina; buen "
+        "ejemplo de su melodía en arco, que asciende por saltos hasta un "
+        "clímax agudo y desciende ornamentada.",
+        "**Columba aspexit** (secuencia para san Maximino) y **O Euchari**: "
+        "piezas más extensas donde los melismas se despliegan con libertad casi "
+        "improvisatoria.",
+
+        "## Influencia y legado",
+        "Ignorada durante siglos como música, fue recuperada por la "
+        "musicología y, desde los años 80 del siglo XX, por grabaciones de "
+        "grupos de música antigua que la convirtieron en un éxito inesperado de "
+        "ventas. Hoy es figura central de la historia de la música medieval, de "
+        "los estudios sobre mujeres creadoras y de la historia de la ciencia. "
+        "La Iglesia católica la proclamó santa y doctora de la Iglesia en 2012.",
+    ],
+    verTambien=["wiki-historia-medieval", "wiki-historia-mujeres",
+                "wiki-historia-musica-sacra", "wiki-teoria-modos", "wiki-teoria-textura"],
+    fuentes=_wp("Hildegarda de Bingen", "Hildegard_of_Bingen"),
+),
+
+"wiki-comp-vivaldi": dict(
+    resumen="Sacerdote y violinista veneciano, el compositor que fijó la forma "
+            "del concierto solista barroco y uno de los más prolíficos y "
+            "difundidos de su tiempo.",
+    cuerpo=[
+        "Antonio Vivaldi (1678-1741) fue el gran especialista del concierto en "
+        "el Barroco pleno. Ordenado sacerdote —apodado *il prete rosso*, «el "
+        "cura pelirrojo»—, apenas ejerció por su delicada salud (probablemente "
+        "asma) y dedicó su vida a la música en Venecia, entonces una de las "
+        "capitales musicales de Europa.",
+
+        "## Vida y contexto",
+        "Durante casi cuatro décadas trabajó, con intermitencias, en el "
+        "**Ospedale della Pietà**, una institución que acogía a niñas huérfanas "
+        "o abandonadas y que mantenía un conjunto musical femenino de fama "
+        "internacional: para esas instrumentistas escribió gran parte de sus "
+        "conciertos. Fue también empresario de ópera, viajó por Italia y "
+        "Centroeuropa y gozó de enorme éxito editorial (sus colecciones se "
+        "imprimían en Ámsterdam). Cayó en desgracia al final de su vida y murió "
+        "pobre en Viena; su música quedó casi olvidada hasta el siglo XX.",
+
+        "## Lenguaje y aportación",
+        "Vivaldi consolidó el **concierto en tres movimientos** "
+        "(rápido–lento–rápido) y, sobre todo, la técnica del **ritornello**: un "
+        "estribillo orquestal enérgico que regresa, en distintas tonalidades y "
+        "abreviado, alternando con los episodios del solista, cada vez más "
+        "virtuosos. Ese esquema —tensión entre lo colectivo que vuelve y lo "
+        "individual que se desvía— es el antepasado directo de la forma de "
+        "concierto de Mozart y de todo el repertorio posterior. Su estilo se "
+        "reconoce por el impulso rítmico motórico, las secuencias armónicas "
+        "claras, los contrastes bruscos de dinámica y una escritura violinística "
+        "brillante (arpegios, bariolage, dobles cuerdas). Escribió unos 500 "
+        "conciertos (para violín, pero también para fagot, oboe, flauta, "
+        "mandolina, viola d'amore y combinaciones raras), casi 50 óperas, "
+        "música sacra y sonatas.",
+
+        "## Obras para escuchar",
+        "**Las cuatro estaciones** (de «Il cimento dell'armonia e "
+        "dell'inventione», 1725): cuatro conciertos para violín acompañados "
+        "cada uno de un soneto que la música ilustra literalmente —el canto de "
+        "los pájaros, la tormenta de verano, el hielo que cruje, la borrachera "
+        "del otoño—. Es música programática un siglo antes de que el término "
+        "existiera.",
+        "**Gloria en re mayor RV 589**: la obra coral más interpretada del "
+        "Barroco después de las de Bach y Haendel; alterna coros jubilosos con "
+        "arias intimistas.",
+        "**Concierto para dos trompetas en do mayor RV 537** y los conciertos "
+        "**«L'estro armonico» op. 3**, la colección que impresionó a Bach, que "
+        "transcribió varios para clave y órgano.",
+
+        "## Influencia y legado",
+        "Bach estudió y copió su música: aprendió de Vivaldi la concisión "
+        "temática y el manejo del ritornello. Redescubierto en los años 20 y 30 "
+        "del siglo XX, hoy es uno de los compositores más grabados del mundo, a "
+        "veces con el reproche de cierta uniformidad (la vieja boutade "
+        "—atribuida a Dallapiccola— de que «escribió el mismo concierto "
+        "quinientas veces»), injusta a la vista de la variedad real de su "
+        "catálogo.",
+    ],
+    verTambien=["wiki-historia-barroco", "wiki-inst-violin", "wiki-comp-bach",
+                "wiki-teoria-formas", "wiki-historia-opera"],
+    fuentes=_wp("Antonio Vivaldi", "Antonio_Vivaldi"),
+),
+
+"wiki-comp-bach": dict(
+    resumen="Organista, violinista y cantor alemán; la síntesis suprema del "
+            "contrapunto y de la tonalidad, y el punto final del Barroco.",
+    cuerpo=[
+        "Johann Sebastian Bach (1685-1750) reunió y llevó a su máxima "
+        "expresión toda la tradición musical europea de los dos siglos "
+        "anteriores: el contrapunto vocal de los flamencos, el concierto "
+        "italiano, la música de teclado francesa y alemana, la coral luterana. "
+        "En vida fue famoso sobre todo como **organista** y como técnico de "
+        "órganos; su reconocimiento pleno como compositor llegó casi un siglo "
+        "después de su muerte.",
+
+        "## Vida y contexto",
+        "Nació en Eisenach en una extensa familia de músicos profesionales "
+        "—los «Bach» eran casi un gremio en Turingia— y quedó huérfano a los "
+        "diez años. Se formó de manera autodidacta copiando partituras de "
+        "otros maestros. Trabajó como organista en Arnstadt y Mühlhausen, como "
+        "músico de cámara y de capilla en la corte de **Weimar**, como maestro "
+        "de capilla del príncipe de **Cöthen** (etapa de música instrumental, "
+        "porque la corte era calvinista y no usaba música elaborada en el "
+        "culto) y, desde 1723 hasta su muerte, como **Kantor** de la "
+        "Thomasschule de **Leipzig**, responsable de la música de las "
+        "principales iglesias de la ciudad. Tuvo veinte hijos (de dos "
+        "matrimonios); varios fueron compositores importantes. Quedó ciego al "
+        "final de su vida tras dos operaciones fallidas de cataratas.",
+
+        "## Lenguaje y aportación",
+        "Bach domina como nadie la **polifonía por imitación** —la fuga, el "
+        "canon— dentro de una **armonía tonal** ya plenamente funcional: sus "
+        "voces son a la vez líneas melódicas independientes y engranaje de una "
+        "progresión de acordes con dirección. En «**El clave bien temperado**» "
+        "(dos libros de 24 preludios y fugas, uno por cada tonalidad mayor y "
+        "menor) demostró que un solo teclado afinado con criterio podía tocar "
+        "en todos los tonos: un manifiesto práctico del sistema tonal. Su obra "
+        "abarca casi todos los géneros de su tiempo salvo la ópera: más de 200 "
+        "**cantatas** sacras, las **Pasiones**, la **Misa en si menor**, la "
+        "música de órgano, las **Suites** y **Partitas**, los **Conciertos de "
+        "Brandeburgo**, las **Variaciones Goldberg**, y las obras "
+        "«especulativas» de la vejez —«La ofrenda musical», «El arte de la "
+        "fuga»— donde explora sistemáticamente lo que se puede hacer con un "
+        "tema.",
+
+        "## Obras para escuchar",
+        "**Conciertos de Brandeburgo** (1721): seis conciertos con "
+        "combinaciones instrumentales distintas cada uno; el más audaz, el "
+        "5.º, da al clave un largo solo y lo convierte de hecho en el primer "
+        "concierto para teclado.",
+        "**Pasión según san Mateo** (1727): la narración de la muerte de "
+        "Cristo según el evangelista, para doble coro, doble orquesta y "
+        "solistas; monumento de la música sacra occidental.",
+        "**El clave bien temperado, libro I** (1722): empezar por el Preludio "
+        "y fuga en do mayor y el Preludio en do menor.",
+        "**Variaciones Goldberg** (1741) y **Chacona** de la Partita para "
+        "violín solo n.º 2: dos cumbres de la variación sobre un bajo.",
+
+        "## Influencia y legado",
+        "Mozart y Beethoven estudiaron sus fugas. Su resurrección pública "
+        "arrancó en 1829, cuando **Mendelssohn** dirigió la Pasión según san "
+        "Mateo en Berlín, casi un siglo después de su estreno. Desde entonces "
+        "es el pilar de la formación de todo músico occidental: se estudia "
+        "contrapunto con sus corales, se toca su música en el piano moderno, el "
+        "clave histórico, el saxofón, la guitarra o el sintetizador ("
+        "«Switched-On Bach»), y el jazz lo reclama como suyo por su lógica "
+        "armónica. Su nombre en notación alemana —B-A-C-H = si♭, la, do, si♮— "
+        "es un motivo que él mismo y decenas de compositores posteriores han "
+        "usado como homenaje.",
+    ],
+    verTambien=["wiki-historia-barroco", "wiki-teoria-contrapunto", "wiki-inst-organo",
+                "wiki-teoria-temperamento", "wiki-historia-musica-sacra", "wiki-teoria-formas"],
+    fuentes=_wp("Johann Sebastian Bach", "Johann_Sebastian_Bach"),
+),
+
+"wiki-comp-haydn": dict(
+    resumen="El compositor que dio forma madura a la sinfonía y al cuarteto de "
+            "cuerda y definió buena parte del estilo clásico; maestro de "
+            "Beethoven y amigo de Mozart.",
+    cuerpo=[
+        "Joseph Haydn (1732-1809) es la figura fundacional del Clasicismo "
+        "vienés. Su larguísima carrera —de la última generación barroca al "
+        "umbral del Romanticismo— y su producción enorme le valieron los apodos "
+        "de «padre de la sinfonía» y «padre del cuarteto de cuerda», "
+        "exageraciones útiles: no inventó los géneros, pero les dio su "
+        "fisonomía definitiva.",
+
+        "## Vida y contexto",
+        "Hijo de un constructor de carros, fue niño de coro en la catedral de "
+        "San Esteban de Viena y luego músico independiente en la pobreza. En "
+        "1761 entró al servicio de la riquísima familia **Esterházy**, para la "
+        "que trabajó casi treinta años, primero en Eisenstadt y luego en el "
+        "aislado palacio de Eszterháza. Disponía de una orquesta, un coro y un "
+        "teatro de ópera propios y la obligación de producir música "
+        "constantemente: «estaba obligado a ser original», dijo. Al aflojarse "
+        "el vínculo, viajó dos veces a **Londres** (1791-95), donde sus "
+        "sinfonías lo hicieron rico y célebre en toda Europa. Murió en Viena "
+        "mientras la ciudad era bombardeada por las tropas de Napoleón.",
+
+        "## Lenguaje y aportación",
+        "Haydn perfeccionó los procedimientos del **desarrollo temático**: "
+        "tomar una idea breve y explorarla, fragmentarla, cambiarle el "
+        "contexto armónico, de modo que una sinfonía «argumenta» en lugar de "
+        "solo suceder. Fijó el plan de **cuatro movimientos** (allegro de forma "
+        "sonata – lento – minueto – final rápido) y la escritura del "
+        "**cuarteto** como conversación entre cuatro iguales, no melodía con "
+        "acompañamiento. Su música tiene un rasgo casi de firma: el **humor** "
+        "—silencios engañosos, acentos fuera de sitio, finales falsos, el "
+        "golpe de orquesta de la «Sorpresa», el adiós instrumento a "
+        "instrumento de la «Despedida»—. Compuso 104 sinfonías, 68 cuartetos, "
+        "óperas, misas y dos grandes oratorios tardíos.",
+
+        "## Obras para escuchar",
+        "**Sinfonía n.º 94 «La sorpresa»**: el acorde súbito en mitad del "
+        "tema suave del segundo movimiento, la broma más famosa de la música.",
+        "**Cuartetos op. 76** (1797), sobre todo el n.º 3 «Emperador», cuyo "
+        "segundo movimiento es una serie de variaciones sobre el himno que "
+        "Haydn compuso para el emperador y que hoy es el himno de Alemania.",
+        "**La Creación** (1798): oratorio sobre el Génesis y «El paraíso "
+        "perdido» de Milton, con una célebre pintura orquestal del caos y del "
+        "estallido de la luz.",
+        "**Sinfonía n.º 45 «Los adioses»** y **n.º 104 «Londres»**.",
+
+        "## Influencia y legado",
+        "**Beethoven** fue su alumno en Viena (con relación tirante); "
+        "**Mozart**, su amigo admirado, le dedicó seis cuartetos. Todo el "
+        "lenguaje del Clasicismo —y por tanto la sonata, la sinfonía y el "
+        "cuarteto del siglo XIX— parte de lo que Haydn dejó fijado. Tras un "
+        "período de cierta condescendencia («papá Haydn»), la crítica moderna "
+        "ha recuperado el reconocimiento de su audacia formal y su ironía.",
+    ],
+    verTambien=["wiki-historia-clasicismo", "wiki-teoria-formas", "wiki-comp-mozart",
+                "wiki-comp-beethoven", "wiki-inst-violin"],
+    fuentes=_wp("Joseph Haydn", "Joseph_Haydn"),
+),
+
+"wiki-comp-mozart": dict(
+    resumen="La síntesis más equilibrada del estilo clásico: ópera, concierto "
+            "para piano, sinfonía, música de cámara y sacra, todo al más alto "
+            "nivel en una vida de solo 35 años.",
+    cuerpo=[
+        "Wolfgang Amadeus Mozart (1756-1791) representa el punto de equilibrio "
+        "perfecto del Clasicismo: melodía, armonía, forma y —en la ópera— "
+        "psicología de los personajes en una proporción que rara vez se ha "
+        "vuelto a alcanzar. Niño prodigio absoluto, murió a los 35 años dejando "
+        "más de 600 obras catalogadas (el «número K.» o Köchel).",
+
+        "## Vida y contexto",
+        "Nació en **Salzburgo**, hijo del violinista y pedagogo Leopold "
+        "Mozart. De los seis a los diecisiete años recorrió las cortes de "
+        "Europa como niño prodigio, tocando y componiendo. De adulto rompió con "
+        "su empleo servil en Salzburgo y en 1781 se instaló en **Viena** como "
+        "**músico independiente** —de los primeros—: vivía de dar clases, "
+        "publicar, y sobre todo de organizar sus propias «academias» "
+        "(conciertos por suscripción) en las que estrenaba un concierto para "
+        "piano tras otro. Tuvo años de gran éxito y bienestar y otros de "
+        "deudas. Murió de una enfermedad febril aún discutida mientras componía "
+        "el **Réquiem**, que dejó inacabado.",
+
+        "## Lenguaje y aportación",
+        "En el **concierto para piano** (27) llevó al máximo el diálogo entre "
+        "solista y orquesta: la orquesta no acompaña, discute, comenta y "
+        "responde. En la **ópera** —sobre todo en las tres con libreto de "
+        "Lorenzo da Ponte— fundió lo cómico y lo trágico y usó los "
+        "**conjuntos** (dúos, tercetos, finales de acto con seis o siete "
+        "personajes cantando a la vez cosas distintas) para hacer avanzar la "
+        "acción en tiempo real, algo que la ópera seria no hacía. Su armonía, "
+        "de superficie tersa, esconde cromatismos y disonancias expresivas "
+        "(la introducción del cuarteto «Las disonancias», el Adagio en si "
+        "menor). Dominó todos los géneros: sinfonía (la «Júpiter» y su final "
+        "fugado), música de cámara, música sacra, la ópera alemana de números "
+        "hablados (*Singspiel*).",
+
+        "## Obras para escuchar",
+        "**Las bodas de Fígaro** (1786): comedia de enredo que es también un "
+        "retrato de tensiones sociales; el aria «Dove sono» y el finale del "
+        "acto II como ejemplos de construcción dramática.",
+        "**Concierto para piano n.º 20 en re menor, K. 466**: uno de los dos "
+        "que escribió en tono menor, tormentoso, casi romántico; Beethoven "
+        "escribió cadencias para él.",
+        "**Sinfonía n.º 40 en sol menor, K. 550**: agitación e inquietud desde "
+        "el primer compás, sin introducción.",
+        "**Réquiem en re menor, K. 626** (inacabado; completado por Süssmayr) "
+        "y **Concierto para clarinete, K. 622**, su última obra instrumental "
+        "acabada.",
+
+        "## Influencia y legado",
+        "Es, con Bach y Beethoven, uno de los tres nombres sobre los que se "
+        "asienta el canon occidental. Su figura ha sido muy mitificada: la "
+        "leyenda del envenenamiento por **Salieri** (difundida por una obra de "
+        "Pushkin y la película «Amadeus») carece de base, y el llamado «efecto "
+        "Mozart» —que escucharlo aumente la inteligencia— es una "
+        "sobreinterpretación de un estudio muy limitado. Lo que sí es real es "
+        "la dificultad interpretativa de su música: su transparencia no perdona "
+        "ningún defecto.",
+    ],
+    verTambien=["wiki-historia-clasicismo", "wiki-historia-opera", "wiki-teoria-formas",
+                "wiki-comp-haydn", "wiki-mitos-salieri", "wiki-mitos-efecto-mozart"],
+    fuentes=_wp("Wolfgang Amadeus Mozart", "Wolfgang_Amadeus_Mozart"),
+),
+
+"wiki-comp-beethoven": dict(
+    resumen="El compositor que convirtió la música instrumental en discurso "
+            "personal y expandió cada forma que tocó; puente entre el "
+            "Clasicismo y el Romanticismo.",
+    cuerpo=[
+        "Ludwig van Beethoven (1770-1827) transformó el papel del compositor: "
+        "de artesano al servicio de una corte o una iglesia a **artista "
+        "individual** que impone su visión y espera que el público se eleve "
+        "hasta ella. Su obra es a la vez la culminación del lenguaje clásico de "
+        "Haydn y Mozart y su ruptura hacia algo nuevo.",
+
+        "## Vida y contexto",
+        "Nació en **Bonn**, en una familia de músicos de la capilla del "
+        "arzobispo; su padre, alcohólico, intentó explotarlo como a un segundo "
+        "Mozart. En 1792 se trasladó a **Viena** para estudiar con Haydn y se "
+        "abrió camino primero como pianista virtuoso e improvisador temible. "
+        "Hacia 1798 empezó a **perder el oído**; en 1802, en un texto privado "
+        "conocido como el «Testamento de Heiligenstadt», confesó su "
+        "desesperación y su decisión de seguir viviendo por la música. Compuso "
+        "sordo casi toda su obra tardía. Vivió de encargos, de la publicación y "
+        "del mecenazgo de la aristocracia vienesa, pero como hombre libre y a "
+        "menudo en conflicto con ella. Su entierro reunió a decenas de miles de "
+        "personas.",
+
+        "## Lenguaje y aportación",
+        "Su procedimiento característico es construir obras enteras a partir de "
+        "**células mínimas**: las cuatro notas iniciales de la Quinta Sinfonía "
+        "impregnan los cuatro movimientos. Amplió la **escala** de la sinfonía "
+        "y la sonata (duración, número de movimientos, tamaño de la orquesta, "
+        "añadiendo voces en la Novena), intensificó los contrastes dinámicos y "
+        "los acentos, y dio al **desarrollo** y a la **coda** un peso "
+        "dramático nuevo. Su producción se divide por convención en tres "
+        "períodos: el **primero** (heredero de Haydn/Mozart), el **medio** o "
+        "«heroico» (Sinfonías 3 a 8, «Appassionata», «Waldstein», el concierto "
+        "«Emperador») y el **tardío** (últimos cuartetos y sonatas, «Missa "
+        "solemnis», Novena), de introspección extrema, fugas, formas libres y "
+        "una expresión que sus contemporáneos apenas entendieron.",
+
+        "## Obras para escuchar",
+        "**Sinfonía n.º 3 «Heroica»** (1804): el doble de larga que una "
+        "sinfonía típica de la época; la marcha fúnebre del 2.º movimiento. "
+        "Beethoven iba a dedicarla a Napoleón y tachó la dedicatoria al "
+        "coronarse este emperador.",
+        "**Sinfonía n.º 5**: el motivo de cuatro notas y el paso «a oscuras» "
+        "del scherzo al finale triunfal en do mayor.",
+        "**Sinfonía n.º 9 «Coral»** (1824): introduce el coro y solistas en el "
+        "finale, sobre la «Oda a la alegría» de Schiller; su melodía es hoy el "
+        "himno de Europa.",
+        "**Sonata para piano n.º 14 «Claro de luna»**, **Concierto para piano "
+        "n.º 5 «Emperador»** y **Cuarteto de cuerda n.º 14, op. 131** (siete "
+        "movimientos encadenados sin pausa) como muestra del último estilo.",
+
+        "## Influencia y legado",
+        "Toda la música del siglo XIX se escribe a su sombra: Brahms tardó "
+        "veinte años en estrenar una sinfonía por miedo a la comparación; "
+        "Wagner leyó la Novena como la prueba de que la sinfonía debía "
+        "desembocar en el drama. La idea romántica del genio incomprendido que "
+        "sufre y crea se modela sobre su biografía. Su música es probablemente "
+        "la más interpretada del repertorio de concierto.",
+    ],
+    verTambien=["wiki-historia-clasicismo", "wiki-historia-romanticismo", "wiki-comp-haydn",
+                "wiki-comp-brahms", "wiki-teoria-formas", "wiki-mitos-genio"],
+    fuentes=_wp("Ludwig van Beethoven", "Ludwig_van_Beethoven"),
+),
+
+"wiki-comp-schubert": dict(
+    resumen="Genio de la melodía y creador del lied como género artístico "
+            "mayor; dejó una obra inmensa en solo 31 años de vida.",
+    cuerpo=[
+        "Franz Schubert (1797-1828) fue el primer gran compositor plenamente "
+        "**romántico** de lengua alemana y el primero que hizo de la **canción "
+        "para voz y piano** (el *Lied*) un género de primera categoría, a la "
+        "altura de la sinfonía. Murió a los 31 años, probablemente de sífilis y "
+        "sus complicaciones, con buena parte de su obra inédita.",
+
+        "## Vida y contexto",
+        "Nació en un suburbio de **Viena**, hijo de un maestro de escuela. Fue "
+        "niño de coro en la capilla imperial y alumno de Salieri. Trabajó "
+        "brevemente como maestro auxiliar y luego vivió, sin puesto fijo ni "
+        "mecenas poderoso, del apoyo de un círculo de amigos —poetas, "
+        "pintores, cantantes— que organizaban veladas dedicadas a su música, "
+        "las «**schubertíadas**». Apenas oyó su música orquestal interpretada; "
+        "su fama en vida se limitaba a las canciones y las piezas para piano "
+        "que se tocaban en casa.",
+
+        "## Lenguaje y aportación",
+        "Compuso más de **600 lieder**. Su hallazgo es que el **piano** no "
+        "acompaña: **pinta** y comenta el poema —el galope obsesivo de "
+        "«Erlkönig», el murmullo del arroyo en «Die schöne Müllerin», la rueca "
+        "que gira en «Gretchen am Spinnrade»— mientras la voz encarna a los "
+        "personajes. Fijó además el **ciclo de canciones** (un conjunto que "
+        "cuenta una historia: «Winterreise», «Viaje de invierno»). En la "
+        "música instrumental su rasgo propio es la **audacia armónica**: "
+        "modula a tonalidades lejanas por terceras, oscila entre mayor y menor, "
+        "y despliega temas de gran aliento lírico en formas amplias, a veces "
+        "«celestialmente largas» (Schumann). También revolucionó la miniatura "
+        "para piano (Impromptus, Momentos musicales).",
+
+        "## Obras para escuchar",
+        "**Erlkönig** (D. 328, 1815): sobre el poema de Goethe; un solo "
+        "cantante hace de narrador, padre, hijo aterrado y rey de los elfos "
+        "seductor, sobre tresillos de piano incesantes.",
+        "**Winterreise** (D. 911, 1827): 24 canciones sobre el vagar de un "
+        "hombre abandonado por un paisaje helado; cumbre desolada del ciclo "
+        "romántico.",
+        "**Quinteto para cuerda en do mayor, D. 956** (con dos violonchelos): "
+        "su última obra de cámara, de una serenidad y una hondura únicas.",
+        "**Sinfonía n.º 8 «Inacabada»** y **Sinfonía n.º 9 «La Grande»**.",
+
+        "## Influencia y legado",
+        "Su obra orquestal se estrenó y publicó de forma póstuma a lo largo de "
+        "décadas: **Schumann** encontró y promovió la Novena en 1839. El lied "
+        "romántico posterior —Schumann, Brahms, Wolf, Mahler— se construye "
+        "sobre su modelo. Hoy es un pilar del recital de canción y del "
+        "repertorio de cámara, y su figura encarna la del artista que crea sin "
+        "reconocimiento y muere joven.",
+    ],
+    verTambien=["wiki-historia-romanticismo", "wiki-inst-piano", "wiki-inst-voz",
+                "wiki-comp-beethoven", "wiki-teoria-formas"],
+    fuentes=_wp("Franz Schubert", "Franz_Schubert"),
+),
+
+"wiki-comp-chopin": dict(
+    resumen="El poeta del piano: casi toda su obra es para ese instrumento, y "
+            "reinventó su escritura, su armonía y su repertorio de formas "
+            "breves.",
+    cuerpo=[
+        "Frédéric Chopin (1810-1849) es el caso más extremo de compositor "
+        "monoinstrumental: prácticamente todo lo que escribió incluye piano, y "
+        "la inmensa mayoría es para piano solo. Dentro de ese límite creó un "
+        "mundo sonoro completo y personalísimo.",
+
+        "## Vida y contexto",
+        "Nació cerca de **Varsovia**, hijo de un emigrante francés y una madre "
+        "polaca. Niño prodigio, se formó en el conservatorio de Varsovia. En "
+        "1830, con 20 años, salió de Polonia poco antes del levantamiento "
+        "contra Rusia; nunca regresó, y el exilio y la causa polaca marcaron su "
+        "música. Se instaló en **París**, donde vivió como profesor de piano "
+        "muy cotizado de la alta sociedad y figura de los salones, más que como "
+        "concertista (dio pocos recitales públicos: detestaba las salas "
+        "grandes). Mantuvo una relación de casi diez años con la escritora "
+        "**George Sand**. Enfermo de tuberculosis desde joven, murió en París a "
+        "los 39 años.",
+
+        "## Lenguaje y aportación",
+        "Chopin **reinventó la técnica pianística**: pasajes que se adaptan a "
+        "la forma natural de la mano, uso del pedal para crear halos de "
+        "resonancia, una melodía cantabile —de raíz operística italiana— "
+        "adornada con filigranas que él anotaba nota a nota. Su **armonía** es "
+        "muy cromática, llena de retardos, apoyaturas y modulaciones "
+        "enarmónicas que anticipan a Wagner y a Fauré. Cultivó **formas "
+        "breves**: nocturnos, preludios, estudios (que son a la vez ejercicio y "
+        "poema), baladas, scherzos, y llevó a la sala de concierto las danzas "
+        "polacas —**mazurca** (con sus acentos irregulares y sus giros modales "
+        "del folclore) y **polonesa** (solemne, heroica)— como afirmación de "
+        "identidad nacional. El **rubato** es central en su estilo: la mano "
+        "izquierda marca el tiempo, la derecha respira con libertad.",
+
+        "## Obras para escuchar",
+        "**Nocturno en mi bemol mayor, op. 9 n.º 2**: el modelo del género, "
+        "melodía ornamentada sobre acompañamiento de vals lento.",
+        "**Balada n.º 1 en sol menor, op. 23**: forma libre y narrativa, "
+        "inspirada —sin programa explícito— en la poesía de Mickiewicz.",
+        "**Estudios op. 10 y op. 25**: cada uno ataca un problema técnico "
+        "(terceras, octavas, arpegios) y a la vez es una pieza de concierto; el "
+        "op. 10 n.º 12 «Revolucionario».",
+        "**Preludios op. 28** (24, uno por tonalidad, de unos compases a "
+        "varias páginas) y **Polonesa «Heroica», op. 53**.",
+
+        "## Influencia y legado",
+        "Marcó a Liszt (su amigo y rival), a Fauré, a Debussy, a Scriabin y a "
+        "Rachmaninov, y su manera de escribir para el piano es la base de todo "
+        "el repertorio romántico posterior. Es uno de los compositores más "
+        "queridos por el público y omnipresente en la enseñanza; en Polonia es "
+        "un símbolo nacional y su nombre da título al concurso de piano más "
+        "prestigioso del mundo.",
+    ],
+    verTambien=["wiki-historia-romanticismo", "wiki-inst-piano", "wiki-teoria-tonalidad",
+                "wiki-teoria-dinamica-agogica", "wiki-danza-panorama"],
+    fuentes=_wp("Frédéric Chopin", "Fr%C3%A9d%C3%A9ric_Chopin"),
+),
+
+"wiki-comp-schumann-clara": dict(
+    resumen="Una de las mayores pianistas del siglo XIX, compositora de obra "
+            "propia y figura decisiva en la difusión de Schumann y Brahms.",
+    cuerpo=[
+        "Clara Schumann, de soltera Wieck (1819-1896), tuvo una de las "
+        "carreras de concertista más largas y respetadas del siglo XIX —más de "
+        "sesenta años sobre el escenario— y fue además compositora, pedagoga y "
+        "editora. Su vida ilustra a la vez el talento y los obstáculos de una "
+        "mujer creadora en la época romántica.",
+
+        "## Vida y contexto",
+        "Su padre, Friedrich Wieck, un profesor de piano ambicioso, la formó "
+        "desde niña como concertista de élite y controló su carrera y sus "
+        "finanzas. A los 18 años se enamoró de **Robert Schumann**, alumno de "
+        "su padre; este se opuso con tal violencia que la pareja tuvo que "
+        "**ir a juicio** para poder casarse (1840). Tuvieron ocho hijos. Clara "
+        "sostuvo económicamente a la familia con sus giras mientras Robert "
+        "componía; tras la crisis mental y el internamiento de él (1854) y su "
+        "muerte (1856), siguió tocando y enseñando durante cuarenta años, y "
+        "mantuvo una profunda amistad de por vida con **Brahms**.",
+
+        "## Lenguaje y aportación",
+        "Como **intérprete** contribuyó a crear el recital moderno: tocar de "
+        "**memoria** (poco habitual entonces), programar obras «serias» "
+        "—Beethoven, Bach, Schumann— en lugar de fantasías de lucimiento, y "
+        "situar al intérprete al servicio de la obra. Como **compositora** dejó "
+        "un catálogo pequeño pero de calidad: un Concierto para piano (op. 7, "
+        "escrito a los 16 años), un Trío con piano en sol menor (op. 17), "
+        "Lieder, y piezas para piano (preludios, romanzas, variaciones sobre un "
+        "tema de Robert). La **presión social** —la creencia, que ella misma "
+        "interiorizó y dejó escrita en su diario, de que una mujer no debía "
+        "aspirar a componer— la llevó a abandonar la composición hacia los "
+        "treinta y cinco años. Fue también la primera **editora** de las obras "
+        "completas de Robert Schumann.",
+
+        "## Obras para escuchar",
+        "**Trío para piano en sol menor, op. 17** (1846): su obra de cámara "
+        "más ambiciosa, con un scherzo ágil y un finale fugado.",
+        "**Tres romanzas para violín y piano, op. 22** (1853), escritas para "
+        "el violinista Joseph Joachim.",
+        "**Concierto para piano en la menor, op. 7**: los movimientos se "
+        "encadenan sin pausa; Robert Schumann la ayudó con la orquestación.",
+        "**Lieder** como «Liebst du um Schönheit» (sobre Rückert, el mismo "
+        "poema que musicó Mahler).",
+
+        "## Influencia y legado",
+        "Durante un siglo se la recordó casi solo como «esposa de» y «amiga "
+        "de». La musicología reciente ha recuperado su obra —hoy se graba y se "
+        "programa— y su papel como intérprete de referencia y como puente entre "
+        "Schumann, Brahms y el público. Es una figura central en la historia de "
+        "las mujeres en la música y en la del oficio de concertista.",
+    ],
+    verTambien=["wiki-historia-mujeres", "wiki-comp-brahms", "wiki-historia-romanticismo",
+                "wiki-inst-piano"],
+    fuentes=_wp("Clara Schumann", "Clara_Schumann"),
+),
+
+"wiki-comp-verdi": dict(
+    resumen="La cima de la ópera italiana del siglo XIX y un símbolo cultural "
+            "de la unificación de Italia.",
+    cuerpo=[
+        "Giuseppe Verdi (1813-1901) dominó la ópera italiana durante medio "
+        "siglo. Su nombre se asoció al **Risorgimento** —el movimiento por la "
+        "unidad de Italia— y su música, de melodía directa y fuerza teatral, "
+        "sigue siendo el núcleo del repertorio lírico mundial.",
+
+        "## Vida y contexto",
+        "Nació en una aldea del ducado de Parma, hijo de un tabernero. Tras "
+        "una formación irregular (fue rechazado por el conservatorio de Milán "
+        "por «falta de aptitud pianística» y por edad), se abrió camino con "
+        "dificultad. La muerte de su primera mujer y sus dos hijos pequeños en "
+        "pocos años coincidió con un fracaso teatral y estuvo a punto de "
+        "abandonar; el éxito arrollador de **«Nabucco»** (1842), con su coro de "
+        "esclavos hebreos «Va, pensiero», lo lanzó. A partir de ahí encadenó "
+        "óperas —los «años de galeras», como él los llamó— hasta hacerse rico e "
+        "independiente. Fue diputado y senador del nuevo reino de Italia y "
+        "dedicó su fortuna a fundar una **residencia para músicos ancianos** en "
+        "Milán, la obra de la que decía estar más orgulloso.",
+
+        "## Lenguaje y aportación",
+        "Verdi puso la música **al servicio del drama**: melodías memorables y "
+        "cantables, pero siempre pegadas a la situación y al personaje; el "
+        "**coro** como protagonista colectivo; orquesta que subraya sin tapar "
+        "la voz. A lo largo de su carrera evolucionó desde el «número cerrado» "
+        "(aria – cabaletta – concertante) hacia una **continuidad** cada vez "
+        "mayor, en parte por influencia de Wagner, que él admiraba a "
+        "regañadientes. En sus últimas obras, con el libretista **Arrigo "
+        "Boito**, alcanzó una integración total de música y palabra.",
+
+        "## Obras para escuchar",
+        "**Rigoletto** (1851): el bufón jorobado y su hija; el cuarteto del "
+        "acto III, cuatro personajes expresando emociones opuestas a la vez, y "
+        "«La donna è mobile».",
+        "**La traviata** (1853): basada en «La dama de las camelias» de Dumas; "
+        "historia de una cortesana enferma, íntima y contemporánea para su "
+        "época.",
+        "**Aida** (1871), **Otello** (1887) y **Falstaff** (1893, su única "
+        "comedia, estrenada a los 79 años), estas dos últimas con libreto de "
+        "Boito.",
+        "**Messa da Requiem** (1874): una misa de difuntos con la fuerza "
+        "teatral de una ópera; el «Dies irae» atronador.",
+
+        "## Influencia y legado",
+        "Sus óperas nunca han salido del repertorio. «Va, pensiero» funciona "
+        "casi como un segundo himno en Italia. Verdi definió lo que el gran "
+        "público entiende por «ópera»: melodía, pasión, coros poderosos y "
+        "situaciones extremas. La leyenda de que compuso pensando en una "
+        "afinación a 432 Hz es un mito moderno: pidió estandarizar el diapasón "
+        "en un **la a 432**, sí, pero por motivos prácticos, no místicos.",
+    ],
+    verTambien=["wiki-historia-opera", "wiki-comp-wagner", "wiki-inst-voz",
+                "wiki-historia-romanticismo", "wiki-mitos-432hz"],
+    fuentes=_wp("Giuseppe Verdi", "Giuseppe_Verdi"),
+),
+
+"wiki-comp-wagner": dict(
+    resumen="Reformador de la ópera hacia el «drama musical» y del lenguaje "
+            "armónico; una de las influencias más grandes y más discutidas de "
+            "la historia de la música.",
+    cuerpo=[
+        "Richard Wagner (1813-1883) rehízo la ópera desde sus cimientos y, con "
+        "su cromatismo, empujó la tonalidad hasta el punto en que la "
+        "generación siguiente pudo romperla. Fue también escritor prolífico, "
+        "polemista y autor de textos **antisemitas** que proyectan una sombra "
+        "larga sobre su recepción.",
+
+        "## Vida y contexto",
+        "Nació en **Leipzig**. Su vida fue tormentosa: deudas continuas, "
+        "huidas de acreedores, exilio político tras participar en la revolución "
+        "de Dresde de 1849, un matrimonio roto y una relación con **Cosima** "
+        "—hija de Liszt y esposa del director Hans von Bülow— con la que acabó "
+        "casándose. Se salvó de la ruina gracias al mecenazgo del joven rey "
+        "**Luis II de Baviera**. Con su apoyo construyó en **Bayreuth** un "
+        "**teatro a medida** de sus obras (foso de orquesta oculto, sala a "
+        "oscuras, sin palcos sociales) que sigue funcionando como festival "
+        "dedicado a su música.",
+
+        "## Lenguaje y aportación",
+        "Su ideal era la **obra de arte total** (*Gesamtkunstwerk*): música, "
+        "poesía, escenografía y gesto al servicio de una misma idea, con el "
+        "compositor como autor único del texto y la música. Renunció a los "
+        "**números cerrados**: en lugar de arias separadas, una **melodía "
+        "continua** («melodía infinita») que fluye sin cadencias plenas. Tejió "
+        "la partitura con **leitmotivs**: motivos breves asociados a "
+        "personajes, objetos, sentimientos o ideas, que se transforman y se "
+        "combinan según la acción, de modo que la orquesta «cuenta» lo que los "
+        "personajes callan. Armónicamente, su uso de acordes sin resolver y "
+        "modulaciones perpetuas —el célebre **«acorde de Tristán»** que abre la "
+        "ópera y no se resuelve de verdad hasta casi el final— disolvió la "
+        "sensación estable de tonalidad.",
+
+        "## Obras para escuchar",
+        "**Preludio y muerte de amor de «Tristán e Isolda»** (1865): el punto "
+        "de inflexión de la armonía occidental; tensión aplazada durante horas.",
+        "**«El anillo del nibelungo»** (1848-1874): ciclo de cuatro dramas "
+        "(«El oro del Rin», «La valquiria», «Sigfrido», «El ocaso de los "
+        "dioses»), unas quince horas de música; empezar por la **«Cabalgata de "
+        "las valquirias»** y el **«Viaje de Sigfrido por el Rin»**.",
+        "**«Los maestros cantores de Núremberg»** (1868), su gran comedia, y "
+        "el **Preludio de «Lohengrin»**.",
+
+        "## Influencia y legado",
+        "Casi ningún compositor posterior escapó a su influjo: Bruckner, "
+        "Mahler, el primer Schoenberg, Debussy (que reaccionó contra él), la "
+        "música de cine (el leitmotiv es la gramática de las bandas sonoras de "
+        "Hollywood, de Steiner a John Williams). Al mismo tiempo, sus escritos "
+        "racistas y la apropiación de su música y su mitología por el nazismo "
+        "hacen que en Israel su obra apenas se interprete y que su figura siga "
+        "generando debate ético.",
+    ],
+    verTambien=["wiki-historia-opera", "wiki-historia-romanticismo", "wiki-teoria-tonalidad",
+                "wiki-comp-verdi", "wiki-comp-mahler", "wiki-tm-que-es"],
+    fuentes=_wp("Richard Wagner", "Richard_Wagner"),
+),
+
+"wiki-comp-brahms": dict(
+    resumen="Un romántico que trabajó con las formas clásicas y el contrapunto "
+            "como herramientas vivas; maestro de la variación y del desarrollo "
+            "continuo.",
+    cuerpo=[
+        "Johannes Brahms (1833-1897) fue, en la «guerra» estética de su época, "
+        "el estandarte del bando que defendía la **música absoluta** y las "
+        "**formas heredadas** (sinfonía, sonata, cuarteto) frente al poema "
+        "sinfónico y el drama musical de Liszt y Wagner. Pero su lenguaje "
+        "armónico y su intensidad emocional son plenamente románticos.",
+
+        "## Vida y contexto",
+        "Nació en un barrio pobre de **Hamburgo**, hijo de un contrabajista; de "
+        "adolescente tocaba el piano en tabernas portuarias. A los 20 años, "
+        "**Robert Schumann** lo presentó en un artículo como el mesías de la "
+        "música alemana, una carga que Brahms sintió toda su vida. Tras la "
+        "enfermedad de Schumann quedó ligado a **Clara Schumann** por una "
+        "amistad íntima y decisiva. Se instaló en **Viena**, donde vivió "
+        "soltero, austero y autocrítico —destruyó muchas obras que no le "
+        "convencían— del rendimiento de sus publicaciones y sus giras como "
+        "pianista y director de sus propias obras.",
+
+        "## Lenguaje y aportación",
+        "Brahms es el gran maestro de la **variación** (Variaciones sobre un "
+        "tema de Haendel, sobre uno de Paganini, el finale de la Cuarta "
+        "Sinfonía, que es una **passacaglia** sobre un bajo de Bach) y del "
+        "**desarrollo temático continuo**: sus temas se transforman sin cesar, "
+        "de modo que casi todo el material deriva de unas pocas ideas "
+        "(Schoenberg lo llamó «desarrollo variante» y lo reivindicó como "
+        "moderno). Su ritmo juega constantemente con **hemiolas** y "
+        "desplazamientos de acento (dos contra tres); su armonía es densa, con "
+        "medias tintas y colores de tercera. Tardó unos veinte años en "
+        "atreverse a estrenar su **Primera Sinfonía** (1876), que el público "
+        "apodó «la Décima de Beethoven».",
+
+        "## Obras para escuchar",
+        "**Sinfonía n.º 4 en mi menor** (1885): del melancólico primer tema "
+        "que baja por terceras al finale en forma de chacona, 30 variaciones "
+        "sobre ocho compases.",
+        "**Un réquiem alemán** (1868): no la misa latina de difuntos, sino una "
+        "selección de textos bíblicos en alemán sobre el consuelo de los vivos; "
+        "lo escribió tras la muerte de su madre y, en el fondo, de Schumann.",
+        "**Concierto para violín en re mayor** (1878), escrito para Joachim, y "
+        "**Quinteto con clarinete, op. 115** (1891), otoñal e íntimo.",
+        "**Danzas húngaras** y **Rapsodias para piano**: su lado más popular.",
+
+        "## Influencia y legado",
+        "Fue puente entre Beethoven/Bach y el siglo XX: **Schoenberg**, "
+        "**Berg** y **Webern** —los atonalistas vieneses— se reclamaron "
+        "herederos suyos por su manejo de la construcción motívica. Dvořák, "
+        "Elgar y Reger le deben mucho. Hoy sus cuatro sinfonías, sus "
+        "conciertos y su música de cámara son repertorio central.",
+    ],
+    verTambien=["wiki-historia-romanticismo", "wiki-comp-schumann-clara", "wiki-comp-beethoven",
+                "wiki-teoria-formas", "wiki-teoria-contrapunto", "wiki-historia-siglo-xx"],
+    fuentes=_wp("Johannes Brahms", "Johannes_Brahms"),
+),
+
+"wiki-comp-mahler": dict(
+    resumen="Llevó la sinfonía romántica a su máxima escala y a su máxima "
+            "ambivalencia emocional; puente entre el siglo XIX y la crisis del "
+            "XX. En vida, más famoso como director.",
+    cuerpo=[
+        "Gustav Mahler (1860-1911) escribió una obra concentrada casi por "
+        "completo en dos géneros —la **sinfonía** y la **canción orquestal**— "
+        "que en sus manos se funden: sus canciones alimentan sus sinfonías y "
+        "sus sinfonías incorporan voces. «Una sinfonía debe ser como el mundo: "
+        "debe contenerlo todo», dijo.",
+
+        "## Vida y contexto",
+        "Nació en una familia judía de lengua alemana en **Bohemia** (entonces "
+        "parte del Imperio austrohúngaro), lo que lo situaba, en sus palabras, "
+        "«tres veces sin patria». Estudió en el Conservatorio de Viena. Se ganó "
+        "la vida como **director de ópera**, ascendiendo de teatros pequeños "
+        "hasta el puesto máximo, la dirección de la **Ópera de la Corte de "
+        "Viena** (1897), para el que tuvo que convertirse formalmente al "
+        "catolicismo por el antisemitismo institucional. Componía solo en "
+        "verano. Sus últimos años estuvieron marcados por la muerte de una "
+        "hija, el diagnóstico de una lesión cardíaca y la crisis de su "
+        "matrimonio con Alma Schindler. Murió a los 50 años.",
+
+        "## Lenguaje y aportación",
+        "Sus sinfonías son enormes en duración (60-100 minutos), en plantilla "
+        "(coros, solistas vocales, orquesta ampliadísima, instrumentos "
+        "insólitos, bandas fuera del escenario) y en **amplitud de tono**: "
+        "junto a lo sublime pone deliberadamente lo **trivial y lo vulgar** "
+        "—marchas militares, ländler campesinos, fanfarrias, música de "
+        "cabaret, toques de corneta— y lo carga de ironía o de angustia. "
+        "Maneja la orquesta con transparencia camerística pese a su tamaño. "
+        "Amplió la práctica de la **tonalidad progresiva** (empezar y terminar "
+        "una obra en tonalidades distintas, porque el recorrido importa más "
+        "que el retorno).",
+
+        "## Obras para escuchar",
+        "**Sinfonía n.º 2 «Resurrección»**: cinco movimientos que van de una "
+        "marcha fúnebre a un finale coral sobre la resurrección de los muertos.",
+        "**Sinfonía n.º 5**: el **Adagietto** para cuerdas y arpa —usado en la "
+        "película «Muerte en Venecia»— como declaración de amor a Alma.",
+        "**«La canción de la tierra»** (*Das Lied von der Erde*, 1909): "
+        "sinfonía-ciclo de canciones para dos voces y orquesta sobre poemas "
+        "chinos; el largo «Der Abschied» («La despedida») que se disuelve en el "
+        "silencio.",
+        "**Sinfonía n.º 9** y los **«Kindertotenlieder»** («Canciones a los "
+        "niños muertos»).",
+
+        "## Influencia y legado",
+        "Menospreciado o tocado con recelo durante décadas —y prohibido bajo "
+        "el nazismo por ser judío—, su música se impuso a partir de los años "
+        "60, impulsada por directores como **Bernstein**. Hoy es uno de los "
+        "compositores más interpretados en la sala de concierto. Fue "
+        "reconocido enseguida por la **Segunda Escuela de Viena** (Schoenberg, "
+        "Berg, Webern) como un precursor, y su influencia llega a Shostakóvich, "
+        "Britten y buena parte de la música de cine.",
+    ],
+    verTambien=["wiki-historia-romanticismo", "wiki-historia-siglo-xx", "wiki-comp-wagner",
+                "wiki-comp-shostakovich", "wiki-inst-voz", "wiki-teoria-timbre"],
+    fuentes=_wp("Gustav Mahler", "Gustav_Mahler"),
+),
+
+"wiki-comp-debussy": dict(
+    resumen="El compositor que trató la armonía como color y sonoridad más que "
+            "como función; la figura central de lo que se llamó impresionismo "
+            "musical.",
+    cuerpo=[
+        "Claude Debussy (1862-1918) abrió una vía alternativa al desarrollo "
+        "germánico (Beethoven–Wagner): en lugar de temas que se desarrollan y "
+        "armonías que resuelven, **atmósferas**, timbres y acordes que se "
+        "disfrutan por sí mismos. Rechazaba la etiqueta de «impresionista», "
+        "tomada de la pintura, pero se ha quedado.",
+
+        "## Vida y contexto",
+        "Nació cerca de **París**, en una familia modesta sin tradición "
+        "musical. Entró en el **Conservatorio de París** a los diez años y "
+        "ganó en 1884 el **Premio de Roma**. Dos experiencias marcaron su "
+        "rumbo: el descubrimiento de la música de **Wagner** (que primero lo "
+        "deslumbró y luego lo empujó a buscar lo contrario) y el del "
+        "**gamelán javanés** que escuchó en la Exposición Universal de París de "
+        "1889, con su percusión afinada, sus capas y su sentido del tiempo. "
+        "Vivió de la composición, la crítica musical (con el seudónimo "
+        "«Monsieur Croche») y algún mecenas. Murió de cáncer en 1918, con "
+        "París bajo los cañones alemanes.",
+
+        "## Lenguaje y aportación",
+        "Recursos característicos: **escala de tonos enteros** y "
+        "**pentatónica**, que borran la sensación de tónica; **acordes "
+        "paralelos** (mover un mismo acorde por la escala sin conducción de "
+        "voces clásica); acordes de novena y oncena usados como «color» y no "
+        "como tensión que pide resolver; **modalidad**; formas libres, guiadas "
+        "por la imagen o el gesto y no por un esquema; y una **orquestación** "
+        "de una finura nueva, hecha de solos, mezclas insólitas y silencios. "
+        "El piano se convierte en un instrumento de resonancias y "
+        "medios-tonos.",
+
+        "## Obras para escuchar",
+        "**Preludio a la siesta de un fauno** (1894): a partir de un poema de "
+        "Mallarmé; una flauta sola, sin apoyo, que serpentea sin centro claro. "
+        "Se suele señalar como el arranque de la música moderna.",
+        "**«La mer»** (1905): tres «esbozos sinfónicos» sobre el mar; "
+        "orquestación como pintura en movimiento.",
+        "**«Claro de luna»** (de la *Suite bergamasque*) y los dos libros de "
+        "**Preludios** para piano («La catedral sumergida», «Voiles»).",
+        "**«Pelléas et Mélisande»** (1902): su única ópera, de declamación "
+        "casi susurrada y orquesta que sugiere en vez de subrayar.",
+
+        "## Influencia y legado",
+        "Ravel, Falla, Respighi, el primer Stravinski, Messiaen, Takemitsu y "
+        "buena parte del jazz (Bill Evans, Gil Evans) y de la música de cine "
+        "deben a Debussy su paleta armónica. Su idea de la armonía como color "
+        "es hoy patrimonio común de la música popular y del cine.",
+    ],
+    verTambien=["wiki-historia-siglo-xx", "wiki-teoria-escalas", "wiki-historia-mundo",
+                "wiki-comp-falla", "wiki-comp-stravinsky", "wiki-teoria-timbre"],
+    fuentes=_wp("Claude Debussy", "Claude_Debussy"),
+),
+
+"wiki-comp-falla": dict(
+    resumen="La cima del nacionalismo musical español: el folclore andaluz y "
+            "el cante jondo elevados a un lenguaje culto de precisión europea.",
+    cuerpo=[
+        "Manuel de Falla (1876-1946) es el compositor español más importante "
+        "del siglo XX y el que logró la fusión más lograda entre la raíz "
+        "popular andaluza y la técnica de vanguardia aprendida en París.",
+
+        "## Vida y contexto",
+        "Nació en **Cádiz**. Se formó en Madrid con **Felipe Pedrell**, el "
+        "musicólogo que predicaba una música española basada en el folclore y "
+        "en la polifonía antigua. De 1907 a 1914 vivió en **París**, en el "
+        "círculo de **Debussy, Ravel y Dukas**, que le enseñaron orquestación y "
+        "refinamiento armónico. La Primera Guerra Mundial lo devolvió a España; "
+        "se instaló en **Granada**, cerca de la Alhambra, y colaboró con "
+        "**Federico García Lorca** en la organización del Concurso de Cante "
+        "Jondo de 1922. Católico ferviente y hombre reservado, al estallar la "
+        "Guerra Civil —y tras el asesinato de Lorca— se exilió a **Argentina**, "
+        "donde murió sin haber terminado su gran obra, la cantata escénica "
+        "«Atlántida».",
+
+        "## Lenguaje y aportación",
+        "Falla no suele **citar** melodías populares literalmente: **destila** "
+        "sus rasgos —el **modo frigio** y sus giros, el melisma del cante, los "
+        "ritmos de la guitarra y del zapateado, la ornamentación— y los "
+        "integra en una escritura de armonía moderna y orquestación "
+        "transparente. Su trayectoria va del andalucismo colorista de las "
+        "obras parisinas y granadinas a un **neoclasicismo** seco y "
+        "concentrado (Concierto para clave), influido por el estudio de "
+        "Scarlatti, Victoria y el Siglo de Oro.",
+
+        "## Obras para escuchar",
+        "**«El amor brujo»** (1915): historia de una gitana perseguida por el "
+        "fantasma de un antiguo amante; contiene la **«Danza ritual del "
+        "fuego»**, con su trémolo y sus acentos de conjuro.",
+        "**«El sombrero de tres picos»** (1919): ballet para los Ballets Rusos "
+        "de Diáguilev, con decorados de **Picasso**; la «Danza del molinero» "
+        "(una farruca) y la jota final.",
+        "**«Noches en los jardines de España»** (1916): «impresiones "
+        "sinfónicas» para piano y orquesta, entre el concierto y el poema "
+        "sinfónico.",
+        "**Concierto para clave** (1926) y **«Siete canciones populares "
+        "españolas»**.",
+
+        "## Influencia y legado",
+        "Fijó la imagen internacional de la música española culta y abrió "
+        "camino a Joaquín Rodrigo, Ernesto Halffter (que completó «Atlántida») "
+        "y los compositores de la Generación del 27. Su rigor —dejó poca obra, "
+        "muy pulida— contrasta con la abundancia de otros nacionalismos y es "
+        "parte de su prestigio.",
+    ],
+    verTambien=["wiki-historia-espana", "wiki-comp-debussy", "wiki-historia-siglo-xx",
+                "wiki-danza-panorama", "wiki-teoria-modos"],
+    fuentes=_wp("Manuel de Falla", "Manuel_de_Falla"),
+),
+
+"wiki-comp-stravinsky": dict(
+    resumen="El compositor que puso el ritmo en primer plano, provocó el mayor "
+            "escándalo de estreno de la historia y cambió radicalmente de "
+            "estilo tres veces.",
+    cuerpo=[
+        "Ígor Stravinski (1882-1971) es, con Schoenberg, la figura que parte "
+        "en dos la música del siglo XX. Su carrera atraviesa tres «períodos» "
+        "tan distintos que parecen de compositores diferentes, unidos por una "
+        "misma obsesión: el **ritmo** y la **objetividad** (la música como "
+        "construcción, no como confesión).",
+
+        "## Vida y contexto",
+        "Nació cerca de **San Petersburgo**, hijo de un bajo de la ópera "
+        "imperial. Estudió con **Rimski-Kórsakov**. El empresario **Serguéi "
+        "Diáguilev** lo contrató para sus **Ballets Rusos** en París, y de esa "
+        "colaboración salieron sus tres primeras obras maestras. La Revolución "
+        "de 1917 y antes la guerra le cerraron Rusia: vivió como **exiliado** "
+        "en Suiza, luego en Francia (se nacionalizó francés) y, desde 1939, en "
+        "**Estados Unidos** (Hollywood; se nacionalizó estadounidense). Murió "
+        "en Nueva York y está enterrado en Venecia.",
+
+        "## Lenguaje y aportación",
+        "**Período ruso** (hasta ~1920): folclore ruso filtrado por una "
+        "orquestación deslumbrante y, en «La consagración», **ritmos "
+        "irregulares y violentos**, compases que cambian a cada compás, "
+        "acentos impredecibles, acordes-bloque disonantes repetidos como "
+        "percusión, superposición de capas (ostinatos). **Período "
+        "neoclásico** (~1920-1951): mira a Bach, a Pergolesi, a la sonata "
+        "clásica, con una ironía distanciada, plantillas más pequeñas y "
+        "claridad de líneas. **Período serial** (desde ~1953, ya mayor): tras "
+        "la muerte de su «rival» Schoenberg, adopta el **dodecafonismo** a su "
+        "manera. En todos, su sello es el **motor rítmico** y una relación "
+        "«escultórica» con el material.",
+
+        "## Obras para escuchar",
+        "**«La consagración de la primavera»** (1913): ballet sobre un rito "
+        "pagano que culmina en el sacrificio de una doncella que baila hasta "
+        "morir. El estreno acabó a golpes entre el público. Es probablemente la "
+        "obra más influyente del siglo.",
+        "**«El pájaro de fuego»** (1910) y **«Petrushka»** (1911): los otros "
+        "dos ballets rusos; empezar por sus suites de concierto.",
+        "**«Sinfonía de los salmos»** (1930): coro y orquesta sin violines ni "
+        "violas, austera y monumental.",
+        "**«Historia del soldado»** (1918): teatro de cámara para siete "
+        "músicos, narrador y actores, con tango, vals y ragtime.",
+
+        "## Influencia y legado",
+        "«La consagración» reescribió lo que se podía hacer con el ritmo y la "
+        "disonancia: su huella está en Bartók, Varèse, Copland, Messiaen, "
+        "Bernstein, el jazz de vanguardia y casi toda la música de cine de "
+        "acción y de terror. Su neoclasicismo definió una estética entera "
+        "entre las dos guerras. Con Schoenberg, encarna las dos grandes "
+        "opciones de la modernidad musical.",
+    ],
+    verTambien=["wiki-historia-siglo-xx", "wiki-teoria-ritmo", "wiki-comp-debussy",
+                "wiki-danza-panorama", "wiki-teoria-timbre", "wiki-teoria-tonalidad"],
+    fuentes=_wp("Ígor Stravinski", "Igor_Stravinsky"),
+),
+
+"wiki-comp-shostakovich": dict(
+    resumen="La gran voz sinfónica de la Unión Soviética, atrapada entre la "
+            "exigencia de música «para el pueblo» y una ironía privada y "
+            "amarga.",
+    cuerpo=[
+        "Dmitri Shostakóvich (1906-1975) mantuvo viva la **gran tradición "
+        "sinfónica** en pleno siglo XX y bajo la dictadura estalinista. Su "
+        "música dice cosas en dos niveles a la vez: lo que el régimen quería "
+        "oír y una segunda voz de sarcasmo, miedo o duelo.",
+
+        "## Vida y contexto",
+        "Nació en **San Petersburgo** y vivió casi toda su vida en la URSS. Su "
+        "carrera la marcan dos **condenas oficiales**: en 1936, un artículo de "
+        "«Pravda» (inspirado por Stalin) tras una función de su ópera «Lady "
+        "Macbeth de Mtsensk» la tachó de «caos en vez de música»; Shostakóvich "
+        "retiró su Cuarta Sinfonía y respondió con una Quinta más «legible». En "
+        "1948, el decreto Zhdánov volvió a acusarlo de «formalismo». Vivió con "
+        "una maleta preparada por si venían a detenerlo. Se afilió al Partido "
+        "en 1960, un gesto que le pesó. Tras su muerte, un libro de memorias "
+        "discutido, «Testimonio», lo presentó como disidente secreto; el debate "
+        "sobre cuánto hay de protesta y cuánto de acomodo en su obra sigue "
+        "abierto.",
+
+        "## Lenguaje y aportación",
+        "Su catálogo central son **15 sinfonías** y **15 cuartetos de "
+        "cuerda**. Combina la herencia de Mahler y Chaikovski con marchas "
+        "**grotescas**, valses **espectrales**, clímax que suenan a la vez "
+        "triunfales y forzados, largos lamentos para instrumentos solistas, y "
+        "el uso de su **monograma** musical **D-S-C-H** (re, mi♭, do, si, en "
+        "notación alemana) como firma y como presencia del «yo» perseguido. "
+        "También dejó conciertos, música de cámara y decenas de partituras de "
+        "cine.",
+
+        "## Obras para escuchar",
+        "**Sinfonía n.º 5 en re menor** (1937): estrenada bajo amenaza, con un "
+        "finale cuyo carácter —¿apoteosis o júbilo obligado a punta de "
+        "pistola?— se discute desde entonces.",
+        "**Sinfonía n.º 7 «Leningrado»** (1941): compuesta en parte durante el "
+        "sitio nazi de la ciudad; el «tema de la invasión», un ostinato que "
+        "crece durante doce minutos.",
+        "**Cuarteto de cuerda n.º 8** (1960): dedicado «a las víctimas del "
+        "fascismo y de la guerra»; saturado del motivo DSCH y de citas de sus "
+        "propias obras. Muchos lo leen como un réquiem por sí mismo.",
+        "**Concierto para violonchelo n.º 1** y la ópera **«Lady Macbeth de "
+        "Mtsensk»**.",
+
+        "## Influencia y legado",
+        "Es el sinfonista más interpretado del siglo XX después de Mahler. Su "
+        "obra es un documento sobre lo que significa crear bajo censura, y su "
+        "influencia alcanza a compositores del bloque soviético (Schnittke, "
+        "Weinberg), a la música de cine y a cualquiera que quiera hacer "
+        "sinfonías después de que se declarara muerto el género.",
+    ],
+    verTambien=["wiki-historia-siglo-xx", "wiki-comp-mahler", "wiki-teoria-formas",
+                "wiki-inst-violin", "wiki-historia-opera"],
+    fuentes=_wp("Dmitri Shostakóvich", "Dmitri_Shostakovich"),
+),
+
+"wiki-comp-gershwin": dict(
+    resumen="El puente entre el jazz, la canción popular de Broadway y la sala "
+            "de concierto en Estados Unidos.",
+    cuerpo=[
+        "George Gershwin (1898-1937) fue a la vez un **compositor de canciones "
+        "de éxito** de Tin Pan Alley y Broadway y un compositor «serio» que "
+        "llevó el lenguaje del jazz y del blues a la orquesta sinfónica y a la "
+        "ópera. Murió a los 38 años de un tumor cerebral, en la cima.",
+
+        "## Vida y contexto",
+        "Hijo de inmigrantes judíos de Rusia, se crió en el Lower East Side de "
+        "**Nueva York**. Dejó la escuela a los 15 para trabajar como "
+        "*song-plugger* (pianista que promocionaba partituras en una tienda). "
+        "Con su hermano **Ira** como letrista formó uno de los grandes tándems "
+        "de la canción estadounidense. Nunca dejó de estudiar; pidió clases a "
+        "Ravel y a Nadia Boulanger, que lo rechazaron amablemente diciéndole "
+        "que ya tenía una voz propia.",
+
+        "## Lenguaje y aportación",
+        "Sus canciones fijaron parte del **Great American Songbook**: melodías "
+        "con *blue notes*, ritmos sincopados, y una armonía sofisticada "
+        "(sextas añadidas, dominantes alteradas) que las convirtió en material "
+        "predilecto de los músicos de jazz. En las obras de concierto "
+        "**cruzó** ese idioma con la forma sinfónica: no siempre con costuras "
+        "invisibles, pero con una frescura y una identidad americana que nadie "
+        "había logrado antes. Con «Porgy and Bess» intentó una **ópera "
+        "estadounidense** de tema afroamericano, con recitativos, arias y "
+        "coros, hoy repertorio internacional (y objeto de debate sobre "
+        "representación).",
+
+        "## Obras para escuchar",
+        "**Rhapsody in Blue** (1924): del glissando inicial de clarinete a la "
+        "gran melodía central; estrenada en un concierto que se anunció como "
+        "«un experimento de música moderna».",
+        "**Concierto en fa** (1925) y **«Un americano en París»** (1928), con "
+        "claxons de taxi en la orquesta.",
+        "**«Porgy and Bess»** (1935): «Summertime», «It Ain't Necessarily So».",
+        "**Canciones**: «I Got Rhythm» (cuya progresión, los «rhythm changes», "
+        "es una de las bases de la improvisación de jazz), «The Man I Love», "
+        "«Someone to Watch Over Me».",
+
+        "## Influencia y legado",
+        "Legitimó la mezcla de «culto» y «popular» en Estados Unidos y abrió "
+        "camino a Bernstein, a Copland y al musical sinfónico. «I Got Rhythm» y "
+        "«Summertime» están entre los temas más versionados del jazz. Su muerte "
+        "temprana lo dejó como una de las grandes preguntas de «qué habría "
+        "pasado si».",
+    ],
+    verTambien=["wiki-historia-jazz", "wiki-tm-nacimiento", "wiki-comp-ellington",
+                "wiki-comp-boulanger", "wiki-historia-popular"],
+    fuentes=_wp("George Gershwin", "George_Gershwin"),
+),
+
+"wiki-comp-ellington": dict(
+    resumen="El mayor compositor del jazz: su instrumento era su propia "
+            "orquesta, y para ella escribió más de mil obras a lo largo de "
+            "medio siglo.",
+    cuerpo=[
+        "Edward Kennedy «Duke» Ellington (1899-1974) es la figura que zanja la "
+        "discusión sobre si el jazz podía producir **compositores** en el "
+        "sentido pleno. Pianista y director de orquesta, concibió su banda como "
+        "un solo instrumento y compuso pensando en el sonido exacto de cada uno "
+        "de sus músicos.",
+
+        "## Vida y contexto",
+        "Nació en **Washington D. C.**, en una familia de clase media negra. Su "
+        "orquesta se hizo famosa a finales de los años 20 en el **Cotton Club** "
+        "de Harlem (un local para blancos con artistas negros), con "
+        "retransmisiones de radio que la difundieron por todo el país. A "
+        "diferencia de casi todas las big bands, la suya **sobrevivió** al "
+        "declive del swing y siguió en activo, girando por el mundo, hasta la "
+        "muerte de Ellington. Muchos de sus instrumentistas se quedaron con él "
+        "décadas. Su colaborador y «alter ego» compositivo fue **Billy "
+        "Strayhorn**.",
+
+        "## Lenguaje y aportación",
+        "Ellington componía **para personas**, no para «trompeta 1» o «saxo "
+        "alto»: aprovechaba el gruñido con sordina de **Bubber Miley** o **Cootie "
+        "Williams**, el registro sobreagudo del clarinete de **Barney Bigard**, "
+        "el sonido carnoso del saxo barítono de **Harry Carney**. Mezclaba "
+        "timbres de forma inaudita (una trompa con sordina doblando un "
+        "clarinete grave), trataba el **blues** y la canción de 32 compases "
+        "con una armonía riquísima, y desde los años 40 escribió **suites** "
+        "extensas para llevar el jazz orquestal a la escala de la música de "
+        "concierto. También hizo conciertos sacros en sus últimos años.",
+
+        "## Obras para escuchar",
+        "**«Take the 'A' Train»** (1941): en realidad de Billy Strayhorn; el "
+        "tema-firma de la orquesta.",
+        "**«Black, Brown and Beige»** (1943): suite de casi una hora sobre la "
+        "historia de los afroamericanos, estrenada en el Carnegie Hall.",
+        "**«Ellington at Newport»** (1956): el solo de 27 estribillos del "
+        "saxofonista Paul Gonsalves en «Diminuendo and Crescendo in Blue» que "
+        "relanzó su carrera.",
+        "**«Mood Indigo»**, **«Sophisticated Lady»**, **«Caravan»** y la "
+        "colaboración **«Money Jungle»** (1962) con Mingus y Roach.",
+
+        "## Influencia y legado",
+        "Su obra es el argumento central para considerar el jazz una tradición "
+        "compositiva y no solo interpretativa. Influyó en toda la escritura "
+        "para big band posterior (Gil Evans, Thad Jones, Maria Schneider) y su "
+        "cancionero es repertorio permanente. «It don't mean a thing if it "
+        "ain't got that swing», título de un tema suyo de 1931, se volvió una "
+        "definición popular del género.",
+    ],
+    verTambien=["wiki-historia-jazz", "wiki-comp-gershwin", "wiki-teoria-timbre",
+                "wiki-teoria-armonia", "wiki-historia-popular"],
+    fuentes=_wp("Duke Ellington", "Duke_Ellington"),
+),
+
+"wiki-comp-boulanger": dict(
+    resumen="La maestra de composición más influyente del siglo XX y una "
+            "pionera como directora de orquesta y difusora de música antigua.",
+    cuerpo=[
+        "Nadia Boulanger (1887-1979) formó, a lo largo de más de sesenta años "
+        "de enseñanza en París y en el conservatorio americano de "
+        "**Fontainebleau**, a varias generaciones de compositores de todo el "
+        "mundo. Difícil encontrar en la música del siglo XX una red de "
+        "influencia comparable.",
+
+        "## Vida y contexto",
+        "Hija y nieta de músicos del Conservatorio de París, estudió allí con "
+        "Fauré. Se presentó al **Premio de Roma** (quedó segunda en 1908) pero "
+        "pronto renunció a la composición propia, convencida —con dureza hacia "
+        "sí misma— de que su obra no valía lo suficiente, sobre todo comparada "
+        "con la de su hermana **Lili Boulanger**, primera mujer en ganar el "
+        "Premio de Roma (1913) y muerta a los 24 años. Nadia volcó su vida en "
+        "**enseñar**, **dirigir** y **rescatar repertorio** (fue clave en la "
+        "recuperación de Monteverdi y de la música renacentista y barroca).",
+
+        "## Lenguaje y aportación",
+        "Su enseñanza se basaba en el dominio absoluto del **contrapunto**, la "
+        "**lectura a primera vista**, el **análisis** minucioso (armonizar "
+        "bajos y corales de Bach, escuchar «la nota que falta») y una ética "
+        "del oficio: claridad, autoexigencia, conocer la tradición para poder "
+        "apartarse de ella con sentido. No imponía un estilo; entre sus "
+        "alumnos hay corrientes opuestas. Como **directora** fue de las "
+        "primeras mujeres al frente de orquestas como la Filarmónica de Nueva "
+        "York, la de Boston o la Filarmónica de Londres.",
+
+        "## Para escuchar (su entorno)",
+        "Como no dejó apenas obra propia, se la conoce por lo que hizo sonar y "
+        "por lo que enseñó: sus grabaciones pioneras de los **madrigales y las "
+        "«Vísperas» de Monteverdi**; el **«Réquiem» de Fauré**, su maestro; y "
+        "**«Du fond de l'abîme»** de **Lili Boulanger**, obra intensa que ella "
+        "defendió toda su vida.",
+        "Entre sus alumnos: **Aaron Copland, Elliott Carter, Philip Glass, "
+        "Astor Piazzolla, Quincy Jones, Michel Legrand, Egberto Gismonti, "
+        "Daniel Barenboim** (como pianista y músico), Virgil Thomson, Walter "
+        "Piston, Roy Harris, Thea Musgrave.",
+
+        "## Influencia y legado",
+        "A través de sus discípulos, su idea de la formación —contrapunto "
+        "riguroso, análisis, oído absoluto trabajado, respeto por la "
+        "tradición— moldeó buena parte de la música estadounidense del siglo "
+        "XX (el «sonido americano» de Copland), el tango de concierto de "
+        "Piazzolla, y el modo en que se enseña composición en muchos "
+        "conservatorios. Es también una figura de referencia en la historia de "
+        "las mujeres en la música.",
+    ],
+    verTambien=["wiki-historia-mujeres", "wiki-comp-piazzolla", "wiki-teoria-contrapunto",
+                "wiki-comp-gershwin", "wiki-historia-teoria-evolucion"],
+    fuentes=_wp("Nadia Boulanger", "Nadia_Boulanger"),
+),
+
+"wiki-comp-piazzolla": dict(
+    resumen="Creador del «nuevo tango»: el tango de Buenos Aires llevado a la "
+            "sala de concierto mediante el contrapunto, el jazz y la música de "
+            "cámara.",
+    cuerpo=[
+        "Astor Piazzolla (1921-1992) transformó el tango de música de baile y "
+        "de cabaré en un género **de concierto y de escucha**, sin dejar de "
+        "ser tango. Fue tan discutido en Argentina —«eso no es tango», le "
+        "decían— como venerado fuera de ella, hasta que también dentro se lo "
+        "reconoció.",
+
+        "## Vida y contexto",
+        "Nació en **Mar del Plata** y se crió en gran parte en **Nueva York**, "
+        "donde su padre le regaló un **bandoneón** —el fuelle de botones, de "
+        "origen alemán, que es el alma del tango— y donde oyó jazz y música "
+        "clásica. De vuelta en Buenos Aires tocó y arregló en la orquesta de "
+        "**Aníbal Troilo**, el gran bandoneonista de la época. Estudió "
+        "composición con **Alberto Ginastera** y, en 1954, con **Nadia "
+        "Boulanger** en París: ella le hizo ver que su voz estaba en el tango, "
+        "no en imitar a Stravinski. A partir de ahí formó sus propios "
+        "conjuntos —el **Quinteto Nuevo Tango** (bandoneón, violín, guitarra "
+        "eléctrica, piano, contrabajo) es el más célebre— y desató la polémica.",
+
+        "## Lenguaje y aportación",
+        "El «**nuevo tango**» conserva el nervio rítmico y el fraseo del tango "
+        "(el acento arrastrado, el *marcato* en 4, los golpes percusivos en la "
+        "caja del instrumento) y le añade **contrapunto** (fugas y cánones), "
+        "**disonancia** y armonía extendida, **improvisación** de raíz jazzística "
+        "y formas de **música de cámara**. El bandoneón pasa de acompañar a "
+        "ser voz solista de gran expresividad. Compuso también un «Concierto "
+        "para bandoneón», una «operita» («María de Buenos Aires») y bandas "
+        "sonoras.",
+
+        "## Obras para escuchar",
+        "**«Libertango»** (1974): ostinato hipnótico; su tema más conocido, "
+        "versionado sin fin.",
+        "**«Adiós Nonino»** (1959): elegía a su padre; probablemente su obra "
+        "más personal.",
+        "**«Las cuatro estaciones porteñas»** (1965-70): cuatro tangos que "
+        "retratan Buenos Aires y que hoy se tocan a menudo arreglados para "
+        "violín y orquesta de cuerda, dialogando con Vivaldi.",
+        "**«María de Buenos Aires»** (1968) y **«Balada para un loco»** "
+        "(con letra de Horacio Ferrer).",
+
+        "## Influencia y legado",
+        "Hoy es el compositor argentino más tocado en el mundo y su música es "
+        "puente habitual entre el público clásico y el tango. Violinistas "
+        "(Kremer), chelistas (Yo-Yo Ma), guitarristas y agrupaciones de cámara "
+        "lo han incorporado al repertorio. En Argentina, la disputa sobre si "
+        "«traicionó» o «salvó» el tango forma parte ya de su leyenda.",
+    ],
+    verTambien=["wiki-historia-latinoamerica", "wiki-comp-boulanger", "wiki-danza-social-latina",
+                "wiki-historia-carlos-vega", "wiki-teoria-contrapunto"],
+    fuentes=_wp("Astor Piazzolla", "Astor_Piazzolla"),
+),
+
+}  # fin COMPOSITORES
+
+NUEVOS.update(COMPOSITORES)
+
+
+# =========================================================================
+#  HISTORIA — tanda 1: el arco narrativo (etapas + jazz + popular + mundo)
+# =========================================================================
+F_GROUT = LIBRO("Donald J. Grout y Claude V. Palisca, «Historia de la música "
+                "occidental» (Alianza)")
+F_BURKHOLDER = LIBRO("J. Peter Burkholder, «A History of Western Music» (Norton)")
+
+def _hist_fuentes(es, en):
+    return [W(f"Wikipedia (ES) — {es}",
+             f"https://es.wikipedia.org/wiki/{es.replace(' ', '_')}"),
+            W(f"Wikipedia (EN) — {en}",
+             f"https://en.wikipedia.org/wiki/{en}"),
+            F_GROUT]
+
+HISTORIA = {
+
+"wiki-historia-panorama": dict(
+    resumen="Un mapa de las grandes etapas de la música occidental, sus "
+            "límites como esquema, y su relación con las tradiciones del resto "
+            "del mundo y con la música popular.",
+    cuerpo=[
+        "La historia de la música occidental se suele contar dividida en "
+        "**etapas** con nombre propio. Es un esquema útil para orientarse, "
+        "pero conviene saber desde el principio que las etiquetas son "
+        "invención posterior: nadie en 1700 sabía que vivía en «el Barroco», y "
+        "las fronteras entre periodos son borrosas y discutidas.",
+
+        "## Las etapas de la música occidental",
+        "**Edad Media** (aprox. 500-1400): del canto litúrgico monódico al "
+        "nacimiento de la polifonía. **Renacimiento** (1400-1600): siglo de "
+        "oro de la polifonía vocal equilibrada. **Barroco** (1600-1750): nacen "
+        "la ópera y la tonalidad; el contrapunto culmina con Bach. "
+        "**Clasicismo** (1750-1820): claridad, equilibrio, la forma sonata y "
+        "la sinfonía; Viena como centro. **Romanticismo** (siglo XIX): la "
+        "música como expresión de lo individual y de la identidad nacional; "
+        "orquesta y armonía se expanden hasta el límite. **Siglo XX-XXI**: la "
+        "unidad estilística se rompe en muchas direcciones a la vez, y la "
+        "música popular grabada se convierte en la cultura musical dominante.",
+
+        "## Por qué se divide así y qué falla en el esquema",
+        "La periodización es **retrospectiva** (se fija cuando la etapa ya ha "
+        "pasado), **eurocéntrica** (ignora que fuera de Europa hay "
+        "cronologías propias) y tiende a contar la historia como una sucesión "
+        "de **grandes hombres** y obras maestras, dejando fuera a las mujeres, "
+        "a los intérpretes, a la música cotidiana y a casi todo lo que no se "
+        "escribió. Además, cada «cambio de etapa» fue en realidad una "
+        "transición de décadas en la que convivieron lo viejo y lo nuevo. "
+        "Úsala como andamiaje, no como verdad rígida.",
+
+        "## En paralelo: el resto del mundo",
+        "Mientras Europa recorría esas etapas, existían —y existen— tradiciones "
+        "tan antiguas y complejas como la occidental: la **música clásica de "
+        "la India** (raga y tala), el **maqam** árabe, turco y persa, el "
+        "**gamelán** de Indonesia, la **polirritmia** del África subsahariana, "
+        "el **pentatonismo** y la estética del timbre de Asia oriental. No son "
+        "«música del mundo» en oposición a la «música» a secas: son sistemas "
+        "musicales completos con su propia teoría.",
+
+        "## La música popular y la era de la grabación",
+        "El otro gran hecho del siglo XX es que la **música popular** —blues, "
+        "jazz, rock, soul, hip-hop, electrónica— pasó de ser entretenimiento "
+        "menor a ser la música que de verdad escucha la mayoría, con recursos "
+        "propios (groove, timbre, producción) y una industria propia. La "
+        "posibilidad de **grabar** el sonido, primero, y de **distribuirlo** "
+        "por radio, disco, internet y streaming, después, transformó no solo "
+        "cómo se oye la música sino cómo se compone.",
+
+        "## Cómo usar esta sección",
+        "Cada artículo de «Historia» amplía uno de estos bloques. Puedes "
+        "leerlos en orden cronológico o saltar por los enlaces «Ver también» "
+        "hacia los conceptos de teoría, los instrumentos o los compositores "
+        "que aparecen en cada época.",
+    ],
+    verTambien=["wiki-historia-medieval", "wiki-historia-siglo-xx", "wiki-historia-mundo",
+                "wiki-historia-popular", "wiki-historia-teoria-evolucion"],
+    fuentes=_hist_fuentes("Historia de la música", "History_of_music"),
+),
+
+"wiki-historia-antiguedad": dict(
+    resumen="De las flautas de hueso del Paleolítico a Roma: los primeros "
+            "instrumentos, las primeras civilizaciones musicales y la teoría "
+            "griega que aún usamos.",
+    cuerpo=[
+        "La música es más antigua que cualquier documento escrito. Durante "
+        "decenas de miles de años se transmitió solo de memoria, unida a la "
+        "danza, al trabajo, a la caza y al rito. Reconstruir esa etapa "
+        "significa combinar arqueología, iconografía, textos indirectos y unos "
+        "pocos fragmentos sonoros.",
+
+        "## Prehistoria",
+        "Se conservan **flautas de hueso** de ave y de marfil de mamut de hace "
+        "unos 40 000 años (cuevas de Hohle Fels y Geißenklösterle, en "
+        "Alemania); la discutida «flauta» de Divje Babe (Eslovenia) sería aún "
+        "más antigua. Toda sociedad conocida hace música. Sin notación, sabemos "
+        "de ella por los instrumentos que sobreviven (silbatos, raspadores, "
+        "tambores de los que solo queda el armazón, litófonos) y por las "
+        "pinturas y figuras que muestran gente cantando y bailando.",
+
+        "## Las primeras civilizaciones",
+        "**Mesopotamia**: liras y arpas ricamente decoradas en las tumbas "
+        "reales de Ur (h. 2500 a. C.); tablillas cuneiformes con instrucciones "
+        "de **afinación** por quintas y terceras; y el **Himno hurrita n.º 6** "
+        "de Ugarit (h. 1400 a. C.), la melodía anotada más antigua que se "
+        "conoce, aunque su transcripción se discute. **Egipto**: arpas, "
+        "flautas, sistros y músicos profesionales de templo y de corte en los "
+        "relieves, pero ninguna notación conservada. **China**: el juego de "
+        "**65 campanas** del marqués Yi de Zeng (s. V a. C.), afinadas con "
+        "precisión, y el sistema de alturas *lülü*; Confucio consideraba la "
+        "música un instrumento de orden moral y político. **India**: el canto "
+        "védico, con reglas estrictas de entonación, es una tradición oral "
+        "ininterrumpida de más de tres mil años.",
+
+        "## Grecia",
+        "Grecia legó una **teoría** que sigue viva. **Pitágoras** (s. VI "
+        "a. C.) —o su escuela— relacionó los intervalos consonantes con "
+        "**proporciones numéricas** simples de longitudes de cuerda (2:1 la "
+        "octava, 3:2 la quinta), medidas en el monocordio. Los griegos "
+        "clasificaron las escalas (*harmoniai*) y les atribuyeron un carácter "
+        "moral, el **ethos**: unas incitaban al valor, otras al reblandecimiento. "
+        "La música sonaba en el teatro, el simposio, los juegos y el culto, con "
+        "la *kithara* y el *aulós* (doble caña). Teóricos como Aristóxeno y "
+        "Ptolomeo escribieron tratados que se estudiaron durante siglos. De "
+        "aquel mundo vienen palabras como armonía, melodía, ritmo, orquesta, "
+        "sinfonía y la propia palabra **música** («arte de las Musas»).",
+
+        "## Roma",
+        "Roma heredó y difundió estas prácticas por todo el imperio, con "
+        "instrumentos más grandes y potentes: el **hydraulis** (órgano de "
+        "agua), las tubas y cornus militares. La música acompañaba el "
+        "espectáculo, el ejército, la pantomima y el banquete. La pieza "
+        "**completa** más antigua que se conserva con letra y melodía es el "
+        "**Epitafio de Sícilo** (Seikilos), grabado en una estela funeraria de "
+        "Asia Menor hacia los siglos I-II d. C.: «Mientras vivas, brilla».",
+
+        "## Qué queda",
+        "Apenas medio centenar de fragmentos de música griega antigua, la "
+        "teoría casi íntegra, y el vocabulario. Sobre ese sustrato —y sobre la "
+        "práctica de la sinagoga judía— creció el canto de la Iglesia "
+        "cristiana, que abre la Edad Media.",
+    ],
+    verTambien=["wiki-historia-medieval", "wiki-teoria-modos", "wiki-teatro-grecia",
+                "wiki-teoria-acustica", "wiki-historia-teoria-evolucion"],
+    fuentes=_hist_fuentes("Música en la Antigüedad", "Ancient_music"),
+),
+
+"wiki-historia-medieval": dict(
+    resumen="Mil años de música europea: del canto litúrgico unificado por "
+            "los carolingios al nacimiento de la polifonía en Notre-Dame y la "
+            "sofisticación rítmica del Ars Nova.",
+    cuerpo=[
+        "La Edad Media musical va, por convención, de la caída de Roma "
+        "(s. V) al entorno de 1400. Es el periodo en que Europa inventa la "
+        "**notación**, la **polifonía** y buena parte del aparato teórico que "
+        "todavía se enseña.",
+
+        "## La Iglesia y el canto",
+        "Tras la desintegración del Imperio, los **monasterios** se "
+        "convirtieron en los centros de conservación y producción musical. "
+        "Existían varios repertorios locales de canto (ambrosiano en Milán, "
+        "**mozárabe** en Hispania, galicano en la Galia, viejo-romano); bajo "
+        "los **carolingios** (Carlomagno, siglos VIII-IX) se impuso una "
+        "síntesis franco-romana que la leyenda atribuyó al papa Gregorio Magno "
+        "y que llamamos **canto gregoriano**: una sola línea melódica, en "
+        "latín, sin compás medido, modal, al servicio de la liturgia de la "
+        "**misa** y del **oficio divino**.",
+
+        "## Escritura y pedagogía",
+        "Hacia los siglos IX-X aparecen los **neumas**, ayudas de memoria sin "
+        "altura exacta. Hacia 1025, **Guido d'Arezzo** traza líneas de altura "
+        "fija (el pentagrama), inventa las sílabas de solmisación (ut-re-mi…) y "
+        "la «mano guidoniana» para enseñar a leer: por primera vez se puede "
+        "aprender una melodía sin haberla oído. La música era una de las "
+        "cuatro artes matemáticas del *quadrivium*, junto a aritmética, "
+        "geometría y astronomía.",
+
+        "## Nace la polifonía",
+        "El **organum** —cantar el gregoriano doblado por otra voz a distancia "
+        "fija— se documenta ya en el s. IX. En el sur de Francia (San Marcial "
+        "de Limoges) esa segunda voz empieza a florecer con notas propias. La "
+        "**escuela de Notre-Dame** de París (h. 1160-1250), con **Léonin** y "
+        "**Pérotin**, compone organum a dos, tres y cuatro voces, fija los "
+        "**modos rítmicos** (patrones de larga-breve) y reúne el repertorio en "
+        "el *Magnus liber organi*. De ahí surge el **motete**, que pronto "
+        "combina textos y lenguas distintos en cada voz.",
+
+        "## El Ars Nova",
+        "En el siglo XIV, en Francia e Italia, la música se vuelve "
+        "rítmicamente más libre y compleja. **Philippe de Vitry** da nombre al "
+        "**Ars Nova** y perfecciona la **notación mensural** (duraciones "
+        "proporcionales exactas) y la **isorritmia**. **Guillaume de Machaut**, "
+        "poeta y compositor, escribe la *Messe de Nostre Dame*, la primera "
+        "misa polifónica completa de un solo autor. En Italia destaca "
+        "**Francesco Landini**. La corriente llamada *Ars subtilior* lleva la "
+        "complejidad rítmica a un extremo casi irrepetible hasta el siglo XX.",
+
+        "## Fuera de la iglesia",
+        "La canción profana en lengua vulgar florece con los **trovadores** "
+        "occitanos (h. 1100-1300), los **troveros** del norte de Francia, los "
+        "**Minnesänger** alemanes y las **Cantigas de Santa María** de Alfonso "
+        "X. Hay danzas instrumentales (la *estampie*) y músicos ambulantes "
+        "(juglares). Hacia 1400, la dulzura de las terceras de la escuela "
+        "inglesa (Dunstaple) contagia al continente y anuncia el Renacimiento.",
+    ],
+    verTambien=["wiki-historia-antiguedad", "wiki-historia-renacimiento", "wiki-teoria-notacion",
+                "wiki-teoria-modos", "wiki-teatro-medieval", "wiki-comp-hildegarda"],
+    fuentes=_hist_fuentes("Música medieval", "Medieval_music"),
+),
+
+"wiki-historia-renacimiento": dict(
+    resumen="1400-1600: el siglo de oro de la polifonía vocal, dominado por "
+            "los maestros franco-flamencos, difundido por la imprenta y "
+            "cerrado por los experimentos que llevarán a la ópera.",
+    cuerpo=[
+        "El Renacimiento musical (aprox. 1400-1600) es el periodo de la "
+        "**polifonía vocal equilibrada**: varias voces melódicas que se "
+        "imitan, encajan en consonancias cuidadas y dejan entender el texto. "
+        "A diferencia del arte o la arquitectura, la música no tenía modelos "
+        "antiguos que «renacer» (no se conservaba música griega audible), así "
+        "que el término se aplica de forma laxa.",
+
+        "## Contexto",
+        "Humanismo, corte y capilla como espacios musicales, mecenazgo de "
+        "papas, príncipes y ciudades, y dos hechos decisivos: la **imprenta "
+        "musical** y la **Reforma** protestante con su respuesta católica, la "
+        "**Contrarreforma**, que en el **Concilio de Trento** (1545-63) exigió "
+        "que en la música sacra se entendiera la palabra.",
+
+        "## El lenguaje",
+        "Rasgos comunes: **imitación** generalizada entre las voces, "
+        "**consonancia** plena (la tríada completa como sonoridad normal), "
+        "tratamiento muy controlado de la disonancia, y una modalidad que en "
+        "las cadencias tiende cada vez más a la tonalidad. La **escuela "
+        "franco-flamenca** (de los actuales Países Bajos, Bélgica y norte de "
+        "Francia) exporta compositores a todas las cortes de Europa durante un "
+        "siglo y medio.",
+
+        "## Generaciones",
+        "**Du Fay** y **Binchois** (círculo de Borgoña, mediados del s. XV); "
+        "**Ockeghem** y, sobre todo, **Josquin des Prez** (h. 1450-1521), la "
+        "figura descollante, «maestro de las notas», admirado por Lutero; y la "
+        "generación final de la polifonía sacra: **Lassus**, **Palestrina** "
+        "(que fija el modelo del contrapunto sacro tras Trento), **Tomás Luis "
+        "de Victoria** y **William Byrd**.",
+
+        "## Géneros",
+        "Sacros: la **misa** (cíclica, sobre un *cantus firmus* o «de "
+        "parodia») y el **motete**. Profanos: el **madrigal** italiano e "
+        "inglés, la **chanson** francesa, el **Lied** alemán, el "
+        "**villancico** español. Y por primera vez una **música instrumental "
+        "independiente**: el ricercar, la canzona, las danzas, y el repertorio "
+        "para laúd y vihuela (Milán, Narváez, Mudarra).",
+
+        "## Imprenta y difusión",
+        "**Ottaviano Petrucci** imprime en Venecia el primer libro de "
+        "polifonía (*Odhecaton*, 1501); le siguen Attaingnant en París y "
+        "Susato en Amberes. El repertorio circula por toda Europa y crece la "
+        "figura del **aficionado** que canta y tañe en casa.",
+
+        "## Hacia el Barroco",
+        "El madrigal tardío (Marenzio y, sobre todo, el cromatismo extremo de "
+        "**Gesualdo**) lleva la disonancia al borde de lo que la modalidad "
+        "soporta. En Florencia, la **Camerata** de humanistas experimenta con "
+        "la **monodia** —una sola voz que declama sobre un acompañamiento— "
+        "buscando recuperar la fuerza del drama griego. De ahí saldrá la "
+        "ópera, y con ella el Barroco.",
+    ],
+    verTambien=["wiki-historia-medieval", "wiki-historia-barroco", "wiki-teoria-contrapunto",
+                "wiki-teoria-textura", "wiki-historia-musica-sacra", "wiki-comp-vivaldi"],
+    fuentes=_hist_fuentes("Música del Renacimiento", "Renaissance_music"),
+),
+
+"wiki-historia-barroco": dict(
+    resumen="1600-1750: nacen la ópera y la tonalidad mayor-menor, se impone "
+            "el bajo continuo y el contrapunto llega a su cima con Bach y "
+            "Haendel.",
+    cuerpo=[
+        "El Barroco (aprox. 1600-1750) empieza con un cambio de paradigma en "
+        "torno a 1600 y termina, por convención, con la muerte de Bach. Es la "
+        "época en que se forman herramientas que seguimos usando: la "
+        "tonalidad, el cifrado de acordes, el concierto.",
+
+        "## El giro de 1600",
+        "La polifonía de voces iguales cede terreno a la **monodia "
+        "acompañada**: una melodía principal sobre un **bajo continuo** "
+        "(el bajo escrito con cifras, «realizado» al teclado o al laúd). Con "
+        "ello cristaliza la **tonalidad mayor-menor** funcional. La estética "
+        "es la de los **afectos**: cada pieza o sección debe mover **una** "
+        "pasión concreta. Y el principio **concertato** —contrastar grupos, "
+        "solista contra masa, fuerte contra piano— organiza casi todo.",
+
+        "## La ópera",
+        "Nace en **Florencia** hacia 1598-1600 (Peri, Caccini) y se convierte "
+        "en arte con **Monteverdi** (*L'Orfeo*, 1607). Se extiende: en "
+        "**Venecia** abren teatros de ópera **públicos** y de pago (1637); "
+        "luego llegan la ópera francesa (Lully), la inglesa (Purcell) y la "
+        "alemana. Se separan la **ópera seria** (mitológica, con arias de "
+        "lucimiento) y, a partir del intermezzo cómico, la **ópera bufa**.",
+
+        "## Formas instrumentales",
+        "Se desarrollan el **concierto** —*grosso* (un grupo solista) y "
+        "**solista** (Corelli, Vivaldi)—, la **sonata** (de iglesia y de "
+        "cámara), la **suite** de danzas, la **fuga**, la **tocata** y el "
+        "**preludio coral**. La **forma de ritornello** (un estribillo "
+        "orquestal que alterna con episodios) estructura el concierto. La "
+        "orquesta empieza a estandarizarse en torno a la **cuerda más "
+        "continuo**.",
+
+        "## Vocal sacra",
+        "En el ámbito luterano: la **cantata**, el **coral** y la **Pasión** "
+        "(Bach). En el católico: la misa concertada. El **oratorio** —drama "
+        "sacro sin escena— triunfa con Carissimi y, sobre todo, con el "
+        "*Mesías* de **Haendel**.",
+
+        "## Las grandes figuras",
+        "Monteverdi, Corelli, **Vivaldi**, **Rameau** (que además teoriza la "
+        "armonía en 1722), **Domenico Scarlatti** (555 sonatas de teclado), "
+        "**Haendel** (cosmopolita: ópera italiana y oratorio inglés en "
+        "Londres) y **Johann Sebastian Bach**, síntesis del contrapunto tonal.",
+
+        "## Ideas duraderas",
+        "El cifrado de acordes (heredero del bajo continuo), la afinación de "
+        "las **24 tonalidades** y los temperamentos «buenos» (*El clave bien "
+        "temperado*), la dialéctica solo-tutti del concierto y la propia "
+        "armonía funcional que se enseña hoy.",
+    ],
+    verTambien=["wiki-historia-renacimiento", "wiki-historia-clasicismo", "wiki-teoria-cifrado",
+                "wiki-teoria-armonia", "wiki-teoria-temperamento", "wiki-comp-bach", "wiki-historia-opera"],
+    fuentes=_hist_fuentes("Música del Barroco", "Baroque_music"),
+),
+
+"wiki-historia-clasicismo": dict(
+    resumen="1750-1820, con Viena como centro: claridad, frases simétricas y "
+            "las formas —sonata, sinfonía, cuarteto, concierto— que aún "
+            "estructuran la música instrumental.",
+    cuerpo=[
+        "El Clasicismo (aprox. 1750-1820) reacciona contra la densidad del "
+        "contrapunto barroco buscando **claridad, equilibrio y naturalidad**. "
+        "Su centro es **Viena**, y sus tres nombres, Haydn, Mozart y el primer "
+        "Beethoven.",
+
+        "## Contexto",
+        "Ilustración; ascenso de un **público burgués** que paga entradas de "
+        "concierto y compra partituras; el **piano** entra en las casas. El "
+        "compositor empieza a pasar de criado de una corte a **profesional "
+        "independiente** (Mozart en Viena, luego Beethoven). Fases previas: el "
+        "estilo **galante** (ligero, melódico) y el *empfindsamer Stil* "
+        "(sensible, expresivo, de C. P. E. Bach); y un episodio agitado y "
+        "dramático, el **Sturm und Drang**.",
+
+        "## El lenguaje",
+        "**Frases periódicas** y simétricas (antecedente + consecuente, 4 + 4 "
+        "compases); **melodía con acompañamiento** sencillo (bajo de "
+        "Alberti); armonía funcional transparente y de ritmo lento; "
+        "**gradación dinámica** progresiva (el *crescendo* de la orquesta de "
+        "Mannheim).",
+
+        "## Las formas",
+        "Se consolidan la **forma sonata** (exposición con dos temas en "
+        "tonalidades distintas – desarrollo – reexposición con todo en la "
+        "tónica) como motor dramático; el **plan de cuatro movimientos** de "
+        "sinfonía, cuarteto y sonata; el **rondó**; el **tema y variaciones**; "
+        "la **doble exposición** del concierto clásico; y el **cuarteto de "
+        "cuerda** como «conversación entre cuatro personas razonables».",
+
+        "## Figuras",
+        "**Haydn** da forma madura a la sinfonía y al cuarteto; **Mozart** "
+        "los perfecciona y funde lo cómico y lo trágico en la ópera; "
+        "**Gluck** «reforma» la ópera hacia el drama; **Beethoven** hereda "
+        "las formas y las lleva, en escala y en carga expresiva, hasta el "
+        "umbral del Romanticismo.",
+
+        "## Instituciones",
+        "Series de conciertos públicos, sociedades de músicos, **crítica "
+        "musical** y el comienzo de un **repertorio** —un canon— de obras que "
+        "sobreviven a sus autores y se siguen tocando. Esa idea, hoy "
+        "evidente, nace aquí.",
+
+        "## Transición",
+        "La «Heroica» de Beethoven (1804) ya rompe las proporciones clásicas "
+        "en duración y ambición. La generación romántica recibirá las mismas "
+        "formas y las llenará de subjetividad.",
+    ],
+    verTambien=["wiki-historia-barroco", "wiki-historia-romanticismo", "wiki-teoria-formas",
+                "wiki-comp-haydn", "wiki-comp-mozart", "wiki-comp-beethoven"],
+    fuentes=_hist_fuentes("Música del Clasicismo", "Classical_period_(music)"),
+),
+
+"wiki-historia-romanticismo": dict(
+    resumen="El siglo XIX: la música como expresión de lo íntimo y lo sublime, "
+            "la armonía llevada al límite del sistema tonal, el virtuoso como "
+            "estrella y los nacionalismos.",
+    cuerpo=[
+        "El Romanticismo musical ocupa casi todo el siglo XIX. La música pasa "
+        "a entenderse como el arte que mejor expresa **lo inefable**: el yo, "
+        "el anhelo, la naturaleza, lo trascendente. El compositor es un "
+        "**genio** que crea desde dentro, no un artesano que cumple un "
+        "encargo.",
+
+        "## Contexto",
+        "Movimiento romántico en literatura y filosofía; **nacionalismos** y "
+        "revoluciones de 1848; industrialización de la fabricación de "
+        "instrumentos (**válvulas** para los metales, sistema **Boehm** para "
+        "las maderas, **bastidor de hierro** y mayor tensión en el piano); el "
+        "**virtuoso** como estrella de masas (Paganini, Liszt); los "
+        "conservatorios; la figura del **director** moderno; el concierto "
+        "como rito casi religioso. En el fondo, un debate estético: **música "
+        "absoluta** (Brahms, el crítico Hanslick) frente a **música con "
+        "programa** (Liszt, Wagner).",
+
+        "## El lenguaje",
+        "Orquesta, duración y rango dinámico crecen sin parar. La **armonía** "
+        "se cromatiza: modulaciones lejanas y enarmónicas, disonancias sin "
+        "resolver (el «acorde de Tristán»). **Rubato** expresivo. "
+        "**Transformación temática**: un mismo motivo cambia de carácter a lo "
+        "largo de la obra (Liszt). **Leitmotiv**: temas asociados a personajes "
+        "e ideas (Wagner).",
+
+        "## Géneros",
+        "El **Lied** y el ciclo de canciones (Schubert, Schumann, Brahms, "
+        "Wolf); la **pieza de carácter** para piano (Chopin, Schumann, Liszt, "
+        "Brahms); el **poema sinfónico** (Liszt, luego Strauss); la **gran "
+        "ópera** francesa (Meyerbeer), el **bel canto** italiano (Rossini, "
+        "Bellini, Donizetti), el **Verdi** del drama y el **Wagner** del drama "
+        "musical continuo; y la enorme obra **coral-sinfónica**.",
+
+        "## Nacionalismos",
+        "Rusia (el **Grupo de los Cinco**: Balákirev, Músorgski, Borodín, "
+        "Rimski-Kórsakov, Cui; y, aparte, Chaikovski), Bohemia (Smetana, "
+        "**Dvořák**), Escandinavia (Grieg, y ya en el límite Sibelius), "
+        "**España** (Pedrell, Albéniz, Granados), y más tarde otros países: "
+        "usan melodía, ritmo y escalas del folclore propio como afirmación de "
+        "identidad.",
+
+        "## Transición",
+        "Hacia 1900, tanta alteración y tanta modulación hacen difícil oír "
+        "dónde está la tónica. **Debussy** esquiva el problema con la armonía "
+        "de color; **Schoenberg**, hacia 1908, rompe con la tonalidad. "
+        "Mahler y Strauss son las figuras puente.",
+    ],
+    verTambien=["wiki-historia-clasicismo", "wiki-historia-siglo-xx", "wiki-teoria-tonalidad",
+                "wiki-comp-chopin", "wiki-comp-wagner", "wiki-comp-brahms", "wiki-comp-mahler"],
+    fuentes=_hist_fuentes("Música del Romanticismo", "Romantic_music"),
+),
+
+"wiki-historia-siglo-xx": dict(
+    resumen="La unidad de estilo se rompe: impresionismo, folclore-modernismo, "
+            "atonalidad y dodecafonismo, neoclasicismo, serialismo, azar, "
+            "electrónica, minimalismo, espectralismo… y la música popular como "
+            "cultura dominante.",
+    cuerpo=[
+        "Si algo define el siglo XX musical es que **deja de haber un solo "
+        "estilo**. Conviven, y a menudo chocan, muchas respuestas distintas a "
+        "la pregunta de qué debe ser la música.",
+
+        "## Antes de 1945",
+        "**Impresionismo** (Debussy, Ravel): armonía como color, tonos "
+        "enteros, modalidad. **Primitivismo y folclore-modernismo**: "
+        "*La consagración de la primavera* de Stravinski (1913) y la recogida "
+        "científica de folclore de **Bartók**. **Atonalidad** y luego "
+        "**dodecafonismo** (**Schoenberg**, h. 1908 y h. 1923; Berg, Webern: "
+        "la Segunda Escuela de Viena): se ordena una serie con las doce notas "
+        "y ninguna funciona como centro. **Neoclasicismo** (Stravinski, "
+        "Hindemith, el Grupo de los Seis): volver a las formas y la claridad "
+        "del pasado con oído moderno. Nacionalismos que continúan (Vaughan "
+        "Williams, **Copland**, **Villa-Lobos**). **Realismo socialista** "
+        "soviético (Prokófiev, Shostakóvich). Pioneros de la **microtonalidad** "
+        "(Ives, Hába, Partch).",
+
+        "## Después de 1945",
+        "**Serialismo integral** (Boulez, Stockhausen jóvenes: se serializa "
+        "también el ritmo, la dinámica, el timbre). **Indeterminación y azar** "
+        "(**Cage**). **Música concreta** (Schaeffer, París 1948: montaje de "
+        "sonidos grabados) y **electrónica de estudio** (Colonia). **Música de "
+        "masas sonoras y de texturas** (Xenakis, **Ligeti**, Penderecki). "
+        "**Minimalismo** (Young, Riley, **Reich**, **Glass**: repetición de "
+        "células con cambios graduales, procesos, desfases). **Nueva "
+        "Complejidad**; **espectralismo** (Grisey, Murail: componer a partir "
+        "del análisis de la serie de armónicos); **poliestilismo** y cita "
+        "(Berio, Schnittke).",
+
+        "## Fuera de la sala de concierto",
+        "La otra historia del siglo es la de la **música popular** (jazz → "
+        "rock → hip-hop → electrónica) convirtiéndose en la cultura musical "
+        "mayoritaria, y la de la **música de cine, televisión y videojuego** "
+        "como campo compositivo de primer orden. La frontera entre «culto» y "
+        "«popular» se cruza una y otra vez (Gershwin, Bernstein, Zappa, el "
+        "minimalismo).",
+
+        "## Siglo XXI",
+        "La **producción digital** pone la creación al alcance de cualquiera; "
+        "fusión globalizada; «post-género»; el **streaming** y los algoritmos "
+        "reconfiguran qué música se hace y se escucha. En la música «clásica "
+        "contemporánea» conviven decenas de lenguajes (Adès, Saariaho, "
+        "Andriessen, Golijov, y muchos más).",
+
+        "## Cómo escuchar el siglo XX",
+        "No busques «el sonido de la época»: no existe. Cada corriente "
+        "responde a una pregunta distinta —¿sirve la tonalidad?, ¿y la "
+        "melodía?, ¿y el compositor como autor único?, ¿y la partitura?—. "
+        "Entenderla es entender esas preguntas.",
+    ],
+    verTambien=["wiki-historia-romanticismo", "wiki-historia-electronica", "wiki-historia-jazz",
+                "wiki-teoria-escalas", "wiki-comp-stravinsky", "wiki-comp-debussy", "wiki-cur-433"],
+    fuentes=_hist_fuentes("Música del siglo XX", "20th-century_music"),
+),
+
+"wiki-historia-jazz": dict(
+    resumen="Del encuentro entre valores musicales africanos y armonía "
+            "europea nace, a comienzos del siglo XX en Estados Unidos, la gran "
+            "tradición improvisada del siglo.",
+    cuerpo=[
+        "El jazz nace a principios del siglo XX en **Estados Unidos**, del "
+        "cruce entre las tradiciones musicales africanas que sobrevivieron a "
+        "la esclavitud y la armonía y los instrumentos europeos. Es, con el "
+        "blues, la aportación más influyente de América a la música mundial.",
+
+        "## Raíces",
+        "De África occidental llegan unos **valores musicales**: el ritmo como "
+        "estructura (no como adorno), la **llamada y respuesta**, la "
+        "**tonalidad de blues** (terceras y séptimas «neutras», las *blue "
+        "notes*) y la participación colectiva. Sobreviven en los *spirituals*, "
+        "las canciones de trabajo y los *field hollers*. De ahí salen el "
+        "**blues** (forma de 12 compases, letra AAB) y el **ragtime** "
+        "(Scott Joplin: piano sincopado, escrito). **Nueva Orleans**, ciudad "
+        "portuaria y mestiza, con sus bandas de viento y sus músicos criollos, "
+        "es el crisol.",
+
+        "## Cómo suena",
+        "**Improvisación** sobre una forma armónica que se repite (el blues, o "
+        "el estándar de 32 compases AABA); **swing** (corcheas desiguales, "
+        "acento en el tiempo débil, un «balanceo» difícil de notar); armonía "
+        "**extendida** (séptimas, novenas, trecenas; el II-V-I); una **sección "
+        "rítmica** (piano o guitarra, contrabajo, batería) que «acompaña» "
+        "(*comping*) de forma activa; y el **solo** como declaración personal.",
+
+        "## Evolución",
+        "**Nueva Orleans / dixieland** (años 10-20: Louis **Armstrong** "
+        "convierte al solista en protagonista). **Swing** de big band (30-40: "
+        "Ellington, Basie, Goodman; música de baile). **Bebop** (años 40: "
+        "Charlie **Parker**, Gillespie, Monk; tempos rápidos, sustituciones, "
+        "grupos pequeños, jazz para escuchar y no para bailar). **Cool** y "
+        "**hard bop**. **Jazz modal** (Miles **Davis**, *Kind of Blue*, 1959: "
+        "menos acordes, escalas). **Free jazz** (Coleman, el último Coltrane, "
+        "Taylor: se abandona la forma fija). **Fusión** (desde finales de los "
+        "60: eléctrica, ritmos de rock y funk; *Bitches Brew*). Después: "
+        "neoclasicismo (Marsalis), jazz europeo (sello ECM) y diálogo con el "
+        "hip-hop y las músicas del mundo.",
+
+        "## Lo que aportó al lenguaje común",
+        "El análisis **II-V-I**, la **teoría escala-acorde** y los modos como "
+        "material de improvisación, la *lead sheet* y el *Real Book*, y un "
+        "modelo de tocar en grupo basado en **escuchar al bajo** y reaccionar "
+        "en tiempo real.",
+
+        "## Figuras",
+        "Louis Armstrong, Duke Ellington, Charlie Parker, Miles Davis, John "
+        "Coltrane, Thelonious Monk, Bill Evans, Ella Fitzgerald, Billie "
+        "Holiday. Y un hecho de fondo: el centro de gravedad del jazz está en "
+        "la experiencia afroamericana.",
+    ],
+    verTambien=["wiki-historia-popular", "wiki-historia-siglo-xx", "wiki-teoria-modos",
+                "wiki-teoria-ritmo", "wiki-comp-ellington", "wiki-comp-gershwin"],
+    fuentes=_hist_fuentes("Jazz", "Jazz"),
+),
+
+"wiki-historia-popular": dict(
+    resumen="El siglo XX y XXI vistos desde la canción amplificada y el "
+            "estudio de grabación: de Tin Pan Alley al rock, el soul, el funk, "
+            "el hip-hop y la electrónica.",
+    cuerpo=[
+        "«Música popular» aquí no significa «folclore», sino la música "
+        "**comercial de masas** de los siglos XX y XXI: canción breve, "
+        "difundida por disco, radio, televisión e internet, con prioridades "
+        "propias.",
+
+        "## Antes del rock",
+        "**Tin Pan Alley**: la industria profesional de escribir canciones en "
+        "Nueva York. El vodevil, el *music hall*, la canción de salón. La "
+        "**grabación** (desde 1877) fija la duración de ~3 minutos. La radio. "
+        "Los *crooners*. Las categorías raciales del mercado: *hillbilly* "
+        "(luego *country*) y *race records* (luego rhythm & blues, salido del "
+        "*jump blues*).",
+
+        "## Rock and roll",
+        "A mediados de los años 50, fusión de blues, country, góspel y R&B: "
+        "**Chuck Berry**, Little Richard, **Elvis Presley**. El **single** de "
+        "45 rpm, el «adolescente» como público nuevo y el disc-jockey como "
+        "prescriptor. Una industria **segregada** que a menudo vende música "
+        "negra a través de intérpretes blancos.",
+
+        "## La era del álbum",
+        "Años 60: **Beatles**, **Dylan**, Beach Boys convierten el LP en obra "
+        "unitaria y el **estudio en instrumento** (multipista, manipulación de "
+        "cinta, el «muro de sonido» de Phil Spector). El **soul** de Motown y "
+        "Stax. El **cantautor**.",
+
+        "## Ramificación",
+        "**Funk** (James Brown: «the One», el ritmo por encima de la armonía); "
+        "**reggae** (de la Jamaica del ska y el rocksteady); **rock "
+        "progresivo**; **hard rock** y **metal**; **punk** (1976: volver a lo "
+        "básico, el «hazlo tú mismo»); **post-punk** y *new wave*; **disco** → "
+        "**house** y **techno** (Chicago y Detroit: la caja de ritmos, el "
+        "maxi de 12 pulgadas, el DJ como autor); **hip-hop** (Bronx, 1973: el "
+        "*break*, el *loop*, el sampleo, el MC), hoy la forma de pop dominante "
+        "en el mundo.",
+
+        "## Cómo funciona",
+        "Frente a la música «culta», prioriza el **groove**, el **timbre y la "
+        "producción**, el *hook* (el gancho) y el **artefacto grabado** como "
+        "la obra (no la partitura). La forma es **estrofa-estribillo-puente** "
+        "o basada en *loops*. Se distribuye por medios de masas y hoy por "
+        "**streaming** y algoritmo.",
+
+        "## Hoy",
+        "El «género» es una etiqueta porosa; el productor de dormitorio; y "
+        "escenas de todo el planeta —K-pop, afrobeats, reguetón, amapiano— en "
+        "el centro, no en el margen.",
+    ],
+    verTambien=["wiki-historia-jazz", "wiki-historia-grabacion", "wiki-historia-electronica",
+                "wiki-teoria-formas", "wiki-prod-panorama", "wiki-cur-progresion"],
+    fuentes=_hist_fuentes("Música popular", "Popular_music"),
+),
+
+"wiki-historia-mundo": dict(
+    resumen="Grandes tradiciones vivas fuera de la música académica "
+            "occidental: África subsahariana, India, mundo árabe, Indonesia y "
+            "Asia oriental, cada una con su propio sistema.",
+    cuerpo=[
+        "«Música del mundo» es una etiqueta comercial, no un género. Bajo ella "
+        "caben sistemas musicales completos, con su teoría, su pedagogía y "
+        "siglos de repertorio. Conocerlos ayuda a ver qué «reglas» de la "
+        "música occidental son física y cuáles son convención.",
+
+        "## África subsahariana",
+        "Música **participativa y funcional**, ligada al ciclo de la vida, al "
+        "trabajo, al culto y al poder. Su rasgo estructural es la "
+        "**polirritmia**: varios patrones que se cruzan sobre un pulso común, "
+        "guiados a menudo por una «línea temporal» de campana. **Llamada y "
+        "respuesta**. Instrumentos: el *balafón*, la **kora** (con la que los "
+        "*griots* del Sahel cantan genealogías y alabanzas), la *mbira*, el "
+        "tambor parlante. De aquí salen, vía la esclavitud, el blues, el jazz, "
+        "la samba, el son y casi toda la música afroamericana.",
+
+        "## India",
+        "Una de las tradiciones artísticas continuas más antiguas. Sobre un "
+        "**bordón** (*drone*) continuo se despliega un **raga** —un marco "
+        "melódico: escala, giros obligados, adornos, un estado de ánimo y a "
+        "menudo un momento del día— dentro de un **tala** (ciclo rítmico "
+        "asimétrico, por ejemplo de 16 tiempos), en gran parte improvisado. "
+        "Hay dos sistemas: **hindustaní** (norte) y **carnático** (sur). "
+        "Sitar, sarod, tabla, bansuri, mridangam; la **voz** es el instrumento "
+        "supremo.",
+
+        "## Mundo árabe y Oriente Próximo",
+        "El **maqam**: un sistema modal con **cuartos de tono** y fórmulas "
+        "melódicas propias, en gran parte improvisado (el *taqsim*). El **oud** "
+        "(laúd sin trastes), el *qanun*, el *ney*. Repertorios clásicos árabe, "
+        "turco y persa; textura **heterofónica** (todos hacen la misma melodía "
+        "con adornos distintos).",
+
+        "## Indonesia",
+        "El **gamelán**: orquesta de percusión afinada (metalófonos, gongs, "
+        "tambores) con partes **entrelazadas** (*kotekan*), estructura cíclica "
+        "marcada por los gongs y **afinaciones propias** (*sléndro* y *pélog*), "
+        "que no encajan en el semitono occidental. Es central en la vida "
+        "javanesa y balinesa y en el teatro de sombras.",
+
+        "## Asia oriental",
+        "Fuerte **pentatonismo** y una estética del **timbre, la resonancia y "
+        "el silencio**: el *guqin* chino (cítara del letrado), el *koto* y el "
+        "*shakuhachi* japoneses, el *gagaku* (la música orquestal de corte más "
+        "antigua que se sigue interpretando) y el *pansori* coreano (canto "
+        "épico de horas con un solo tambor).",
+    ],
+    verTambien=["wiki-historia-mundo-2", "wiki-historia-panorama", "wiki-teoria-escalas",
+                "wiki-teoria-temperamento", "wiki-teoria-textura", "wiki-teatro-mundo"],
+    fuentes=_hist_fuentes("Etnomusicología", "World_music"),
+),
+
+}  # fin HISTORIA (tanda 1)
+
+NUEVOS.update(HISTORIA)
+
+
+# =========================================================================
+#  HISTORIA — tanda 2: temas transversales
+# =========================================================================
+HISTORIA2 = {
+
+"wiki-historia-notacion": dict(
+    resumen="De los neumas sobre el texto a la partitura moderna, las "
+            "tablaturas, las notaciones gráficas del siglo XX y la capa "
+            "digital (MIDI, MusicXML, software).",
+    cuerpo=[
+        "La forma de escribir música ha cambiado muchas veces, y cada cambio "
+        "amplió lo que se podía fijar: primero la altura, luego el ritmo "
+        "exacto, luego los matices, y en el siglo XX sonidos que la notación "
+        "clásica no podía representar.",
+
+        "## De la Antigüedad al canto",
+        "Grecia usó una **notación alfabética** (letras y signos sobre el "
+        "texto). El cristianismo primitivo cantó de memoria; hacia los siglos "
+        "IX-X aparecen los **neumas**: signos que dibujan el perfil de una "
+        "melodía **ya conocida**, sin altura precisa (neumas «in campo "
+        "aperto»). El paso decisivo es **Guido d'Arezzo** (h. 1025): traza "
+        "líneas de altura fija —el tetragrama— y coloca los neumas sobre "
+        "ellas; nace la lectura a primera vista. De ahí sale la **notación "
+        "cuadrada** del canto llano.",
+
+        "## La conquista del ritmo",
+        "La **escuela de Notre-Dame** (s. XIII) fija los **modos rítmicos** "
+        "(patrones de larga-breve). **Franco de Colonia** (h. 1280) inventa la "
+        "**notación mensural**: la forma de la nota indica por sí sola su "
+        "duración. El **Ars Nova** (Vitry, s. XIV) añade la división ternaria y "
+        "binaria a varios niveles (*prolación*) y las notas rojas. En el s. XV "
+        "se pasa a la **notación blanca** (cabezas huecas, para ahorrar "
+        "tinta). Entre 1600 y 1650 se generalizan el **compás**, las **líneas "
+        "divisorias** regulares y las **fórmulas de compás**, y el sistema "
+        "queda casi como hoy.",
+
+        "## Impresión y estandarización",
+        "**Petrucci** imprime polifonía con tipos móviles (1501); más tarde el "
+        "**grabado** en plancha (Breitkopf, Ballard) da páginas más limpias. "
+        "En el siglo XIX se normalizan los signos de dinámica, articulación y "
+        "expresión: la partitura intenta anotarlo todo.",
+
+        "## Tablaturas y sistemas alternativos",
+        "En paralelo a la notación de alturas existen las **tablaturas**, que "
+        "indican **dónde poner los dedos** y no qué nota suena: para laúd y "
+        "vihuela (siglos XVI-XVII) y, hoy, para guitarra y bajo. Otros "
+        "sistemas: la **notación de figuras** (*shape notes*) de la América "
+        "rural, la **musicografía Braille** para personas ciegas y las cifras "
+        "del **bajo continuo**.",
+
+        "## El siglo XX y la notación gráfica",
+        "Para sonidos y técnicas nuevos, muchos compositores inventaron "
+        "**notaciones gráficas o proporcionales**: masas y bandas dibujadas "
+        "(Penderecki), símbolos propios (Crumb), partituras que son casi "
+        "dibujos abstractos (*Treatise* de Cardew), o instrucciones verbales "
+        "(Cage, la música «de texto»). El intérprete recupera parte de la "
+        "libertad que había perdido.",
+
+        "## La capa digital",
+        "Hoy conviven el papel y varios formatos electrónicos. El **MIDI** "
+        "(1983) **no es notación**: es una lista de instrucciones de ejecución "
+        "(qué tecla, cuándo, con qué fuerza). El **MusicXML** sirve para "
+        "intercambiar partituras entre programas. El software de edición "
+        "(Finale, Sibelius, Dorico, el gratuito MuseScore) ha sustituido al "
+        "copista, y ya hay herramientas que convierten audio en partitura o "
+        "generan notación con ayuda de inteligencia artificial.",
+    ],
+    verTambien=["wiki-teoria-notacion", "wiki-historia-medieval", "wiki-teoria-ritmo",
+                "wiki-prod-midi", "wiki-inst-guitarra"],
+    fuentes=_hist_fuentes("Notación musical", "Musical_notation"),
+),
+
+"wiki-historia-instrumentos": dict(
+    resumen="De la flauta de hueso al ordenador: cómo los instrumentos han "
+            "cambiado con la técnica, y cómo esos cambios han transformado la "
+            "música que se podía escribir.",
+    cuerpo=[
+        "La historia de los instrumentos y la de la música van juntas: cada "
+        "mejora mecánica abre posibilidades (tocar más rápido, más agudo, en "
+        "más tonalidades, más fuerte) que los compositores explotan enseguida.",
+
+        "## De la prehistoria a la Antigüedad",
+        "Flautas de hueso de hace 40 000 años; bramaderas, silbatos, tambores. "
+        "En la Antigüedad, **liras y arpas**, el **aulós** de doble caña y el "
+        "**hydraulis** (órgano de agua) romano, antepasado del órgano.",
+
+        "## Edad Media y Renacimiento",
+        "El **órgano** de iglesia se desarrolla; llegan de al-Ándalus el "
+        "**laúd** y la **fídula** (vihuela de arco). En el Renacimiento se "
+        "toca en **consorts** (familias completas: violas de gamba, flautas de "
+        "pico) y florece el repertorio para **laúd y vihuela**. Aparecen los "
+        "instrumentos de teclado de cuerda pulsada: **virginal, espineta, "
+        "clave**. Se distingue la música «alta» (instrumentos potentes, al "
+        "aire libre) de la «baja» (suaves, de cámara).",
+
+        "## Barroco",
+        "La **familia del violín** se perfecciona en **Cremona** (Amati, "
+        "**Stradivari**, Guarneri, h. 1650-1740) y desplaza a las violas de "
+        "gamba. El **oboe** y el **fagot** se refinan en Francia. El **clave** "
+        "vive su edad de oro. Hacia 1700, **Bartolomeo Cristofori** construye "
+        "el primer **fortepiano**: un teclado que, por fin, puede tocar fuerte "
+        "y suave.",
+
+        "## Clasicismo y siglo XIX",
+        "El **piano** sustituye al clave y se vuelve el instrumento doméstico "
+        "y de concierto por excelencia; el **clarinete** entra en la orquesta. "
+        "En el XIX, la industrialización lo cambia todo: **válvulas** para los "
+        "metales (h. 1815), que les permiten tocar todas las notas; **sistema "
+        "Boehm** para flauta (1847) y clarinete; **bastidor de hierro** y "
+        "cuerdas más tensas en el piano; el **arpa de doble movimiento** "
+        "(Érard, 1810); el **saxofón** (Adolphe Sax, 1846). La orquesta "
+        "romántica crece hasta el centenar de músicos.",
+
+        "## Siglo XX: la electricidad",
+        "El **theremin** (1920), la **guitarra eléctrica** (años 30), el "
+        "**órgano Hammond** (1935). Y luego el **sintetizador**: el modular "
+        "**Moog** (1964), el **Minimoog** portátil (1970), el **Yamaha DX7** "
+        "digital (1983, el sintetizador más vendido de la historia), los "
+        "**samplers**, las **cajas de ritmos**. Al final, el **ordenador** con "
+        "sus instrumentos de software se convierte en un instrumento en sí "
+        "mismo. En paralelo, el movimiento de **interpretación históricamente "
+        "informada** recupera y vuelve a construir claves, violas de gamba y "
+        "fortepianos.",
+    ],
+    verTambien=["wiki-teoria-timbre", "wiki-historia-electronica", "wiki-mitos-stradivarius",
+                "wiki-inst-familias", "wiki-inst-piano", "wiki-inst-violin"],
+    fuentes=_hist_fuentes("Instrumento musical", "Musical_instrument"),
+),
+
+"wiki-historia-grabacion": dict(
+    resumen="Cómo la posibilidad de guardar el sonido —del cilindro de Edison "
+            "al streaming— transformó no solo la escucha sino la propia "
+            "manera de componer.",
+    cuerpo=[
+        "Antes de 1877 la música solo existía en el momento de tocarla. "
+        "Poder **grabarla** creó un objeto nuevo —el disco— y, con el tiempo, "
+        "convirtió el estudio en un instrumento de composición.",
+
+        "## Grabación acústica (1877-1925)",
+        "El **fonoautógrafo** de Scott (1857) dibujaba el sonido sin poder "
+        "reproducirlo. **Edison** patenta el **fonógrafo** de cilindro en "
+        "1877; **Berliner**, el **disco plano** en 1888. Durante casi cincuenta "
+        "años se grababa **cantando a una bocina** que movía una aguja: sin "
+        "micrófonos, con poco rango y pocos instrumentos a la vez. El disco de "
+        "**78 rpm** de laca duraba unos 3-4 minutos: así quedó fijada la "
+        "**duración de una canción**.",
+
+        "## Grabación eléctrica y cinta",
+        "En **1925** llega el **micrófono** con amplificador de válvulas: más "
+        "fidelidad, más matices, se puede grabar una orquesta entera. Tras la "
+        "Segunda Guerra Mundial, la **cinta magnética** alemana permite algo "
+        "revolucionario: **cortar y pegar**, editar, elegir la mejor toma. En "
+        "**1948** aparece el **LP** de 33⅓ rpm (más de veinte minutos por "
+        "cara) y poco después el **single** de 45.",
+
+        "## El estudio como instrumento",
+        "La grabación **multipista** (años 50-60: de 4 a 8, 16 y 24 pistas) "
+        "cambia la naturaleza del trabajo. **Les Paul**, **Phil Spector** ("
+        "el «muro de sonido»), **los Beatles** con George Martin, **Brian "
+        "Wilson**, el **dub** jamaicano: ya no capturan una interpretación, la "
+        "**construyen** capa a capa. El **estéreo** se generaliza a finales de "
+        "los 50.",
+
+        "## De lo analógico a lo digital",
+        "El **casete** (1963) y el **Walkman** (1979) hacen la música "
+        "portátil y privada. En **1982** llega el **CD** (digital, «sonido "
+        "perfecto para siempre»). En los 90, la grabación en disco duro (Pro "
+        "Tools) mete el estudio en un ordenador. En **1999**, el **MP3** y "
+        "Napster; desde **2008**, el **streaming**.",
+
+        "## La «guerra del volumen»",
+        "Con el CD y luego el streaming, la industria masterizó cada vez más "
+        "**fuerte** (comprimiendo el rango dinámico) para «destacar» en la "
+        "radio y las listas. La **normalización de sonoridad** de las "
+        "plataformas de streaming ha frenado en parte esa carrera, porque "
+        "reproducen todo al mismo volumen percibido.",
+    ],
+    verTambien=["wiki-historia-popular", "wiki-historia-electronica", "wiki-cur-payola",
+                "wiki-prod-panorama", "wiki-prod-mastering"],
+    fuentes=_hist_fuentes("Grabación de sonido", "Sound_recording_and_reproduction"),
+),
+
+"wiki-historia-mujeres": dict(
+    resumen="Compositoras e intérpretes en todas las épocas, las barreras "
+            "concretas que enfrentaron y la recuperación de su obra desde la "
+            "musicología reciente.",
+    cuerpo=[
+        "Ha habido mujeres haciendo música en todas las épocas, pero casi "
+        "siempre **a contracorriente** de barreras muy concretas, no de una "
+        "supuesta falta de talento.",
+
+        "## Las barreras",
+        "Exclusión de los coros de catedral, de los gremios y de los "
+        "**conservatorios** hasta bien entrado el siglo XIX; de las "
+        "**orquestas** profesionales hasta mucho después (la Filarmónica de "
+        "Viena no admitió mujeres en plantilla hasta **1997**). Atribución de "
+        "sus obras a un padre, un hermano o un marido. Acceso limitado al "
+        "mecenazgo y a la publicación. Y un encasillamiento tenaz: se aceptaba "
+        "a la mujer como **intérprete** o cantante, no como **compositora**.",
+
+        "## De la Edad Media al Barroco",
+        "**Hildegarda de Bingen** (s. XII) y las *trobairitz* occitanas (la "
+        "Comtessa de Dia). **Maddalena Casulana**, primera mujer que imprime "
+        "un libro con su propia música (1568). **Francesca Caccini**, primera "
+        "en componer una ópera (1625). **Barbara Strozzi**, la compositora con "
+        "más música vocal profana publicada de su tiempo. **Élisabeth Jacquet "
+        "de La Guerre**, en la corte de Luis XIV.",
+
+        "## Siglos XIX y XX",
+        "**Fanny Mendelssohn** (Hensel) y **Clara Schumann**, grandes "
+        "compositoras a la sombra de su hermano y de su marido. **Louise "
+        "Farrenc**, profesora en el Conservatorio de París. **Ethel Smyth**, "
+        "que compaginó la ópera con el sufragismo («The March of the Women»). "
+        "**Nadia** y **Lili Boulanger**. **Florence Price**, primera "
+        "compositora afroamericana cuya sinfonía tocó una gran orquesta "
+        "(Chicago, 1933). Ya más cerca: **Sofía Gubaidúlina**, **Kaija "
+        "Saariaho**, **Julia Wolfe**.",
+
+        "## En el jazz y el pop",
+        "Lil Hardin Armstrong y **Mary Lou Williams** (pianista y arreglista "
+        "clave del jazz); **Carole King** y **Joni Mitchell** (que redefinió "
+        "la afinación y la armonía de la guitarra); **Wendy Carlos** "
+        "(pionera del sintetizador); **Missy Elliott**, **Björk**, **Beyoncé** "
+        "como autoras y productoras.",
+
+        "## La recuperación",
+        "Desde los años 70 y 80, la musicología ha **editado, grabado y "
+        "programado** esta obra, antes invisible en los repertorios, y ha "
+        "estudiado tanto a las creadoras como el papel de las mujeres como "
+        "público, docentes y transmisoras de la música tradicional.",
+    ],
+    verTambien=["wiki-comp-hildegarda", "wiki-comp-schumann-clara", "wiki-comp-boulanger",
+                "wiki-historia-panorama", "wiki-historia-jazz"],
+    fuentes=_hist_fuentes("Mujeres en la música", "Women_in_music"),
+),
+
+"wiki-historia-opera": dict(
+    resumen="Cuatro siglos de teatro cantado: de la Camerata florentina y "
+            "Monteverdi al verismo, la ópera atonal y la ópera contemporánea "
+            "que dialoga con el cine.",
+    cuerpo=[
+        "La ópera es teatro **cantado**: la historia avanza, sobre todo, a "
+        "través de la voz. Empezó como un experimento de unos humanistas que "
+        "querían recuperar el drama griego, y acabó siendo el gran espectáculo "
+        "de Europa durante trescientos años.",
+
+        "## Nacimiento",
+        "Hacia 1598-1600, la **Camerata** de Florencia quiere recuperar la "
+        "fuerza del **drama griego** cantado e inventa la **monodia** "
+        "recitada (Peri, Caccini). **Monteverdi** convierte la idea en arte "
+        "con ***L'Orfeo*** (1607). En **1637** abre en **Venecia** el primer "
+        "teatro de ópera **público y de pago**: la ópera se vuelve negocio.",
+
+        "## El Barroco: seria y bufa",
+        "La **ópera seria** (libretos de Metastasio, temas mitológicos, "
+        "**castrati**, aria *da capo* de lucimiento) domina el siglo XVIII "
+        "internacional. Frente a ella crece la **ópera bufa**, cómica y ágil, "
+        "a partir del *intermezzo* (*La serva padrona* de Pergolesi, 1733). "
+        "Cada país desarrolla su forma: la **tragédie lyrique** francesa "
+        "(Lully, Rameau: con ballet y coro), la inglesa (Purcell, *Dido y "
+        "Eneas*), el **Singspiel** alemán de diálogos hablados.",
+
+        "## De Gluck a Puccini",
+        "**Gluck** «reforma» la ópera (años 1760) hacia el drama y contra el "
+        "exceso vocal. **Mozart**, con Da Ponte, funde lo cómico y lo serio. "
+        "El siglo XIX da el **bel canto** italiano (Rossini, Bellini, "
+        "Donizetti), la **grand opéra** francesa (Meyerbeer: cinco actos, "
+        "espectáculo, ballet obligatorio), el **Verdi** del drama y el coro, y "
+        "el **Wagner** del drama musical continuo con *leitmotiv* y su teatro "
+        "de **Bayreuth**. A fin de siglo llega el **verismo**: historias de "
+        "gente corriente (Mascagni, Leoncavallo, **Puccini**).",
+
+        "## El siglo XX y XXI",
+        "**Richard Strauss** (*Salomé*, *Elektra*, *El caballero de la rosa*), "
+        "el *Pelléas* de **Debussy** (declamación susurrada), el ***Wozzeck*** "
+        "**atonal** de **Berg**, *The Rake's Progress* neoclásica de "
+        "**Stravinski**, y **Britten** (*Peter Grimes*, 1945), que vuelve a "
+        "fundar la ópera inglesa. La ópera contemporánea (Adams, *Nixon in "
+        "China*; Glass; Saariaho; Adès) dialoga con el cine, el documental y "
+        "el teatro de vanguardia, y el límite con el **teatro musical** es "
+        "cada vez más poroso.",
+    ],
+    verTambien=["wiki-teatro-que-es", "wiki-historia-barroco", "wiki-tm-que-es",
+                "wiki-comp-wagner", "wiki-comp-verdi", "wiki-inst-voz"],
+    fuentes=_hist_fuentes("Ópera", "Opera"),
+),
+
+"wiki-historia-electronica": dict(
+    resumen="Del theremin al DAW: cien años de hacer música con electricidad, "
+            "de los estudios de los años 50 a las cajas de ritmos que "
+            "definieron el hip-hop, el techno y el house.",
+    cuerpo=[
+        "La música electrónica no es un género, sino una familia de prácticas "
+        "unidas por un hecho técnico: el sonido se **genera o se transforma "
+        "con electricidad**. Su historia va del laboratorio al pop y de vuelta.",
+
+        "## Precursores",
+        "El **Telarmonio** de Cahill (h. 1900), enorme, distribuía música por "
+        "teléfono. El **theremin** (1920), que se toca sin tocarlo; las "
+        "**ondas Martenot** (1928); el **órgano Hammond** (1935), con ruedas "
+        "fónicas.",
+
+        "## Las dos escuelas de posguerra",
+        "**Música concreta** (Pierre **Schaeffer**, radio de París, 1948): "
+        "grabar sonidos del mundo real y **manipularlos** (invertir, cortar, "
+        "cambiar de velocidad); el «objeto sonoro». **Elektronische Musik** "
+        "(estudio de **Colonia**, Eimert y **Stockhausen**): sonido "
+        "**sintetizado puro** desde cero (*Studie II*, 1954). Pronto se "
+        "mezclan (*Gesang der Jünglinge*, 1956). Surgen estudios en Milán, "
+        "Nueva York (con el sintetizador RCA) y la BBC (el **Radiophonic "
+        "Workshop**: Delia Derbyshire y la sintonía de *Doctor Who*, 1963).",
+
+        "## El sintetizador",
+        "El **sintetizador modular** controlado por voltaje: **Moog** y "
+        "**Buchla**, 1964. ***Switched-On Bach*** (Wendy **Carlos**, 1968) lo "
+        "hace famoso. El **Minimoog** (1970) lo vuelve portátil y tocable en "
+        "directo. Llegan los **secuenciadores**, los sintetizadores "
+        "**polifónicos** (Prophet-5, 1978) y, en 1983, la **síntesis FM** del "
+        "**Yamaha DX7**. **Kraftwerk** convierte lo electrónico en pop.",
+
+        "## Cajas de ritmos y MIDI",
+        "Las **Roland TR-808** (1980), **TR-909** y **TB-303** —pensadas como "
+        "acompañamiento y consideradas al principio un fracaso— acaban "
+        "**definiendo** el hip-hop, el techno de Detroit, el house de Chicago "
+        "y el acid. El estándar **MIDI** (1983) hace que máquinas de distintas "
+        "marcas «hablen» entre sí. El **sampler** (Fairlight, luego Akai) "
+        "permite construir música con trozos de otras grabaciones.",
+
+        "## El DAW y después",
+        "El **DAW** (estación de audio digital) mete un estudio entero en un "
+        "portátil, y con él la producción electrónica se democratiza. Los "
+        "géneros se multiplican sin fin: ambient, IDM, drum and bass, dubstep, "
+        "trap, y las fusiones de club de todo el planeta.",
+    ],
+    verTambien=["wiki-historia-grabacion", "wiki-historia-siglo-xx", "wiki-prod-sintesis",
+                "wiki-prod-sampleo", "wiki-inst-electronicos", "wiki-historia-popular"],
+    fuentes=_hist_fuentes("Música electrónica", "Electronic_music"),
+),
+
+"wiki-historia-latinoamerica": dict(
+    resumen="El resultado del cruce entre lo indígena, lo europeo y lo "
+            "africano: del Barroco de las misiones a los nacionalismos cultos "
+            "y a una explosión de géneros populares con identidad propia.",
+    cuerpo=[
+        "La música latinoamericana nace de un **mestizaje** de tres raíces: "
+        "la indígena, la europea (traída por la colonización) y la africana "
+        "(traída por la esclavitud), en proporciones distintas según la "
+        "región.",
+
+        "## Sustrato indígena y Barroco colonial",
+        "De la música precolombina quedan **instrumentos** (ocarinas, "
+        "flautas de pan o *zampoñas*, tambores) y poco más, porque no se "
+        "anotaba. Sobre las bases indígenas se superpuso la música europea de "
+        "**catedrales y misiones**: hay un **Barroco americano** notable, "
+        "como el de las misiones jesuíticas de **Chiquitos y Moxos** "
+        "(Bolivia), o la obra de Zipoli, Juan de Araujo y Manuel de Sumaya.",
+
+        "## La aportación africana",
+        "Decisiva en el Caribe, Brasil y las costas: el **peso del ritmo**, la "
+        "**percusión**, la **llamada y respuesta** y el cuerpo en movimiento "
+        "entran en prácticamente todos los géneros populares que vendrían "
+        "después.",
+
+        "## Nacionalismos cultos",
+        "En los siglos XIX y XX, compositores de formación europea buscan una "
+        "voz nacional a partir del folclore: **Villa-Lobos** en Brasil (las "
+        "*Bachianas Brasileiras*), **Ginastera** en Argentina, **Chávez** y "
+        "**Revueltas** en México, Estévez en Venezuela.",
+
+        "## La explosión de los géneros populares",
+        "**Tango** en el Río de la Plata (Gardel; luego **Piazzolla** lo "
+        "lleva a la sala de concierto). **Samba**, **choro** y **bossa nova** "
+        "en Brasil (Jobim, João Gilberto), más la tropicália y la MPB. El "
+        "**son** cubano, que deriva en **mambo** (Pérez Prado) y en **salsa** "
+        "(Nueva York, sello Fania). El **bolero**. En México, **ranchera**, "
+        "**corrido**, mariachi, son jarocho. En los Andes, el **huayno** y el "
+        "**charango**. La **cumbia** colombiana y su expansión por todo el "
+        "continente; el **vallenato**; el **merengue** y la **bachata** "
+        "dominicanos.",
+
+        "## Canción y reguetón",
+        "En la segunda mitad del siglo XX, la **nueva canción** (Violeta "
+        "Parra, Víctor Jara, Mercedes Sosa, Silvio Rodríguez) da voz política "
+        "bajo las dictaduras. Llegan el **rock en español** y, desde Panamá y "
+        "Puerto Rico, el **reguetón** (sobre el ritmo *dembow*), hoy uno de "
+        "los géneros más escuchados del planeta.",
+    ],
+    verTambien=["wiki-historia-espana", "wiki-historia-popular", "wiki-historia-mundo",
+                "wiki-comp-piazzolla", "wiki-historia-carlos-vega", "wiki-danza-social-latina"],
+    fuentes=_hist_fuentes("Música de América Latina", "Music_of_Latin_America"),
+),
+
+"wiki-historia-espana": dict(
+    resumen="De las Cantigas y la vihuela a Victoria, la zarzuela, Falla, el "
+            "flamenco y la Movida: una tradición marcada por su pluralidad "
+            "cultural.",
+    cuerpo=[
+        "La música en España se ha construido sobre la convivencia —y el "
+        "conflicto— de varias culturas: cristiana, andalusí, judía y, más "
+        "tarde, la de ida y vuelta con América.",
+
+        "## Edad Media",
+        "Conviven el **canto hispánico** o mozárabe (repertorio propio, luego "
+        "sustituido por el romano), las **Cantigas de Santa María** de "
+        "**Alfonso X** (s. XIII, más de 400 canciones con música y "
+        "miniaturas), el **Codex Calixtinus** de Santiago y el **Llibre "
+        "Vermell** de Montserrat. En paralelo, las tradiciones **sefardí** y "
+        "**andalusí**.",
+
+        "## Siglo de Oro",
+        "Gran polifonía sacra: **Cristóbal de Morales**, **Francisco "
+        "Guerrero** y, sobre todo, **Tomás Luis de Victoria**, cima del "
+        "contrapunto religioso español. Y la música para **vihuela**: Luis de "
+        "Milán (*El Maestro*, 1536), Narváez, Mudarra, un repertorio "
+        "instrumental de primer nivel europeo. Prospera el **villancico**.",
+
+        "## Barroco y siglo XVIII",
+        "La escuela de **órgano** (Cabanilles); la **tonadilla escénica**; y, "
+        "en la corte de Madrid, **Domenico Scarlatti** —que compone allí sus "
+        "555 sonatas— y **Antonio Soler**. Boccherini pasa décadas al servicio "
+        "de un infante.",
+
+        "## Siglo XIX: la zarzuela",
+        "Nace y triunfa la **zarzuela**, teatro lírico español con partes "
+        "habladas (Barbieri, Chueca, Bretón, Chapí). **Tárrega** fija la "
+        "técnica moderna de la **guitarra clásica**. **Felipe Pedrell** "
+        "predica un nacionalismo basado en el folclore y la polifonía antigua.",
+
+        "## Siglo XX",
+        "El nacionalismo pianístico de **Albéniz** (*Iberia*) y **Granados** "
+        "(*Goyescas*), y sobre todo **Manuel de Falla**, su cima. La "
+        "**Generación del 27** (Ernesto Halffter, Mompou, Gerhard —que en el "
+        "exilio adopta el dodecafonismo—). **Rodrigo** y su *Concierto de "
+        "Aranjuez* (1939). El **flamenco** se profesionaliza (de los cafés "
+        "cantantes a los tablaos) y se renueva con **Camarón** y **Paco de "
+        "Lucía**; hoy es Patrimonio Inmaterial de la Humanidad. Y, tras 1975, "
+        "la **Movida** y el pop-rock en español.",
+    ],
+    verTambien=["wiki-historia-latinoamerica", "wiki-historia-renacimiento", "wiki-comp-falla",
+                "wiki-teoria-modos", "wiki-inst-guitarra", "wiki-historia-mundo-2"],
+    fuentes=_hist_fuentes("Música de España", "Music_of_Spain"),
+),
+
+"wiki-historia-mundo-2": dict(
+    resumen="Un segundo recorrido por tradiciones vivas de Europa, África y "
+            "Asia-Pacífico, más allá de los grandes sistemas clásicos.",
+    cuerpo=[
+        "Además de las grandes tradiciones clásicas (India, mundo árabe, "
+        "gamelán, Asia oriental), existen cientos de músicas regionales vivas, "
+        "que la grabación, la emigración e internet mantienen y cruzan entre "
+        "sí.",
+
+        "## Europa",
+        "**Música celta** (Irlanda, Escocia, Galicia, Bretaña): *jigs*, "
+        "*reels* y *hornpipes*; violín, gaita, *uilleann pipes*, *bodhrán*; la "
+        "*session* de pub. El **fado** portugués (Lisboa y Coímbra, la "
+        "*guitarra portuguesa*, la *saudade*). Los **Balcanes**: compases "
+        "irregulares (7/8, 9/8, 11/8), bandas de metales, y la **polifonía "
+        "búlgara** de voces femeninas con sus segundas «que baten». El "
+        "*joik* sami, el *yodel* alpino, el *cantu a tenore* sardo, y el "
+        "**klezmer** asquenazí (el clarinete que «llora», los *freylekhs* de "
+        "boda).",
+
+        "## África y su diáspora",
+        "Las dinastías de **griots** con la **kora** en el Sahel; los modos "
+        "(*qenet*) y el *krar* de Etiopía; la **rumba congoleña** y el "
+        "*soukous* y su guitarra; la **mbira** y el *chimurenga* de Zimbabue; "
+        "el *isicathamiya* y el *mbaqanga* de Sudáfrica; la **gnawa** de "
+        "Marruecos (trance, el *guembri*); el **blues del desierto** tuareg "
+        "(Ali Farka Touré, Tinariwen); y el **afrobeat** de **Fela Kuti**.",
+
+        "## Asia-Pacífico",
+        "El **canto difónico** de Mongolia y Tuvá (*khoomei*: un cantante, dos "
+        "notas a la vez). El *đàn bầu* vietnamita (una sola cuerda que se "
+        "«dobla»). El canto tibetano. La **música hawaiana** (*slack-key* y "
+        "guitarra *steel*, el ukelele). El **didgeridoo** aborigen australiano "
+        "(respiración circular) y las *songlines*. La *waiata* maorí.",
+    ],
+    verTambien=["wiki-historia-mundo", "wiki-teatro-mundo", "wiki-teoria-escalas",
+                "wiki-teoria-ritmo", "wiki-historia-espana"],
+    fuentes=_hist_fuentes("Música tradicional", "Folk_music"),
+),
+
+"wiki-historia-teoria-evolucion": dict(
+    resumen="Las ideas con que hemos intentado explicar cómo funciona la "
+            "música: de las proporciones de Pitágoras al bajo fundamental de "
+            "Rameau, las funciones de Riemann, Schenker y la teoría del jazz.",
+    cuerpo=[
+        "La teoría musical no es un conjunto de reglas eternas: es una serie "
+        "de **modelos** que distintas épocas han construido para explicar la "
+        "música que ya se hacía, y a veces para orientar la que se iba a "
+        "hacer.",
+
+        "## Antigüedad y Edad Media",
+        "**Pitágoras** (o su escuela) explica los intervalos como "
+        "**proporciones numéricas** de longitudes de cuerda. **Aristóxeno** "
+        "replica que el juez último es el **oído**, no el número. **Boecio** "
+        "(s. VI d. C.) transmite la teoría griega al Occidente latino y "
+        "distingue *musica mundana*, *humana* e *instrumentalis*. En la Edad "
+        "Media se fijan los **ocho modos** eclesiásticos, el sistema de "
+        "**hexacordos** y la solmisación de **Guido**, y **Franco de Colonia** "
+        "codifica el ritmo mensural.",
+
+        "## Renacimiento",
+        "**Gioseffo Zarlino** (*Le istitutioni harmoniche*, 1558) explica la "
+        "consonancia con el *senario* (los seis primeros números), justifica "
+        "la **tercera pura** y plantea la dualidad **mayor/menor**. Su "
+        "discípulo **Vincenzo Galilei** (padre de Galileo) lo discute y "
+        "defiende el temperamento y el oído experimental.",
+
+        "## Barroco: nace la armonía moderna",
+        "**Jean-Philippe Rameau** (*Traité de l'harmonie*, 1722) formula la "
+        "idea decisiva: un acorde es una **entidad con una nota fundamental**, "
+        "sus inversiones son «el mismo acorde», y existe un **bajo "
+        "fundamental** que gobierna la progresión. La armonía pasa a ser una "
+        "disciplina deducida de la física del cuerpo sonoro.",
+
+        "## Siglos XIX-XX",
+        "**Gottfried Weber** populariza el análisis con **números romanos**. "
+        "**Hugo Riemann** sistematiza las **funciones** (tónica, subdominante, "
+        "dominante). **François-Joseph Fétis** acuña el término *tonalité* y "
+        "escribe su historia. En el siglo XX, **Heinrich Schenker** propone "
+        "que toda obra tonal se reduce a una **estructura profunda** "
+        "(*Ursatz*) por capas; la **teoría de conjuntos de clases de altura** "
+        "(Babbitt, Allen Forte) permite analizar la música atonal; y se "
+        "recupera el estudio de la **forma** (Caplin; la *Sonata Theory* de "
+        "Hepokoski y Darcy).",
+
+        "## La teoría del jazz",
+        "En paralelo, y en gran parte **fuera de la academia**, se desarrolla "
+        "una teoría **práctica** orientada al que improvisa: el cifrado "
+        "americano, la relación **escala-acorde**, los modos como material de "
+        "solo, el II-V-I (sistematizada en Berklee y en manuales como el de "
+        "Mark Levine). Y la **etnomusicología** aporta la clasificación de "
+        "instrumentos de Hornbostel-Sachs (1914) y, más recientemente, los "
+        "estudios de **cognición** y los análisis por **corpus** con "
+        "ordenador.",
+    ],
+    verTambien=["wiki-teoria-armonia", "wiki-teoria-modos", "wiki-teoria-acustica",
+                "wiki-historia-barroco", "wiki-historia-jazz", "wiki-teoria-temperamento"],
+    fuentes=_hist_fuentes("Teoría musical", "Music_theory"),
+),
+
+"wiki-historia-musica-sacra": dict(
+    resumen="Cómo la liturgia cristiana impulsó, ordenó y conservó buena "
+            "parte de la música europea, de la salmodia judía a Pärt, y la "
+            "tradición sacra afroamericana del góspel.",
+    cuerpo=[
+        "Durante más de mil años, la **Iglesia** fue en Europa el principal "
+        "mecenas, la escuela y el archivo de la música. Gran parte de lo que "
+        "se ha conservado —y de la teoría que se enseña— viene de ese ámbito.",
+
+        "## Raíces y canto llano",
+        "El culto cristiano hereda de la **sinagoga** la salmodia y la "
+        "cantilación. El **canto gregoriano** (monodia litúrgica en latín) "
+        "unifica el repertorio medieval. Se organiza en torno a la **misa** "
+        "—con su **Ordinario** invariable (Kyrie, Gloria, Credo, Sanctus, "
+        "Agnus Dei) y su **Propio** que cambia cada día— y al **oficio "
+        "divino** (las horas canónicas). En el siglo XIX, los monjes de "
+        "**Solesmes** «restauran» el canto y el papa lo consagra como modelo "
+        "en 1903.",
+
+        "## El crecimiento de la polifonía",
+        "Sobre el canto crecen el **organum**, el **motete** y, en el "
+        "Renacimiento, la gran polifonía de **Josquin**, **Palestrina** y "
+        "**Victoria**. El **Concilio de Trento** estuvo cerca de prohibir la "
+        "polifonía por hacer ininteligible el texto; la leyenda —discutida— "
+        "dice que la *Missa Papae Marcelli* de Palestrina demostró que se "
+        "podía cantar polifonía y entender la palabra.",
+
+        "## Géneros posteriores",
+        "En el mundo **luterano**: el **coral**, la **cantata** y la **Pasión** "
+        "(Bach compuso ciclos enteros de cantatas para todo el año). En el "
+        "**católico**: la misa concertada, con un estilo a veces tan "
+        "«operístico» que los reformistas no dejaron de combatirlo. El "
+        "**oratorio** (Carissimi; el *Mesías* de Haendel, 1742) lleva el drama "
+        "sacro a la **sala de conciertos**. El **réquiem** (misa de difuntos) "
+        "atrae a Mozart, Berlioz, Verdi, Fauré y —en alemán y sobre el "
+        "consuelo de los vivos— a Brahms.",
+
+        "## Del siglo XIX a hoy",
+        "El movimiento **cecilianista** (s. XIX) reclama volver a Palestrina y "
+        "al canto. Y aun cuando la música de concierto ya se había "
+        "independizado de la Iglesia, casi todos los grandes compositores "
+        "siguieron escribiendo música sacra: Stravinski (*Sinfonía de los "
+        "salmos*, *Misa*), Poulenc, **Messiaen** (misticismo católico), "
+        "Britten (*War Requiem*), **Arvo Pärt** (el estilo *tintinnabuli*), "
+        "Górecki. En paralelo, el **góspel** y los *spirituals* son la "
+        "tradición sacra afroamericana que alimenta el soul y casi toda la "
+        "música popular.",
+    ],
+    verTambien=["wiki-historia-medieval", "wiki-historia-renacimiento", "wiki-comp-bach",
+                "wiki-comp-hildegarda", "wiki-teoria-contrapunto", "wiki-historia-opera"],
+    fuentes=[LIBRO("«Historia de la música: Edad Media y música sacra»"),
+             W("Wikipedia (ES) — Música religiosa",
+               "https://es.wikipedia.org/wiki/M%C3%BAsica_religiosa"),
+             W("Wikipedia (EN) — Religious music",
+               "https://en.wikipedia.org/wiki/Religious_music"),
+             F_GROUT],
+),
+
+"wiki-historia-carlos-vega": dict(
+    resumen="El musicólogo argentino que fundó el estudio científico de la "
+            "música criolla, clasificó las danzas del folclore y acuñó el "
+            "concepto de «mesomúsica».",
+    cuerpo=[
+        "Carlos Vega (1898-1966) es el fundador de la **musicología y el "
+        "folclore musical** como disciplinas en Argentina, y una referencia "
+        "para toda la etnomusicología latinoamericana.",
+
+        "## Trayectoria y método",
+        "Autodidacta, en **1931** creó en Buenos Aires el **Instituto "
+        "Nacional de Musicología** que hoy lleva su nombre. Durante décadas "
+        "organizó **expediciones** por el interior de Argentina y países "
+        "vecinos, en las que **grababa** con fonógrafo, **transcribía** "
+        "músicas y danzas, fotografiaba y anotaba la **coreografía**. Reunió "
+        "ese material en **«cancioneros»**: capas o estratos de repertorio "
+        "asociadas a regiones y a épocas.",
+
+        "## La clasificación de las danzas criollas",
+        "Ordenó las danzas del folclore —el **gato**, la **chacarera**, la "
+        "**zamba**, la **cueca** o chilena, el **cielito**, el **pericón**, el "
+        "**malambo**, el **escondido**— según su **coreografía**, su "
+        "**música** y su **origen** supuesto. Su tesis más polémica es que "
+        "muchas de esas danzas **descienden de bailes de salón europeos** de "
+        "los siglos XVIII y XIX; los investigadores posteriores han matizado o "
+        "rechazado la versión fuerte de esa idea.",
+
+        "## La «mesomúsica»",
+        "En 1966 propuso el término **mesomúsica** para la música de "
+        "**circulación amplia** que no es ni folclore rural puro ni música "
+        "«culta» de academia: el tango, el vals criollo, la canción popular "
+        "urbana. Es un antecedente claro de lo que hoy son los **estudios de "
+        "música popular**, décadas antes de que se institucionalizaran.",
+
+        "## Influencia",
+        "Formó a una generación de investigadores —**Isabel Aretz** extendió "
+        "el trabajo por buena parte de América Latina— y sus libros "
+        "(**«Panorama de la música popular argentina»**, **«Música "
+        "sudamericana»**, **«Las danzas populares argentinas»**) siguen "
+        "citándose, tanto por sus datos de campo como por el debate que "
+        "generan sus teorías sobre el origen y la periodización.",
+    ],
+    verTambien=["wiki-historia-latinoamerica", "wiki-historia-teoria-evolucion",
+                "wiki-danza-social-latina", "wiki-comp-piazzolla", "wiki-historia-mundo"],
+    fuentes=[LIBRO("Carlos Vega, «Música sudamericana» (1946)"),
+             LIBRO("Carlos Vega, «Panorama de la música popular argentina» (1944)"),
+             W("Wikipedia (ES) — Carlos Vega (musicólogo)",
+               "https://es.wikipedia.org/wiki/Carlos_Vega_(music%C3%B3logo)")],
+),
+
+}  # fin HISTORIA (tanda 2)
+
+NUEVOS.update(HISTORIA2)
+
+
+# =========================================================================
+#  INSTRUMENTOS
+# =========================================================================
+F_HUBER = LIBRO("David Miles Huber y Robert Runstein, «Modern Recording "
+                "Techniques» (Focal Press)")
+F_OWSINSKI = LIBRO("Bobby Owsinski, «The Mixing Engineer's Handbook»")
+
+INSTRUMENTOS = {
+
+"wiki-inst-familias": dict(
+    resumen="Cómo se clasifican los instrumentos: la división de la orquesta, "
+            "el sistema científico de Hornbostel-Sachs, y los conceptos de "
+            "tesitura, registro y transposición.",
+    cuerpo=[
+        "Clasificar instrumentos sirve para entender **por qué suenan como "
+        "suenan** y **cómo se combinan**. Hay dos grandes criterios: el "
+        "tradicional de la orquesta (por el material y el modo de tocar) y el "
+        "científico (por la física que produce la vibración).",
+
+        "## La clasificación de la orquesta",
+        "**Cuerda frotada**: violín, viola, violonchelo, contrabajo; se tocan "
+        "con arco o pulsando (pizzicato). **Viento madera**: flauta, oboe, "
+        "clarinete, fagot (más piccolo, corno inglés, clarinete bajo, "
+        "contrafagot); unos con lengüeta, otros sin ella. **Viento metal**: "
+        "trompa, trompeta, trombón, tuba; el sonido nace de los labios. "
+        "**Percusión**: de altura definida (timbales, xilófono) o indefinida "
+        "(caja, platos). Aparte quedan los **teclados** (piano, clave, "
+        "órgano), el **arpa** y, desde el siglo XX, los **electrófonos**. Esta "
+        "división es cómoda pero imperfecta: la flauta moderna es de metal y "
+        "el saxofón también, y ambos se cuentan como «madera» por su modo de "
+        "sonar.",
+
+        "## El sistema Hornbostel-Sachs",
+        "En 1914, Erich von Hornbostel y Curt Sachs propusieron una "
+        "clasificación **universal**, válida para instrumentos de cualquier "
+        "cultura, según **qué vibra**: **cordófonos** (una cuerda tensa: "
+        "violín, guitarra, piano, arpa, kora), **aerófonos** (una columna de "
+        "aire: flauta, trompeta, órgano, acordeón), **membranófonos** (una "
+        "piel tensa: tambores, timbales, tabla), **idiófonos** (el propio "
+        "cuerpo del instrumento: campanas, xilófono, platos, maracas, "
+        "gamelán) y, añadido después, **electrófonos** (el sonido se genera o "
+        "amplifica por electricidad). Cada categoría se subdivide con un "
+        "código numérico, como en la biología.",
+
+        "## Tesitura y registro",
+        "La **tesitura** (o extensión) es el conjunto de notas que un "
+        "instrumento puede dar, del sonido más grave al más agudo. Dentro de "
+        "ella, cada instrumento tiene **registros** con colores distintos: el "
+        "grave *chalumeau* del clarinete no se parece a su agudo; la cuerda "
+        "SOL del violín es cálida y la MI, brillante. Conocer esas zonas es "
+        "esencial para escribir bien.",
+
+        "## Instrumentos transpositores",
+        "Algunos instrumentos **suenan en una altura distinta de la escrita**, "
+        "para que el intérprete use siempre la misma digitación al cambiar "
+        "dentro de la familia. Un clarinete o una trompeta «en SI♭» suenan un "
+        "tono por debajo de lo escrito; una trompa «en FA», una quinta por "
+        "debajo; el piccolo y el contrabajo, una octava distinta. El director "
+        "y el orquestador leen esas transposiciones a la vez.",
+
+        "## Cómo suenan juntos",
+        "Combinar instrumentos —**orquestar**— consiste en repartir la música "
+        "aprovechando sus diferencias: qué familia lleva la melodía, cómo se "
+        "dobla una línea para reforzarla, cómo se hace un *crescendo* sumando "
+        "instrumentos, cuándo dejar un color desnudo. Un mismo acorde suena "
+        "compacto o transparente según en qué octavas y con qué timbres se "
+        "reparta.",
+    ],
+    verTambien=["wiki-teoria-timbre", "wiki-inst-voz", "wiki-inst-electronicos",
+                "wiki-teoria-acustica", "wiki-historia-instrumentos"],
+    fuentes=[W("Wikipedia (ES) — Clasificación de Hornbostel-Sachs",
+               "https://es.wikipedia.org/wiki/Clasificaci%C3%B3n_de_Hornbostel-Sachs"),
+             W("Wikipedia (EN) — Hornbostel–Sachs",
+               "https://en.wikipedia.org/wiki/Hornbostel%E2%80%93Sachs"),
+             F_ADLER],
+),
+
+"wiki-inst-voz": dict(
+    resumen="El aparato vocal humano: cómo produce el sonido, las tesituras y "
+            "sus registros, y las grandes escuelas de técnica (lírica, "
+            "belting, tradicional, contemporánea).",
+    cuerpo=[
+        "La voz es el instrumento más antiguo, más universal y el único que "
+        "cada persona lleva incorporado. También es un caso raro: el "
+        "«instrumento» está oculto dentro del cuerpo y se toca sin verlo, solo "
+        "por sensación muscular y oído.",
+
+        "## Cómo se produce el sonido",
+        "El aire sube de los pulmones y atraviesa la **laringe**, donde dos "
+        "**pliegues vocales** (las «cuerdas») se juntan y vibran a su paso: "
+        "cuanto más tensos y finos, más aguda es la nota. Ese zumbido básico "
+        "—muy pobre por sí solo— se transforma al pasar por las **cavidades "
+        "de resonancia** (faringe, boca, fosas nasales), que refuerzan ciertas "
+        "zonas del espectro (los **formantes**) y dan a la voz su timbre y sus "
+        "vocales. No hay teclas ni trastes: **toda** la afinación depende del "
+        "control muscular.",
+
+        "## Respiración y apoyo",
+        "La base de la técnica es la **respiración costo-diafragmática**: usar "
+        "el diafragma y los músculos del tronco para dosificar un flujo de "
+        "aire estable y sostenido (el **apoyo**). Sin ese control, la voz se "
+        "cansa, se desafina y pierde proyección.",
+
+        "## Tesituras",
+        "De aguda a grave: en voces habitualmente femeninas, **soprano**, "
+        "**mezzosoprano** y **contralto**; en voces habitualmente masculinas, "
+        "**contratenor**, **tenor**, **barítono** y **bajo**. Dentro de cada "
+        "una hay subtipos (soprano ligera, lírica, dramática; *coloratura*…). "
+        "El coro clásico se organiza en cuatro cuerdas: **SATB** (soprano, "
+        "alto, tenor, bajo).",
+
+        "## Registros",
+        "La voz cambia de mecanismo a lo largo de su recorrido: **voz de "
+        "pecho** (grave, con cuerpo), **voz de cabeza** (aguda, más ligera), "
+        "una zona **mixta** intermedia y el **falsete** (mecanismo ligero por "
+        "encima del rango natural, muy usado por contratenores y en el pop). "
+        "El punto delicado donde se cambia de registro se llama *passaggio*.",
+
+        "## Escuelas de técnica",
+        "La **lírica** (ópera, oratorio) busca proyectar sin micrófono sobre "
+        "una orquesta, con mucho espacio de resonancia y un vibrato natural. "
+        "El **belting** del teatro musical lleva la voz de pecho a zonas "
+        "agudas con brillo y potencia, casi siempre con amplificación. El "
+        "**canto tradicional** de cada cultura tiene su propia colocación "
+        "(el melisma y el *quejío* del flamenco, la nasalidad de ciertos "
+        "cantes, el *khoomei* difónico). Y la **técnica extendida** "
+        "contemporánea explora susurros, multifónicos, *Sprechgesang* (a "
+        "medio camino entre hablar y cantar).",
+    ],
+    verTambien=["wiki-inst-familias", "wiki-tm-numero", "wiki-teatro-oficios",
+                "wiki-teoria-acustica", "wiki-historia-opera"],
+    fuentes=[W("Wikipedia (ES) — Voz humana",
+               "https://es.wikipedia.org/wiki/Voz_humana"),
+             W("Wikipedia (EN) — Vocal register",
+               "https://en.wikipedia.org/wiki/Vocal_register"),
+             LIBRO("Richard Miller, «The Structure of Singing»")],
+),
+
+"wiki-inst-violin": dict(
+    resumen="Violín, viola, violonchelo y contrabajo: construcción, afinación, "
+            "la enorme paleta de golpes de arco y efectos, y su papel como "
+            "columna de la orquesta y del cuarteto.",
+    cuerpo=[
+        "La familia de cuerda frotada es el núcleo flexible de la música "
+        "occidental: cuatro instrumentos de la misma forma a distintos "
+        "tamaños, capaces de sostener una nota indefinidamente, hacer "
+        "*crescendo*, ligar frases y matizar el timbre como casi ningún otro "
+        "grupo.",
+
+        "## Construcción y afinación",
+        "Una caja de madera (tapa de abeto, fondo y aros de arce) con un "
+        "**alma** (un palito interior que transmite la vibración) y un "
+        "**puente** que la lleva de las cuerdas a la tapa. **Violín** y "
+        "**viola** se afinan por **quintas** (violín: MI-LA-RE-SOL de aguda a "
+        "grave; viola una quinta más baja: LA-RE-SOL-DO). El **violonchelo**, "
+        "una octava por debajo de la viola. El **contrabajo**, más grave aún y "
+        "afinado por **cuartas** (SOL-RE-LA-MI), herencia de la viola de "
+        "gamba. El diapasón **no tiene trastes**: la afinación la pone el "
+        "oído.",
+
+        "## Mano izquierda",
+        "Los dedos pisan las cuerdas contra el diapasón; desplazarse a lo "
+        "largo de él son los **cambios de posición**. Recursos: **vibrato** "
+        "(oscilación de la nota), **dobles cuerdas** y acordes, "
+        "**portamento** (deslizarse de una nota a otra), **armónicos** "
+        "(rozar la cuerda en un nodo para obtener un sonido flautado).",
+
+        "## El arco (mano derecha)",
+        "Es donde está casi todo el color. **Détaché** (una nota por arcada), "
+        "**legato** (varias ligadas), **martelé** («martilleado», acento "
+        "seco), **spiccato** y **sautillé** (el arco rebota), **staccato "
+        "volante**, **tremolo** (repetir muy rápido), **col legno** (golpear "
+        "con la madera del arco), **sul ponticello** (cerca del puente: "
+        "vidrioso) y **sul tasto** (sobre el diapasón: etéreo). Con **sordina** "
+        "(una pinza en el puente) el sonido se vuelve velado.",
+
+        "## Repertorio y papel",
+        "Los violines primeros y segundos, las violas y los chelos forman el "
+        "grueso de la orquesta; los cuatro juntos, el **cuarteto de cuerda**, "
+        "el género de cámara más prestigioso. Conciertos de referencia: Bach, "
+        "Mozart, **Beethoven**, **Brahms**, **Chaikovski**, **Sibelius**, "
+        "**Mendelssohn** (violín); Dvořák, Elgar, Schumann (violonchelo). Y "
+        "fuera de la sala: el *fiddle* del folk irlandés, escocés y "
+        "estadounidense, el violín del **jazz** (Grappelli) y del **tango**.",
+    ],
+    verTambien=["wiki-inst-familias", "wiki-mitos-stradivarius", "wiki-comp-vivaldi",
+                "wiki-teoria-dinamica-agogica", "wiki-comp-brahms"],
+    fuentes=[W("Wikipedia (ES) — Violín", "https://es.wikipedia.org/wiki/Viol%C3%ADn"),
+             W("Wikipedia (EN) — Violin", "https://en.wikipedia.org/wiki/Violin"),
+             F_ADLER],
+),
+
+"wiki-inst-piano": dict(
+    resumen="Un teclado que percute cuerdas con macillos: su mecánica, los "
+            "tres pedales, el registro de más de siete octavas y un repertorio "
+            "que atraviesa toda la música.",
+    cuerpo=[
+        "El piano es, desde el Clasicismo, el instrumento central de la "
+        "música occidental: sirve de orquesta doméstica, de herramienta de "
+        "composición y análisis, de instrumento solista y de sección rítmica.",
+
+        "## La mecánica",
+        "Al pulsar una tecla, una **palanca** lanza un **macillo** forrado de "
+        "fieltro contra la cuerda (o el grupo de dos o tres cuerdas por "
+        "nota); el macillo rebota enseguida para dejarla vibrar, y un "
+        "**apagador** se levanta. Al soltar la tecla, el apagador vuelve y "
+        "corta el sonido. Su nombre completo, ***pianoforte***, alude a que "
+        "la fuerza del dedo controla el volumen —de *piano* a *forte*—, algo "
+        "que el **clave** (que pellizca la cuerda) no podía hacer. La "
+        "invención se atribuye a **Bartolomeo Cristofori**, hacia 1700.",
+
+        "## Registro y pedales",
+        "El piano moderno tiene **88 teclas**, de LA0 a DO8: más de siete "
+        "octavas, más que cualquier otro instrumento de la orquesta. Tres "
+        "pedales: el **derecho** (de resonancia o «forte»: levanta todos los "
+        "apagadores, así que las cuerdas siguen sonando y vibran por "
+        "simpatía); el **izquierdo** (*una corda*: desplaza la mecánica para "
+        "que el macillo golpee menos cuerdas, suavizando el timbre); y el "
+        "**central** (*sostenuto*: mantiene solo las notas que estaban "
+        "pulsadas al pisarlo; en pianos verticales suele ser una sordina).",
+
+        "## Cola y vertical",
+        "El **piano de cola** tiene las cuerdas horizontales y la mecánica "
+        "ayudada por la gravedad: repetición más rápida y mejor sonido; los "
+        "hay desde el «cuarto de cola» hasta el «gran cola» de concierto (unos "
+        "2,7 m). El **piano vertical** ocupa menos y es el doméstico típico. "
+        "El **fortepiano** histórico (más ligero, de sonido más seco y claro) "
+        "se usa hoy para tocar a Mozart o Beethoven «con criterio».",
+
+        "## Repertorio",
+        "Prácticamente ilimitado: sonatas de **Haydn, Mozart y Beethoven**; "
+        "el universo romántico de **Chopin, Schumann, Liszt, Brahms**; "
+        "**Debussy** y **Ravel**; Rachmaninov y Prokófiev; y un papel central "
+        "en el **jazz** (de Art Tatum a Bill Evans y Herbie Hancock), el "
+        "**pop** y el **rock**. Es también el instrumento con el que se suele "
+        "enseñar armonía.",
+    ],
+    verTambien=["wiki-inst-organo", "wiki-comp-chopin", "wiki-historia-clasicismo",
+                "wiki-teoria-armonia", "wiki-historia-instrumentos"],
+    fuentes=[W("Wikipedia (ES) — Piano", "https://es.wikipedia.org/wiki/Piano"),
+             W("Wikipedia (EN) — Piano", "https://en.wikipedia.org/wiki/Piano"),
+             F_GROVE],
+),
+
+"wiki-inst-guitarra": dict(
+    resumen="Seis cuerdas pulsadas en tres mundos distintos —clásica, "
+            "acústica de acero y eléctrica—, cada uno con su repertorio, su "
+            "técnica y su papel.",
+    cuerpo=[
+        "La guitarra es uno de los instrumentos más extendidos del planeta. "
+        "Bajo un mismo diseño básico conviven tres instrumentos con culturas "
+        "muy diferentes.",
+
+        "## Lo común",
+        "Seis cuerdas afinadas, de la más grave a la más aguda, en "
+        "**MI-LA-RE-SOL-SI-MI**. Los **trastes** dividen el mástil en "
+        "semitonos, así que —a diferencia del violín— la afinación de cada "
+        "nota está fijada. Se toca con los dedos, con uñas o con **púa** "
+        "(*plectro*). Suena una octava más grave de lo que se escribe.",
+
+        "## Guitarra clásica",
+        "Cuerdas de **nailon** (antes, tripa), tapa de abeto o cedro, sonido "
+        "cálido y de poca proyección. Técnica de mano derecha muy elaborada "
+        "(*apoyando* y *tirando*, arpegios, trémolo). Repertorio: la vihuela y "
+        "el laúd del Renacimiento (transcritos), Sor y Giuliani en el "
+        "Clasicismo, **Tárrega** (que fija la técnica moderna), **Rodrigo** "
+        "(*Concierto de Aranjuez*), Villa-Lobos, y el **flamenco** (con su "
+        "propia guitarra, más percusiva: rasgueado, picado, alzapúa, golpe).",
+
+        "## Acústica de cuerdas de acero",
+        "Más volumen y brillo; caja mayor (*dreadnought*, *jumbo*). Es la "
+        "guitarra del **folk**, el **country**, el **blues** y la canción de "
+        "autor: acompañamiento rasgueado o con *fingerpicking*, y el uso del "
+        "*slide* (un tubo que se desliza por las cuerdas).",
+
+        "## Guitarra eléctrica",
+        "Las cuerdas de acero mueven unas **pastillas** (imanes con bobina) "
+        "que generan una señal eléctrica; el sonido lo define el "
+        "**amplificador** y los **efectos**: distorsión, *overdrive*, *wah*, "
+        "*delay*, *reverb*, *chorus*. Eso la convierte casi en otro "
+        "instrumento y en el centro del **rock**. Técnicas: *bending* (estirar "
+        "la cuerda para subir la afinación), *vibrato*, ligados (*hammer-on* y "
+        "*pull-off*), *palm mute*, armónicos artificiales, *tapping*.",
+
+        "## El bajo eléctrico",
+        "Pariente cercano: cuatro cuerdas (MI-LA-RE-SOL, una octava por debajo "
+        "de las cuatro graves de la guitarra), con o sin trastes. Desde los "
+        "años 50 sustituye al contrabajo en la música popular y define, junto "
+        "a la batería, el *groove*.",
+    ],
+    verTambien=["wiki-historia-espana", "wiki-historia-popular", "wiki-inst-electronicos",
+                "wiki-comp-falla", "wiki-teoria-tono-semitono"],
+    fuentes=[W("Wikipedia (ES) — Guitarra", "https://es.wikipedia.org/wiki/Guitarra"),
+             W("Wikipedia (EN) — Guitar", "https://en.wikipedia.org/wiki/Guitar"),
+             F_GROVE],
+),
+
+"wiki-inst-flauta": dict(
+    resumen="El viento madera sin lengüeta: el aire se parte contra un bisel. "
+            "La travesera Boehm, el flautín, la familia grave y su presencia "
+            "en el folclore del mundo entero.",
+    cuerpo=[
+        "La flauta es rara: no tiene ninguna pieza que vibre. El sonido lo "
+        "hace el propio **chorro de aire** al partirse contra un borde "
+        "afilado, y eso pone a vibrar el aire de dentro del tubo. Por eso, "
+        "aunque la travesera moderna sea de metal (a veces de oro o platino), "
+        "cuenta como **viento madera**: lo que manda es cómo suena, no de qué "
+        "está hecha.",
+
+        "## Cómo se toca",
+        "El intérprete sopla **atravesado** contra el borde de la "
+        "**embocadura**. La altura se cambia tapando y destapando agujeros "
+        "—hoy mediante **llaves**— y **sobresoplando** para saltar de octava. "
+        "El **sistema Boehm** (Theobald Boehm, mediados del siglo XIX) "
+        "rediseñó los agujeros según la acústica ideal y los conectó con un "
+        "mecanismo de llaves que dio a la flauta su digitación y su afinación "
+        "actuales.",
+
+        "## Registro y familia",
+        "La travesera abarca de DO4 a DO7 aproximadamente: registro grave "
+        "aterciopelado y algo débil, medio dulce, agudo brillante y "
+        "penetrante. El **flautín** (*piccolo*) suena una octava más arriba y "
+        "corta por encima de toda la orquesta. Hacia el grave están la "
+        "**flauta alto** (en SOL) y la **flauta baja**.",
+
+        "## Recursos",
+        "*Flatterzunge* (frullato: la lengua «ronronea»), sonidos "
+        "**armónicos**, *pizzicato* de lengua, notas «sopladas» sin altura "
+        "definida, multifónicos, *whistle tones*, y el *jet whistle* "
+        "contemporáneo. Es un instrumento muy **ágil**: hace pasajes rápidos y "
+        "adornos con facilidad.",
+
+        "## Repertorio y presencia mundial",
+        "Conciertos de **Vivaldi** y **Mozart** (dos, más el Concierto para "
+        "flauta y arpa); el *Preludio a la siesta de un fauno* de **Debussy**, "
+        "que se abre con una flauta sola serpenteante; *Syrinx*, para flauta "
+        "sin acompañar. Y una presencia universal en el folclore: la **flauta "
+        "irlandesa**, la **quena** andina, el **bansuri** indio, el **shakuhachi** "
+        "japonés, el **ney** árabe, el **dizi** chino: casi toda cultura tiene "
+        "su flauta.",
+    ],
+    verTambien=["wiki-inst-clarinete", "wiki-historia-antiguedad", "wiki-comp-debussy",
+                "wiki-historia-mundo", "wiki-inst-familias"],
+    fuentes=[W("Wikipedia (ES) — Flauta travesera",
+               "https://es.wikipedia.org/wiki/Flauta_travesera"),
+             W("Wikipedia (EN) — Western concert flute",
+               "https://en.wikipedia.org/wiki/Western_concert_flute"),
+             F_ADLER],
+),
+
+"wiki-inst-clarinete": dict(
+    resumen="Viento madera de lengüeta simple, con el registro más amplio del "
+            "grupo, un salto de registro peculiar y un papel legendario en el "
+            "jazz y la música klezmer.",
+    cuerpo=[
+        "El clarinete suena gracias a una **lengüeta** de caña, una lámina "
+        "fina atada a la boquilla: al soplar, esa lámina vibra a toda "
+        "velocidad y pone en marcha el aire de dentro del tubo. Es un "
+        "instrumento bastante joven (mediados del siglo XVIII) y de una "
+        "versatilidad enorme: lo mismo hace de solista lírico que de payaso.",
+
+        "## Un tubo cilíndrico y sus consecuencias",
+        "A diferencia del oboe o el saxofón (cónicos), el clarinete es "
+        "**cilíndrico** y cerrado por un extremo. Acústicamente eso significa "
+        "dos cosas: refuerza sobre todo los **armónicos impares** (de ahí su "
+        "color «hueco» y su grave tan característico) y **sobresopla a la "
+        "duodécima** (una octava más una quinta) en lugar de a la octava. Por "
+        "eso su digitación es más compleja y su recorrido, más amplio.",
+
+        "## Registros",
+        "Casi cuatro octavas, con zonas muy distintas: el grave **chalumeau** "
+        "(oscuro, líquido, inconfundible), un puente medio algo pálido "
+        "(*garganta*), el **clarino** central y agudo (dulce y expresivo) y un "
+        "sobreagudo estridente. Pocos instrumentos cambian tanto de carácter "
+        "según la zona.",
+
+        "## La familia",
+        "El más común es el **clarinete en SI♭** (transpositor: su DO escrito "
+        "suena como SI♭). También se usan el **clarinete en LA** (para "
+        "tonalidades con sostenidos), el **requinto en MI♭** (agudo, "
+        "penetrante) y el **clarinete bajo** (una octava por debajo del "
+        "normal, grave y cavernoso).",
+
+        "## Repertorio y estilos",
+        "En lo «culto»: el **Concierto** y el **Quinteto con clarinete** de "
+        "**Mozart** (escritos para Anton Stadler), las dos Sonatas y el "
+        "Quinteto de **Brahms**, el Concierto de Copland, obras de Weber y "
+        "Debussy. En el **jazz**: fue protagonista en la era de Nueva Orleans "
+        "y del swing (Benny **Goodman**, Sidney Bechet), y suyo es el "
+        "*glissando* que abre la *Rhapsody in Blue* de Gershwin. Y es una voz "
+        "central de la música **klezmer** asquenazí, con sus *krekhts* "
+        "(sollozos) y *kvetsh* (quejidos).",
+    ],
+    verTambien=["wiki-inst-oboe-fagot", "wiki-comp-mozart", "wiki-comp-gershwin",
+                "wiki-historia-jazz", "wiki-teoria-acustica"],
+    fuentes=[W("Wikipedia (ES) — Clarinete", "https://es.wikipedia.org/wiki/Clarinete"),
+             W("Wikipedia (EN) — Clarinet", "https://en.wikipedia.org/wiki/Clarinet"),
+             F_ADLER],
+),
+
+"wiki-inst-oboe-fagot": dict(
+    resumen="Los vientos madera de lengüeta doble: el oboe, nasal y "
+            "penetrante, que da el LA a la orquesta; y el fagot, grave y "
+            "sorprendentemente ágil, con su gama de parientes.",
+    cuerpo=[
+        "En el oboe y el fagot no vibra una caña contra una boquilla, sino "
+        "**dos cañas atadas una contra otra** (la lengüeta doble o «caña»). "
+        "El músico las sujeta directamente con los labios y sopla a mucha "
+        "presión por una abertura minúscula: de ahí su timbre inconfundible y "
+        "su fama de instrumentos difíciles.",
+
+        "## El oboe",
+        "Tubo cónico, registro medio-agudo, sonido nasal, algo agridulce, que "
+        "**corta** a través de la orquesta sin necesidad de tocar fuerte. Su "
+        "afinación es muy estable, y por eso la orquesta **afina con el LA "
+        "del oboe** antes de empezar. Su pariente grave, una quinta por "
+        "debajo, es el **corno inglés** (que ni es corno ni es inglés): más "
+        "melancólico, con la campana en forma de pera. Aún más agudo: el "
+        "*oboe d'amore*, muy usado por Bach.",
+
+        "## El fagot",
+        "Cubre el registro **grave** del viento madera con un tubo de más de "
+        "dos metros plegado sobre sí mismo. Timbre entre lo cómico y lo noble, "
+        "y una **agilidad** que sorprende para su tamaño. Puede sonar "
+        "sarcástico (el «abuelo» de *Pedro y el lobo*) o lírico (el solo que "
+        "abre *La consagración de la primavera*, en un agudo forzado). Su "
+        "versión más grave es el **contrafagot**, que llega a las notas más "
+        "bajas de la orquesta.",
+
+        "## Las cañas",
+        "Oboístas y fagotistas suelen **fabricar y ajustar sus propias "
+        "cañas** con cuchilla, a partir de tubo de *Arundo donax*: una caña "
+        "distinta cambia el timbre, la afinación y la respuesta. Es un oficio "
+        "artesanal que forma parte del instrumento.",
+
+        "## Repertorio",
+        "Oboe: conciertos de **Marcello**, **Albinoni**, **Mozart** y Strauss; "
+        "el solo pastoral del segundo movimiento de muchas sinfonías. Corno "
+        "inglés: el gran solo del *Largo* de la sinfonía «Del Nuevo Mundo» de "
+        "**Dvořák**. Fagot: conciertos de **Vivaldi** (escribió casi 40) y "
+        "**Mozart**, y decenas de solos característicos en la orquesta "
+        "romántica.",
+    ],
+    verTambien=["wiki-inst-clarinete", "wiki-comp-stravinsky", "wiki-comp-mozart",
+                "wiki-inst-familias", "wiki-teoria-timbre"],
+    fuentes=[W("Wikipedia (ES) — Oboe", "https://es.wikipedia.org/wiki/Oboe"),
+             W("Wikipedia (EN) — Bassoon", "https://en.wikipedia.org/wiki/Bassoon"),
+             F_ADLER],
+),
+
+"wiki-inst-saxofon": dict(
+    resumen="Metal por fuera, madera por dentro: lengüeta simple y tubo "
+            "cónico. Nunca cuajó del todo en la orquesta, pero se convirtió en "
+            "un símbolo del jazz.",
+    cuerpo=[
+        "El saxofón lo patentó el belga **Adolphe Sax** en 1846. Buscaba un "
+        "instrumento que combinara la potencia de un metal, la agilidad de un "
+        "viento madera y una afinación homogénea en todo el registro, sobre "
+        "todo para las **bandas militares**.",
+
+        "## Madera o metal",
+        "El cuerpo es de **latón**, pero suena con **boquilla y lengüeta "
+        "simple** como el clarinete, así que organológicamente es un **viento "
+        "madera** (un aerófono de lengüeta). Su tubo es **cónico**, de modo "
+        "que —al contrario que el clarinete— sobresopla a la **octava** y "
+        "tiene un sonido más redondo y directo.",
+
+        "## La familia",
+        "De aguda a grave: **sopranino**, **soprano** (recto, como un "
+        "clarinete), **alto**, **tenor**, **barítono** y **bajo**. Los cuatro "
+        "centrales son transpositores (el alto y el barítono en MI♭; el "
+        "soprano y el tenor en SI♭). En el jazz y el pop dominan el **alto** y "
+        "el **tenor**; el cuarteto de saxofones (SATB) es la formación de "
+        "cámara habitual.",
+
+        "## El instrumento del jazz",
+        "No encontró un sitio fijo en la orquesta sinfónica, pero desde los "
+        "años 20 se volvió una **voz central del jazz**: Coleman Hawkins y "
+        "Lester Young (dos maneras opuestas de sonar el tenor), Charlie "
+        "**Parker** (alto, bebop), John **Coltrane** y Sonny Rollins (tenor), "
+        "Ornette Coleman (free), Cannonball Adderley, Wayne Shorter. Recursos "
+        "expresivos: *growl* (gruñir mientras se sopla), *subtone* (grave "
+        "susurrado), *bend*, *slap*, sobreagudos (*altissimo*).",
+
+        "## Repertorio «culto» y pop",
+        "Obras de **Debussy** (*Rapsodia*), **Glazunov** (Concierto), "
+        "**Ibert**, Villa-Lobos, y un papel de solista en bandas sonoras y "
+        "canciones muy conocidas (*Baker Street*, *Careless Whisper*, el saxo "
+        "de tantos temas de los 80).",
+    ],
+    verTambien=["wiki-historia-jazz", "wiki-inst-clarinete", "wiki-historia-instrumentos",
+                "wiki-comp-debussy", "wiki-inst-familias"],
+    fuentes=[W("Wikipedia (ES) — Saxofón", "https://es.wikipedia.org/wiki/Saxof%C3%B3n"),
+             W("Wikipedia (EN) — Saxophone", "https://en.wikipedia.org/wiki/Saxophone"),
+             F_ADLER],
+),
+
+"wiki-inst-trompeta": dict(
+    resumen="Trompeta, trompa, trombón y tuba: el sonido nace de los labios "
+            "del intérprete, y los pistones o la vara rellenan los huecos de "
+            "la serie de armónicos.",
+    cuerpo=[
+        "En los metales (o **viento metal**) no hay lengüeta: el propio "
+        "intérprete hace vibrar los **labios** contra una boquilla en forma "
+        "de copa. La longitud del tubo y la tensión de los labios determinan "
+        "qué armónico suena.",
+
+        "## El problema de la serie de armónicos",
+        "Un tubo de longitud fija solo puede dar las notas de **su serie de "
+        "armónicos** (por eso las trompetas y trompas barrocas, «naturales», "
+        "tocaban fanfarrias por arpegios y solo hacían melodías por grados en "
+        "el registro sobreagudo). Para rellenar los huecos entre armónicos, "
+        "los metales modernos añaden **pistones** o **cilindros** (trompeta, "
+        "trompa, tuba) que alargan el tubo, o una **vara** deslizante "
+        "(trombón).",
+
+        "## Registro y color",
+        "**Trompeta**: aguda, brillante, incisiva; heroica o jazzística según "
+        "el ataque. **Trompa** (o corno francés): tubo largo y estrecho, "
+        "sonido cálido y noble, muy expresiva y **la más difícil de afinar** "
+        "de la orquesta (los armónicos están muy juntos en su registro). "
+        "**Trombón**: potente y solemne, capaz de *glissandos* reales gracias "
+        "a la vara. **Tuba**: el cimiento grave del grupo.",
+
+        "## Sordinas y efectos",
+        "Insertadas en la campana, las **sordinas** transforman el timbre: "
+        "recta (nasal y metálica), *cup* (más suave), *Harmon* o *wah-wah* "
+        "(el sonido «hablado» de Miles Davis), *plunger* (una tapa de goma "
+        "que se abre y cierra a mano). El *flatterzunge*, el *rip* (subida "
+        "rápida) y el *fall* (caída) son recursos habituales en el jazz y la "
+        "big band.",
+
+        "## Repertorio",
+        "Conciertos de trompeta de **Haydn** y **Hummel** (escritos para la "
+        "recién inventada trompeta de llaves); los solos de **Louis "
+        "Armstrong**, **Dizzy Gillespie** y **Miles Davis**; los conciertos y "
+        "solos de trompa de **Mozart** (cuatro) y **Strauss**; el coral de "
+        "trombones y la *Cabalgata de las valquirias* de **Wagner**; el solo "
+        "de tuba de *Bydło* en *Cuadros de una exposición* (orq. Ravel).",
+    ],
+    verTambien=["wiki-teoria-acustica", "wiki-historia-jazz", "wiki-comp-haydn",
+                "wiki-inst-familias", "wiki-comp-wagner"],
+    fuentes=[W("Wikipedia (ES) — Trompeta", "https://es.wikipedia.org/wiki/Trompeta"),
+             W("Wikipedia (EN) — Brass instrument",
+               "https://en.wikipedia.org/wiki/Brass_instrument"),
+             F_ADLER],
+),
+
+"wiki-inst-percusion": dict(
+    resumen="Todo lo que suena al golpearlo, sacudirlo o rasparlo: de altura "
+            "definida o indefinida, la batería de kit, y su papel de "
+            "protagonista en muchas músicas del mundo.",
+    cuerpo=[
+        "La percusión es la familia más antigua y más diversa: cualquier "
+        "objeto que produzca sonido al ser golpeado, entrechocado, sacudido o "
+        "raspado. Se divide en dos grandes grupos según si da o no una nota "
+        "reconocible.",
+
+        "## De altura definida",
+        "Producen notas concretas y pueden tocar melodías y acordes: "
+        "**timbales** (parche tenso sobre un caldero, afinables con pedal), "
+        "**marimba** y **xilófono** (láminas de madera), **vibráfono** "
+        "(láminas de metal con motor que da vibrato) y **glockenspiel**, "
+        "**celesta**, **campanas tubulares**. Muchos son **idiófonos**; los "
+        "timbales, **membranófonos**.",
+
+        "## De altura indefinida",
+        "Aportan ritmo y color sin nota fija: **caja** (con su bordón de "
+        "muelles), **bombo**, **platos** (suspendidos, *crash*, *ride*, de "
+        "**charles**), **triángulo**, **pandereta**, **castañuelas**, "
+        "**gong**, **claves**, **güiro**, **cencerro**, y una familia enorme "
+        "de tambores de mano (congas, bongós, djembé, cajón).",
+
+        "## La batería de kit",
+        "Reúne bombo (pedal), caja, varios *toms*, charles y platos para que "
+        "**una sola persona** toque un patrón rítmico completo con las cuatro "
+        "extremidades. Nació a principios del siglo XX y es la base rítmica de "
+        "casi toda la música popular. El **groove** —cómo se coloca cada golpe "
+        "respecto al pulso— es su arte.",
+
+        "## Protagonista, no acompañamiento",
+        "En muchas tradiciones la percusión **lleva la voz cantante**: los "
+        "conjuntos de tambores de África occidental (con su campana que marca "
+        "la «línea temporal»), la **tabla** de la India (con un vocabulario "
+        "silábico de golpes, el *bol*), el **gamelán** de Indonesia (una "
+        "orquesta entera de percusión afinada), la batería de escuela de "
+        "**samba** brasileña, los tambores *batá* de la santería cubana.",
+
+        "## En la orquesta y la vanguardia",
+        "De un simple par de timbales en Haydn se pasó a secciones enormes en "
+        "Mahler, Stravinski y Bartók, y a obras **solo para percusión** "
+        "(*Ionisation* de Varèse, 1931; el repertorio de Xenakis, Reich "
+        "—*Drumming*—, y los grupos de percusión actuales).",
+    ],
+    verTambien=["wiki-teoria-ritmo", "wiki-historia-mundo", "wiki-historia-jazz",
+                "wiki-inst-familias", "wiki-comp-stravinsky"],
+    fuentes=[W("Wikipedia (ES) — Instrumento de percusión",
+               "https://es.wikipedia.org/wiki/Instrumento_de_percusi%C3%B3n"),
+             W("Wikipedia (EN) — Percussion instrument",
+               "https://en.wikipedia.org/wiki/Percussion_instrument"),
+             F_ADLER],
+),
+
+"wiki-inst-organo": dict(
+    resumen="Un teclado que reparte aire a presión entre cientos o miles de "
+            "tubos: los registros, los manuales y el pedalero, y por qué se le "
+            "llama «el rey de los instrumentos».",
+    cuerpo=[
+        "El órgano de tubos es el instrumento mecánico más grande y complejo "
+        "que existe, y uno de los más antiguos: desciende del *hydraulis* "
+        "griego (s. III a. C.). Es, en esencia, una máquina de viento "
+        "gobernada desde un teclado.",
+
+        "## Cómo funciona",
+        "Un **fuelle** o un ventilador mantiene aire a presión en un "
+        "depósito (el *secreto*). Al pulsar una tecla se abre una válvula que "
+        "deja pasar ese aire a un **tubo**, que suena mientras la tecla esté "
+        "bajada. Cada tecla controla, en realidad, **varios** tubos a la vez, "
+        "según los registros activados.",
+
+        "## Registros",
+        "Un **registro** (o *juego*) es una hilera completa de tubos —uno por "
+        "tecla— con un mismo timbre y una misma «familia»: **principales** (el "
+        "sonido característico del órgano), **flautas**, **lengüetas** "
+        "(sonido mordente, como de oboe o trompeta), **cuerdas** (estrechos, "
+        "brillantes) y **mixturas** (varios tubos agudos por tecla que "
+        "refuerzan los armónicos). El organista **combina** registros tirando "
+        "de botones o pomos para construir el color y el volumen (el órgano "
+        "casi no tiene dinámica por el tacto: se «sube» añadiendo registros).",
+
+        "## Manuales y pedalero",
+        "Suele tener de dos a cinco **teclados manuales**, cada uno con su "
+        "conjunto de registros (Órgano Mayor, Positivo, Recitativo "
+        "expresivo…), y un **pedalero** de unas 30 notas que se toca con los "
+        "pies, normalmente para el bajo. Puede llenar una catedral **sin "
+        "amplificación**: de ahí su apodo.",
+
+        "## Repertorio y parientes",
+        "**Bach** es el pilar (*Tocata y fuga en re menor*, los corales, las "
+        "*Sonatas en trío*, buena parte de *El arte de la fuga*), junto a "
+        "**Buxtehude**, Couperin, **Franck**, Widor (su *Tocata*), **Messiaen**. "
+        "Su pariente eléctrico, el **órgano Hammond** (ruedas fónicas + "
+        "altavoz Leslie giratorio), es esencial en el **gospel**, el **jazz** "
+        "(Jimmy Smith) y el **rock**.",
+    ],
+    verTambien=["wiki-inst-piano", "wiki-comp-bach", "wiki-historia-barroco",
+                "wiki-historia-musica-sacra", "wiki-inst-electronicos"],
+    fuentes=[W("Wikipedia (ES) — Órgano (instrumento musical)",
+               "https://es.wikipedia.org/wiki/%C3%93rgano_(instrumento_musical)"),
+             W("Wikipedia (EN) — Pipe organ",
+               "https://en.wikipedia.org/wiki/Pipe_organ"),
+             F_GROVE],
+),
+
+"wiki-inst-arpa": dict(
+    resumen="Cuerdas de distinta longitud, una por nota, pulsadas con los "
+            "dedos; los siete pedales de doble movimiento que la hacen "
+            "cromática y sus efectos característicos.",
+    cuerpo=[
+        "El arpa es uno de los instrumentos más antiguos (aparece en "
+        "Mesopotamia y Egipto hace más de 4000 años) y el único de la "
+        "orquesta en el que **cada nota tiene su propia cuerda**, sin "
+        "diapasón ni trastes.",
+
+        "## El arpa de concierto",
+        "Tiene **47 cuerdas** de distinta longitud y grosor, tensadas sobre "
+        "una caja de resonancia inclinada. Las cuerdas de **DO** son rojas y "
+        "las de **FA**, azules o negras, para orientarse. Se pulsan con los "
+        "dedos (no con el meñique) de ambas manos.",
+
+        "## Los pedales: cómo se vuelve cromática",
+        "Un arpa «lisa» solo daría una escala diatónica. La **de doble "
+        "movimiento** (perfeccionada por **Sébastien Érard** hacia 1810) "
+        "tiene **siete pedales**, uno por cada nombre de nota (DO, RE, MI…), y "
+        "cada pedal tiene **tres posiciones**: arriba = bemol, en medio = "
+        "natural, abajo = sostenido. Al mover un pedal, unos discos giran y "
+        "acortan **todas** las cuerdas de esa nota en todas las octavas a la "
+        "vez. Así el arpa puede tocar en cualquier tonalidad y hacer cambios "
+        "**enarmónicos** para tener dos cuerdas dando el mismo sonido (útil "
+        "para trémolos y glissandos).",
+
+        "## Recursos característicos",
+        "El **glissando** (deslizar la mano por las cuerdas: suena la escala "
+        "en la que estén afinados los pedales), los **acordes arpegiados** "
+        "—de ahí la palabra *arpegio*—, los **armónicos** (tocar la cuerda en "
+        "su mitad, un octava más agudo y con timbre de campana), los sonidos "
+        "*près de la table* (junto a la caja, secos) y los apagados con la "
+        "palma.",
+
+        "## Repertorio",
+        "El **Concierto para flauta y arpa** de **Mozart**; las *Danzas "
+        "sacra y profana* y las dos *Danses* de **Debussy**; *Introducción y "
+        "allegro* de **Ravel**; el Concierto de Ginastera; y un papel de "
+        "color esencial en toda la orquesta romántica e impresionista "
+        "(el *Vals* de *La bella durmiente*, el arpa de *Clair de lune*). "
+        "También hay arpas populares: la **celta**, el **arpa paraguaya** y "
+        "**llanera** de América del Sur.",
+    ],
+    verTambien=["wiki-teoria-acordes", "wiki-comp-debussy", "wiki-historia-antiguedad",
+                "wiki-historia-instrumentos", "wiki-inst-familias"],
+    fuentes=[W("Wikipedia (ES) — Arpa", "https://es.wikipedia.org/wiki/Arpa"),
+             W("Wikipedia (EN) — Harp", "https://en.wikipedia.org/wiki/Harp"),
+             F_ADLER],
+),
+
+"wiki-inst-electronicos": dict(
+    resumen="Instrumentos en los que el sonido nace o se transforma por "
+            "electricidad: theremin, sintetizadores, samplers, cajas de "
+            "ritmos y controladores MIDI.",
+    cuerpo=[
+        "Los **electrófonos** son la familia más joven. Bajo la etiqueta "
+        "caben cosas muy distintas, unidas por un rasgo: en algún punto de la "
+        "cadena, el sonido **es electricidad** antes de llegar al altavoz.",
+
+        "## Los pioneros",
+        "El **theremin** (Lev Termen, 1920): se toca **sin tocarlo**, "
+        "moviendo las manos cerca de dos antenas que controlan altura y "
+        "volumen; sonido fantasmal, usado en bandas sonoras de ciencia "
+        "ficción. Las **ondas Martenot** (1928), con teclado y un anillo "
+        "deslizante (Messiaen las usó en la *Sinfonía Turangalîla*). El "
+        "**órgano Hammond** (1935) y el piano eléctrico **Rhodes** "
+        "(láminas metálicas + pastillas): el teclado del soul, el jazz y el "
+        "funk.",
+
+        "## Sintetizador",
+        "Genera formas de onda desde cero y las moldea con **filtros**, "
+        "**envolventes** y **LFO** (ver «Síntesis de sonido»). Del modular "
+        "**Moog** (1964) al **Minimoog** portátil, los polifónicos de los 70, "
+        "la **síntesis FM** del **DX7** (1983) y los sintetizadores de "
+        "software actuales.",
+
+        "## Sampler y caja de ritmos",
+        "El **sampler** reproduce y manipula **grabaciones**: afina un sonido "
+        "por todo el teclado, lo trocea (*chopping*), lo estira sin cambiar el "
+        "tono (*time-stretch*), lo pone en bucle. Es la base del hip-hop. La "
+        "**caja de ritmos** secuencia sonidos de percusión: la **Roland "
+        "TR-808** y **TR-909** —consideradas al principio un fracaso "
+        "comercial— acabaron **definiendo** el sonido del hip-hop, el house y "
+        "el techno.",
+
+        "## Controladores MIDI",
+        "Un teclado, unos *pads* o una superficie de control **no producen "
+        "sonido**: envían mensajes **MIDI** (qué nota, con qué fuerza, qué "
+        "mando se ha movido) a un ordenador o a un módulo, que es quien suena "
+        "(ver «MIDI a fondo»). Separar el gesto del sonido es lo que hace tan "
+        "flexible la producción moderna.",
+    ],
+    verTambien=["wiki-prod-sintesis", "wiki-prod-midi", "wiki-prod-sampleo",
+                "wiki-historia-electronica", "wiki-inst-familias"],
+    fuentes=[W("Wikipedia (ES) — Instrumento electrónico",
+               "https://es.wikipedia.org/wiki/Instrumento_musical_electr%C3%B3nico"),
+             W("Wikipedia (EN) — Electronic musical instrument",
+               "https://en.wikipedia.org/wiki/Electronic_musical_instrument"),
+             F_GROVE],
+),
+
+}  # fin INSTRUMENTOS
+
+NUEVOS.update(INSTRUMENTOS)
+
+
+# =========================================================================
+#  PRODUCCIÓN Y TECNOLOGÍA MUSICAL
+# =========================================================================
+PRODUCCION = {
+
+"wiki-prod-panorama": dict(
+    resumen="La cadena completa que va de la idea a la canción que suena en "
+            "el móvil: preproducción, grabación, edición, mezcla, mastering y "
+            "distribución.",
+    cuerpo=[
+        "Producir una grabación es tomar una serie de decisiones —musicales y "
+        "técnicas— en una cadena de fases. Cada fase condiciona a la "
+        "siguiente, y hoy casi todas ocurren dentro de un mismo programa, la "
+        "**DAW**.",
+
+        "## 1. Preproducción",
+        "Antes de grabar nada: definir la **estructura** de la canción, los "
+        "**arreglos** (qué toca cada instrumento y cuándo entra), la "
+        "**tonalidad** y el **tempo**, y preparar una **guía** o maqueta con "
+        "clic (metrónomo). Cuanto mejor esté resuelto aquí, menos se «arregla» "
+        "después.",
+
+        "## 2. Grabación",
+        "Se captan las **pistas**, una a una o varias en directo, con "
+        "**micrófonos** (para fuentes acústicas y amplificadores) y **cajas "
+        "de inyección directa** (DI) para bajo y teclados. Se cuida el nivel "
+        "de entrada (ni bajo ni saturado), la afinación y la energía de la "
+        "interpretación: una buena toma vale más que mil correcciones.",
+
+        "## 3. Edición",
+        "Elegir las mejores tomas o montarlas (*comping*), corregir "
+        "desajustes de **tiempo** (cuantización) y de **afinación** (tipo "
+        "Melodyne o Auto-Tune), limpiar ruidos, respiraciones y silencios, "
+        "ajustar los *fades*.",
+
+        "## 4. Mezcla",
+        "Convertir todas las pistas en **una sola imagen estéreo** "
+        "equilibrada: volúmenes, panoramas, ecualización, compresión, efectos "
+        "de espacio (reverb, delay) y automatización. Es la fase más "
+        "artística de la parte técnica.",
+
+        "## 5. Mastering",
+        "El retoque **final** sobre la mezcla ya hecha: tono general, "
+        "dinámica, volumen competitivo, coherencia de todo un álbum y "
+        "adaptación a cada formato.",
+
+        "## 6. Distribución",
+        "Exportar a los formatos adecuados (ver «Formatos de audio») y "
+        "subirlos, normalmente a través de un **agregador**, a las "
+        "plataformas de streaming y tiendas.",
+
+        "## Dónde ocurre",
+        "Ya no hace falta un gran estudio. Buena parte de la música actual se "
+        "hace en un **cuarto tratado acústicamente** con unos monitores "
+        "decentes, una interfaz de audio, un micrófono y un ordenador. El "
+        "gran estudio aporta salas grandes, micrófonos caros y, sobre todo, "
+        "oídos con experiencia.",
+    ],
+    verTambien=["wiki-prod-daw", "wiki-prod-mezcla", "wiki-prod-mastering",
+                "wiki-historia-grabacion", "wiki-prod-microfonos"],
+    fuentes=[F_HUBER,
+             W("Wikipedia (ES) — Producción musical",
+               "https://es.wikipedia.org/wiki/Producci%C3%B3n_musical"),
+             W("Wikipedia (EN) — Record production",
+               "https://en.wikipedia.org/wiki/Record_production")],
+),
+
+"wiki-prod-daw": dict(
+    resumen="El programa —Pro Tools, Logic, Ableton Live, FL Studio, Reaper, "
+            "Cubase…— donde hoy se graba, edita, secuencia, mezcla y produce "
+            "casi toda la música.",
+    cuerpo=[
+        "Una DAW (*Digital Audio Workstation*, «estación de audio digital») "
+        "es el entorno que ha sustituido a la mesa de mezclas, el "
+        "magnetófono, el rack de efectos y el secuenciador, todo a la vez, "
+        "dentro de un ordenador.",
+
+        "## Pistas en una línea de tiempo",
+        "El trabajo se organiza en **pistas** apiladas sobre una línea de "
+        "tiempo. Cada pista puede ser de **audio** (una grabación: voz, "
+        "guitarra) o de **MIDI / instrumento** (una secuencia de notas que "
+        "dispara un instrumento virtual). Se graba, se corta, se copia, se "
+        "mueve y se estira el material con total libertad.",
+
+        "## El mezclador y los plugins",
+        "Cada pista tiene su canal en el **mezclador**: *fader* de volumen, "
+        "panorama, silencio/solo, y ranuras para **plugins**. Los plugins son "
+        "efectos o instrumentos que se «enchufan»: ecualizador (EQ), "
+        "compresor, reverb, delay, saturador, y sintetizadores y samplers de "
+        "software. Los formatos habituales son VST, AU y AAX.",
+
+        "## Automatización y buses",
+        "La **automatización** permite dibujar cómo cambia cualquier "
+        "parámetro a lo largo del tiempo (subir la voz en el estribillo, "
+        "abrir un filtro, mover un panorama). Los **buses** y **envíos** "
+        "agrupan pistas (todas las de batería a un bus) o las mandan a un "
+        "efecto compartido (una única reverb para varias pistas).",
+
+        "## Grabar y editar",
+        "Funciones clave: **punch-in** (regrabar solo un fragmento), "
+        "**comping** (montar la toma final a partir de varias), "
+        "**cuantización** (alinear al *grid*), **time-stretch** y "
+        "**warp** (adaptar el tempo del audio sin cambiar el tono).",
+
+        "## Diferencias entre DAW",
+        "**Pro Tools**: estándar de estudios de grabación y postproducción. "
+        "**Logic** y **Cubase**: muy completas para composición y MIDI. "
+        "**Ableton Live**: además de la vista de arreglo, una **vista de "
+        "sesión** de *clips* pensada para el directo y la improvisación. "
+        "**FL Studio**: muy usada en hip-hop y electrónica. **Reaper**: "
+        "ligera y muy configurable.",
+    ],
+    verTambien=["wiki-prod-midi", "wiki-prod-mezcla", "wiki-prod-sintesis",
+                "wiki-inst-electronicos", "wiki-prod-panorama"],
+    fuentes=[F_HUBER,
+             W("Wikipedia (ES) — Estación de trabajo de audio digital",
+               "https://es.wikipedia.org/wiki/Estaci%C3%B3n_de_trabajo_de_audio_digital"),
+             W("Wikipedia (EN) — Digital audio workstation",
+               "https://en.wikipedia.org/wiki/Digital_audio_workstation")],
+),
+
+"wiki-prod-midi": dict(
+    resumen="Un lenguaje de control, no de sonido: qué nota, con qué fuerza, "
+            "durante cuánto y con qué mandos. El estándar de 1983, General "
+            "MIDI, MPE y MIDI 2.0.",
+    cuerpo=[
+        "**MIDI** (*Musical Instrument Digital Interface*) es un protocolo de "
+        "1983 que permite que instrumentos, ordenadores y controladores de "
+        "cualquier marca **se comuniquen**. Transmite **mensajes**, no audio: "
+        "es como una partitura enviada en tiempo real, no un sonido.",
+
+        "## Los mensajes principales",
+        "**Note On**: se ha pulsado una tecla; incluye la **altura** (0-127, "
+        "60 = DO central) y la **velocity** (0-127, la fuerza del ataque). "
+        "**Note Off**: se ha soltado. **Control Change (CC)**: movimiento de "
+        "un mando —rueda de modulación (CC1), pedal de resonancia (CC64), "
+        "volumen (CC7), panorama (CC10)…—. **Pitch Bend**: la palanca de "
+        "afinación, con más resolución. **Program Change**: cambiar de sonido "
+        "o preajuste. **Aftertouch**: presión sobre la tecla ya pulsada.",
+
+        "## Por qué es tan útil",
+        "Una interpretación grabada como MIDI se puede **editar sin fin**: "
+        "corregir notas mal, cambiar el tempo sin afectar la afinación, "
+        "**cuantizar** el ritmo, transponer, o **asignar la misma "
+        "interpretación a otro instrumento**. Separa por completo el **gesto** "
+        "del **sonido**.",
+
+        "## General MIDI",
+        "**GM** (1991) estandarizó una lista de **128 sonidos** numerados "
+        "(1 = piano de cola, 25 = guitarra de nailon…) y un mapa de "
+        "percusión, para que un archivo *.mid* suene *parecido* en cualquier "
+        "equipo. Fue clave en los tonos de móvil y los karaokes de los 90.",
+
+        "## MPE y MIDI 2.0",
+        "**MPE** (*MIDI Polyphonic Expression*) reparte cada nota de un "
+        "acorde en un canal propio, de modo que se puede dar **vibrato, "
+        "glissando o cambio de timbre a una sola nota** sin afectar a las "
+        "demás (controladores como el ROLI Seaboard o el LinnStrument). "
+        "**MIDI 2.0** (2020) añade mucha más resolución, comunicación "
+        "bidireccional y configuración automática entre aparatos.",
+    ],
+    verTambien=["wiki-prod-daw", "wiki-prod-sintesis", "wiki-inst-electronicos",
+                "wiki-historia-electronica", "wiki-historia-notacion"],
+    fuentes=[W("Wikipedia (ES) — MIDI", "https://es.wikipedia.org/wiki/MIDI"),
+             W("Wikipedia (EN) — MIDI", "https://en.wikipedia.org/wiki/MIDI"),
+             W("MIDI Association — The MIDI specification",
+               "https://midi.org/specifications")],
+),
+
+"wiki-prod-sintesis": dict(
+    resumen="Fabricar un sonido desde cero: los bloques de un sintetizador "
+            "(oscilador, filtro, envolvente, LFO) y los grandes tipos de "
+            "síntesis.",
+    cuerpo=[
+        "Sintetizar es **construir** un sonido en lugar de grabarlo. Aunque "
+        "hay muchos métodos, casi todos los sintetizadores comparten los "
+        "mismos bloques básicos, encadenados.",
+
+        "## Los bloques",
+        "**Oscilador (VCO/DCO)**: genera la materia prima, una **forma de "
+        "onda** periódica. Sierra (rica en armónicos, brillante), cuadrada / "
+        "pulso (hueca, «de videojuego»), triangular (suave), senoidal (pura, "
+        "sin armónicos). Suele haber varios osciladores, ligeramente "
+        "desafinados entre sí para engordar el sonido (*detune*).",
+        "**Filtro (VCF)**: quita frecuencias. El más usado es el **paso "
+        "bajo** (deja pasar los graves y recorta los agudos por encima de una "
+        "**frecuencia de corte**); la **resonancia** realza la zona justo en "
+        "el corte. Barrer el corte con el tiempo es *el* gesto "
+        "característico del sintetizador.",
+        "**Envolvente (ADSR)**: define cómo evoluciona un parámetro (el "
+        "volumen, o el corte del filtro) desde que se pulsa la tecla: "
+        "**A**taque (cuánto tarda en llegar al máximo), **D**ecaimiento "
+        "(bajada hasta el nivel de sostenido), **S**ostenido (nivel mientras "
+        "la tecla sigue pulsada) y **R**elajación (*release*: cuánto tarda en "
+        "apagarse al soltar).",
+        "**LFO**: un oscilador de frecuencia **muy baja** (por debajo de lo "
+        "audible) que **modula** otro parámetro: si modula la afinación, "
+        "vibrato; el volumen, trémolo; el filtro, un *wah* rítmico.",
+
+        "## Tipos de síntesis",
+        "**Sustractiva**: partir de una onda rica y filtrarla (el método "
+        "clásico, el Moog). **FM** (modulación de frecuencia): una onda "
+        "modula la frecuencia de otra; sonidos metálicos, campanas, el piano "
+        "eléctrico de los 80 (Yamaha DX7). **Aditiva**: sumar muchas "
+        "senoidales para construir el espectro armónico deseado. "
+        "**Wavetable**: recorrer una tabla de formas de onda que van "
+        "cambiando. **Granular**: recomponer el sonido con miles de "
+        "fragmentos diminutos (*granos*). **Modelado físico**: simular por "
+        "ecuaciones el comportamiento de una cuerda, un tubo o una membrana "
+        "reales.",
+    ],
+    verTambien=["wiki-teoria-acustica", "wiki-inst-electronicos", "wiki-prod-sampleo",
+                "wiki-historia-electronica", "wiki-teoria-timbre"],
+    fuentes=[W("Wikipedia (ES) — Sintetizador",
+               "https://es.wikipedia.org/wiki/Sintetizador"),
+             W("Wikipedia (EN) — Synthesizer",
+               "https://en.wikipedia.org/wiki/Synthesizer"),
+             LIBRO("Mark Vail, «The Synthesizer» (Oxford University Press)")],
+),
+
+"wiki-prod-sampleo": dict(
+    resumen="Tomar un fragmento de sonido grabado y reutilizarlo o "
+            "transformarlo: del Mellotron a la MPC, su papel en el hip-hop y "
+            "la electrónica, y el problema legal.",
+    cuerpo=[
+        "**Samplear** es usar como material una **grabación ya existente**: "
+        "un compás de batería, una frase de cuerdas, una palabra, un ruido. "
+        "Puede ser la base entera de una canción o un detalle.",
+
+        "## De la cinta al chip",
+        "El **Mellotron** (años 60) tenía una cinta de audio por tecla: al "
+        "pulsar, sonaban unos segundos grabados de un coro o una flauta real. "
+        "El **sampler digital** llegó con el **Fairlight CMI** y el "
+        "**Emulator** (finales de los 70 y 80), carísimos, y se democratizó "
+        "con la **Akai MPC**, que unía sampler y secuenciador por pads y se "
+        "volvió el instrumento del hip-hop.",
+
+        "## Qué se puede hacer con un sample",
+        "**Afinarlo** por todo el teclado (reproducirlo más rápido lo hace "
+        "más agudo y más corto); **trocearlo** (*chopping*: cortar un break y "
+        "reordenar los trozos); **estirarlo** sin cambiar el tono "
+        "(*time-stretch*) para encajarlo a otro tempo; ponerlo en **bucle** "
+        "(*loop*); filtrarlo, saturarlo, invertirlo.",
+
+        "## La base de dos géneros",
+        "El **hip-hop** nace, literalmente, de repetir el *break* (el "
+        "fragmento instrumental más rítmico) de discos de funk y soul. Buena "
+        "parte de la **electrónica** de baile se construye igual. El "
+        "fragmento más usado de la historia es el **Amen break**: unos seis "
+        "segundos de batería de «Amen, Brother» (The Winstons, 1969), columna "
+        "vertebral del *jungle*, el *drum and bass* y mil temas más.",
+
+        "## El problema legal",
+        "Usar una grabación ajena requiere **dos** autorizaciones: la del "
+        "dueño del **máster** (el sello) y la del dueño de la **composición** "
+        "(la editorial). No pedirlas ha provocado pleitos célebres (Biz "
+        "Markie, «Bitter Sweet Symphony» de The Verve, «Blurred Lines»). Por "
+        "eso muchos productores usan **bibliotecas libres de derechos**, "
+        "regraban ellos mismos el fragmento (*interpolación*) o "
+        "«esconden» el sample transformándolo mucho.",
+    ],
+    verTambien=["wiki-cur-amen-break", "wiki-prod-sintesis", "wiki-historia-popular",
+                "wiki-cur-plagio", "wiki-inst-electronicos"],
+    fuentes=[W("Wikipedia (ES) — Sampler",
+               "https://es.wikipedia.org/wiki/Sampler_(instrumento_musical)"),
+             W("Wikipedia (EN) — Sampling (music)",
+               "https://en.wikipedia.org/wiki/Sampling_(music)"),
+             F_HUBER],
+),
+
+"wiki-prod-microfonos": dict(
+    resumen="Cómo se convierte una vibración del aire en señal eléctrica: "
+            "tipos de micrófono, patrones polares, la caja de inyección "
+            "directa y por qué la colocación importa tanto como el modelo.",
+    cuerpo=[
+        "Un micrófono hace una sola cosa: convierte el **temblor del aire** "
+        "(el sonido) en una **señal eléctrica** (el nombre técnico de ese "
+        "traductor es «transductor»). Qué micrófono eliges y dónde lo pones "
+        "es la primera decisión de sonido de cualquier grabación acústica, y "
+        "una de las que más pesa.",
+
+        "## Tipos por tecnología",
+        "**Dinámico**: una membrana movida por el sonido mueve una bobina "
+        "dentro de un imán. Robusto, barato, aguanta niveles altísimos y "
+        "responde algo más lento; ideal para amplificadores de guitarra, caja "
+        "y bombo, voz en directo (el clásico SM57/SM58). **De condensador**: "
+        "la membrana forma un condensador cuya capacidad varía con el sonido; "
+        "necesita **alimentación phantom de 48 V**. Más sensible, más "
+        "detallado y rápido; el habitual para voz de estudio e instrumentos "
+        "acústicos. **De cinta** (*ribbon*): una lámina metálica muy fina; "
+        "sonido cálido y suave en los agudos, frágil.",
+
+        "## Patrón polar",
+        "Describe **de qué direcciones capta** el micrófono. **Cardioide**: "
+        "sobre todo por delante, rechaza lo de atrás (el más usado, reduce el "
+        "acople y el sonido de la sala). **Omnidireccional**: por igual en "
+        "todas las direcciones (natural, capta la sala). **Figura en ocho** "
+        "(bidireccional): delante y detrás, nada por los lados. **Supercardioide** "
+        "e **hipercardioide**: más direccionales aún. Muchos micros de "
+        "condensador permiten **conmutar** el patrón.",
+
+        "## DI y otras señales",
+        "La **caja de inyección directa** (**DI**) toma la señal eléctrica de "
+        "un bajo, un teclado o una guitarra **sin micrófono ni "
+        "amplificador**, y la adapta para la mesa o la interfaz. Es habitual "
+        "grabar a la vez la DI y el amplificador con micro, para decidir "
+        "luego.",
+
+        "## La colocación",
+        "Cambiar la **distancia** y el **ángulo** del micrófono altera el "
+        "sonido tanto como cambiar de modelo: acercarse realza los graves "
+        "(**efecto de proximidad** en los cardioides), alejarse capta más "
+        "sala. Con dos o más micros hay que cuidar la **fase** (si llegan "
+        "desalineados, se cancelan frecuencias); reglas prácticas como la "
+        "**3:1** ayudan a evitarlo.",
+    ],
+    verTambien=["wiki-prod-mezcla", "wiki-prod-directo", "wiki-teoria-timbre",
+                "wiki-prod-acustica-estudio", "wiki-prod-panorama"],
+    fuentes=[F_HUBER,
+             W("Wikipedia (ES) — Micrófono",
+               "https://es.wikipedia.org/wiki/Micr%C3%B3fono"),
+             W("Wikipedia (EN) — Microphone practice",
+               "https://en.wikipedia.org/wiki/Microphone_practice")],
+),
+
+"wiki-prod-mezcla": dict(
+    resumen="Convertir muchas pistas sueltas en una sola imagen sonora "
+            "equilibrada: volumen, panorama, ecualización, compresión, "
+            "efectos de espacio y automatización.",
+    cuerpo=[
+        "Mezclar es tomar todas las pistas grabadas y combinarlas en una "
+        "**imagen estéreo** en la que cada elemento se oiga, tenga su sitio y "
+        "cuente lo que tiene que contar. Es la fase donde más se decide el "
+        "carácter final de la canción.",
+
+        "## Las tres dimensiones",
+        "Una mezcla coloca cada sonido en tres ejes. **Volumen** (delante / "
+        "detrás): el balance entre pistas, lo más importante y lo primero que "
+        "se hace. **Panorama** (izquierda / derecha): repartir los elementos "
+        "en el estéreo para que no se amontonen en el centro (voz, bajo y "
+        "bombo suelen ir al centro; guitarras y coros, a los lados). "
+        "**Frecuencia y profundidad** (arriba / abajo, cerca / lejos): se "
+        "trabajan con EQ y con reverb.",
+
+        "## Ecualización (EQ)",
+        "Subir o bajar bandas de frecuencia. Usos: **correctivo** (quitar un "
+        "retumbe grave, una resonancia molesta, sibilancias), y **creativo** "
+        "(dar aire, brillo o cuerpo). La idea clave es el **reparto del "
+        "espectro**: si el bajo y el bombo pelean por la misma zona grave, se "
+        "recorta un poco a uno para hacer sitio al otro (*carving*).",
+
+        "## Compresión",
+        "Reduce automáticamente el volumen cuando la señal pasa de un "
+        "**umbral** (*threshold*), en una proporción (*ratio*), con cierta "
+        "velocidad de reacción (*attack* y *release*). Sirve para **igualar** "
+        "una interpretación irregular (una voz que se come palabras), para "
+        "**dar pegada** (un ataque marcado deja pasar el golpe y luego "
+        "aprieta) y para pegar elementos entre sí (compresión de bus).",
+
+        "## Espacio y tiempo",
+        "La **reverb** simula una sala (recinto, placa, muelle, "
+        "convolución) y sitúa los elementos a distinta profundidad. El "
+        "**delay** genera ecos rítmicos; un *slapback* corto engorda una "
+        "voz, un delay a negras la abre en el estribillo.",
+
+        "## Automatización y criterio",
+        "La **automatización** mueve estos parámetros a lo largo de la "
+        "canción: subir la voz medio decibelio en el estribillo, abrir un "
+        "filtro en la subida, silenciar una pista en el puente. Y una regla "
+        "de fondo: **una buena mezcla no se nota**; se entiende cada palabra "
+        "y se oye cada instrumento sin esfuerzo. Conviene revisarla en varios "
+        "sistemas (monitores, auriculares, un altavoz de móvil).",
+    ],
+    verTambien=["wiki-prod-mastering", "wiki-prod-daw", "wiki-prod-microfonos",
+                "wiki-teoria-dinamica-agogica", "wiki-prod-acustica-estudio"],
+    fuentes=[F_OWSINSKI, F_HUBER,
+             W("Wikipedia (EN) — Audio mixing (recorded music)",
+               "https://en.wikipedia.org/wiki/Audio_mixing_(recorded_music)")],
+),
+
+"wiki-prod-mastering": dict(
+    resumen="El último eslabón: preparar la mezcla terminada para que suene "
+            "bien y coherente en cualquier sistema y formato, y el asunto de "
+            "la sonoridad («guerra del volumen»).",
+    cuerpo=[
+        "El **mastering** es el retoque final que se hace sobre la **mezcla "
+        "estéreo ya terminada** (no sobre las pistas sueltas), justo antes de "
+        "publicar. Es un trabajo de **pequeños ajustes** y mucho criterio, "
+        "hecho idealmente por otra persona y en otra sala, con oídos frescos.",
+
+        "## Qué hace el ingeniero de mastering",
+        "**Tono**: un ecualizador suave sobre todo el mix para corregir un "
+        "exceso o una falta general (demasiados graves, poca «aire»). "
+        "**Dinámica**: compresión ligera y a veces multibanda para dar "
+        "cohesión, más un **limitador** al final que sube el volumen sin "
+        "dejar que la señal recorte. **Coherencia de álbum**: igualar tono y "
+        "volumen entre todas las canciones para que el disco se escuche del "
+        "tirón. **Formatos y entrega**: generar las versiones para streaming, "
+        "CD (con códigos y espaciados), vinilo (con sus limitaciones de "
+        "graves y agudos) y los metadatos.",
+
+        "## Sonoridad y «guerra del volumen»",
+        "Durante los años 90 y 2000, la industria masterizó cada disco más "
+        "**fuerte** que el anterior —comprimiendo y limitando hasta aplastar "
+        "la dinámica— para «destacar» en la radio y en las recopilaciones. El "
+        "resultado fue música cansina y sin respiración (caso de escuela: la "
+        "remasterización de *Death Magnetic* de Metallica, 2008).",
+
+        "## La normalización lo cambió",
+        "Las plataformas de streaming aplican hoy **normalización de "
+        "sonoridad**: miden cada canción en **LUFS** y la reproducen a un "
+        "nivel percibido común (en torno a −14 LUFS en Spotify). Es decir: "
+        "masterizar demasiado fuerte **ya no da ventaja de volumen** —la "
+        "plataforma lo baja igual— y sí resta pegada y dinámica. La tendencia "
+        "actual es masterizar con algo más de aire.",
+    ],
+    verTambien=["wiki-prod-mezcla", "wiki-mitos-vinilo", "wiki-historia-grabacion",
+                "wiki-prod-formatos", "wiki-prod-panorama"],
+    fuentes=[LIBRO("Bob Katz, «Mastering Audio: The Art and the Science»"),
+             W("Wikipedia (EN) — Mastering (audio)",
+               "https://en.wikipedia.org/wiki/Mastering_(audio)"),
+             W("Wikipedia (EN) — Loudness war",
+               "https://en.wikipedia.org/wiki/Loudness_war")],
+),
+
+"wiki-prod-formatos": dict(
+    resumen="Qué son WAV, FLAC, MP3, AAC y Opus; por qué el audio digital se "
+            "describe con dos números; y qué entrega el streaming.",
+    cuerpo=[
+        "El audio digital representa una onda continua midiéndola muchas "
+        "veces por segundo. Entender los dos números que lo definen ayuda a "
+        "elegir formato sin mitos.",
+
+        "## Los dos parámetros",
+        "**Frecuencia de muestreo**: cuántas «fotos» de la onda se toman por "
+        "segundo. El CD usa **44 100 Hz**; vídeo y muchos estudios, 48 000; "
+        "para trabajar se usan a veces 88 200 o 96 000. El **teorema de "
+        "muestreo** dice que se puede representar cualquier frecuencia hasta "
+        "la **mitad** de ese valor: 44 100 Hz cubre hasta 22 050 Hz, por "
+        "encima del oído humano. **Profundidad de bits**: cuántos niveles "
+        "distintos puede tomar cada muestra. **16 bits** (CD) dan unos 96 dB "
+        "de rango dinámico; **24 bits** (grabación y mezcla) dan margen de "
+        "sobra para no preocuparse por el nivel de entrada. Los «bits» **no** "
+        "afectan a la frecuencia más aguda, solo al ruido de fondo y al "
+        "rango.",
+
+        "## Sin comprimir",
+        "**WAV** y **AIFF** guardan todas las muestras tal cual. Máxima "
+        "compatibilidad, mucho tamaño (un minuto en calidad CD ≈ 10 MB). Es "
+        "el formato de trabajo y de entrega a mastering.",
+
+        "## Comprimido sin pérdida",
+        "**FLAC** y **ALAC** empaquetan el audio con algoritmos reversibles: "
+        "ocupan un 40-60 % menos y, al descomprimir, se obtiene el archivo "
+        "**idéntico** al original. Para archivo y para el streaming «HiFi».",
+
+        "## Comprimido con pérdida",
+        "**MP3**, **AAC** y **Opus** descartan de forma permanente la "
+        "información que el oído nota menos (**enmascaramiento**). A "
+        "*bitrates* altos (256-320 kbps en MP3/AAC; menos en Opus, más "
+        "eficiente) la diferencia con el original es muy difícil de percibir. "
+        "Ocupan una fracción del tamaño.",
+
+        "## Qué entrega el streaming",
+        "Normalmente audio **con pérdida**: Spotify usa Ogg Vorbis / AAC "
+        "hasta ~320 kbps; YouTube Music, Apple Music y otros usan AAC; los "
+        "planes «HiFi» o «Lossless» entregan **FLAC/ALAC** a calidad CD o "
+        "superior. Para la mayoría de escuchas y equipos, un AAC a 256 kbps "
+        "es transparente.",
+    ],
+    verTambien=["wiki-teoria-acustica", "wiki-prod-mastering", "wiki-historia-grabacion",
+                "wiki-mitos-vinilo", "wiki-prod-panorama"],
+    fuentes=[W("Wikipedia (ES) — Formato de archivo de audio",
+               "https://es.wikipedia.org/wiki/Formato_de_archivo_de_audio"),
+             W("Wikipedia (EN) — Audio file format",
+               "https://en.wikipedia.org/wiki/Audio_file_format"),
+             F_HUBER],
+),
+
+"wiki-prod-directo": dict(
+    resumen="Llevar la música a un público grande, en tiempo real y sin "
+            "segundas tomas: el sistema de PA, la mezcla de sala, los "
+            "monitores y el acople.",
+    cuerpo=[
+        "El sonido en directo tiene una regla que lo cambia todo respecto al "
+        "estudio: **no hay repetición**. Lo que pasa, pasa delante del "
+        "público. Por eso la fiabilidad del equipo y la prueba de sonido son "
+        "decisivas.",
+
+        "## El sistema de PA",
+        "**PA** (*public address*) es todo el equipo que amplifica y proyecta "
+        "el sonido hacia el público: cajas principales (a menudo *line "
+        "arrays* colgados), *subwoofers* para los graves, cajas de *front "
+        "fill* para las primeras filas y *delays* en recintos grandes "
+        "(altavoces a media sala, retardados para que el sonido «llegue "
+        "junto»).",
+
+        "## Mezcla de sala (FOH)",
+        "El **técnico de sala** (**FOH**, *front of house*) mezcla desde una "
+        "mesa situada **entre el público**, para oír lo mismo que ellos. "
+        "Ajusta niveles, EQ, dinámica y efectos en tiempo real, sesión a "
+        "sesión, adaptándose a la acústica del recinto y a cómo suena la "
+        "banda esa noche.",
+
+        "## Monitores",
+        "El **técnico de monitores** prepara una mezcla **distinta para cada "
+        "músico** del escenario: lo que cada uno necesita oír para tocar "
+        "afinado y a tiempo. Sale por altavoces de suelo (**wedges**) o, cada "
+        "vez más, por **auriculares intraurales** (**IEM**), que además "
+        "reducen el volumen sobre el escenario.",
+
+        "## El acople (feedback)",
+        "El pitido que aparece cuando un micrófono capta el sonido de un "
+        "altavoz que lo amplifica, que vuelve al micro, y así en bucle. Se "
+        "combate con la **colocación** (micros de espaldas a las cajas, "
+        "patrones direccionales), bajando la ganancia y con **ecualización** "
+        "que recorta las frecuencias exactas que se disparan. Los IEM lo "
+        "reducen mucho porque quitan los altavoces del escenario.",
+    ],
+    verTambien=["wiki-prod-microfonos", "wiki-prod-mezcla", "wiki-tm-broadway-westend",
+                "wiki-prod-acustica-estudio", "wiki-historia-popular"],
+    fuentes=[F_HUBER,
+             W("Wikipedia (ES) — Refuerzo sonoro",
+               "https://es.wikipedia.org/wiki/Sistema_de_refuerzo_sonoro"),
+             W("Wikipedia (EN) — Sound reinforcement system",
+               "https://en.wikipedia.org/wiki/Sound_reinforcement_system")],
+),
+
+"wiki-prod-acustica-estudio": dict(
+    resumen="La sala donde escuchas forma parte del sonido: reflexiones, "
+            "modos propios y reverberación, cómo tratarlos, y por qué "
+            "insonorizar y acondicionar son cosas distintas.",
+    cuerpo=[
+        "Ningún altavoz suena en el vacío: lo que oyes es el altavoz **más la "
+        "sala**. Si la sala colorea mucho el sonido, tomarás decisiones de "
+        "mezcla equivocadas que solo se notarán al escuchar en otro sitio.",
+
+        "## Los problemas de una habitación pequeña",
+        "**Reflexiones tempranas**: el sonido rebota en las paredes, el techo "
+        "y la mesa cercanos y llega al oído poco después del directo, "
+        "emborronando la imagen estéreo y creando filtrados de peine. **Modos "
+        "propios** (*room modes*): en los graves, las ondas encajan entre "
+        "paredes paralelas y se **refuerzan** en unos puntos y se "
+        "**cancelan** en otros; por eso el bajo «cambia» según dónde te "
+        "sientes. **Reverberación** y **flutter echo**: cola de sonido y ecos "
+        "rápidos entre superficies duras.",
+
+        "## El tratamiento acústico",
+        "**Absorbentes** (paneles de lana de roca o fibra) en los **puntos "
+        "de primera reflexión** (paredes laterales, techo, detrás de los "
+        "monitores) y en la pared trasera. **Trampas de graves** (*bass "
+        "traps*), gruesas, en las **esquinas**, donde se acumula la energía "
+        "grave. **Difusores** para dispersar sin apagar del todo la sala. La "
+        "colocación simétrica de los monitores y del puesto de escucha (regla "
+        "del triángulo equilátero, alejado de la pared trasera) es gratis y "
+        "muy eficaz.",
+
+        "## Acondicionar ≠ insonorizar",
+        "**Acondicionar** es mejorar cómo suena la sala **por dentro** "
+        "(paneles, trampas). **Insonorizar** es evitar que el sonido **entre "
+        "o salga** (masa, desacople estructural, dobles tabiques, puertas "
+        "estancas): es mucho más caro y no mejora la escucha. Se confunden a "
+        "menudo: las hueveras y la espuma fina no hacen ni una cosa ni la "
+        "otra bien.",
+
+        "## Monitoreo",
+        "Los **monitores de estudio** buscan ser lo más **neutros** posible "
+        "(no «agradables»): quieres oír los defectos. Conviene contrastar la "
+        "mezcla también en **auriculares** y en altavoces **corrientes** "
+        "(móvil, coche, portátil), porque así la escuchará la mayoría de la "
+        "gente.",
+    ],
+    verTambien=["wiki-prod-mezcla", "wiki-prod-microfonos", "wiki-teoria-acustica",
+                "wiki-prod-formatos", "wiki-mitos-432hz"],
+    fuentes=[F_HUBER,
+             LIBRO("F. Alton Everest y Ken Pohlmann, «Master Handbook of Acoustics»"),
+             W("Wikipedia (EN) — Acoustic treatment",
+               "https://en.wikipedia.org/wiki/Acoustic_board")],
+),
+
+}  # fin PRODUCCION
+
+NUEVOS.update(PRODUCCION)
+
+
+# =========================================================================
+#  TEATRO
+# =========================================================================
+F_BROCKETT = LIBRO("Oscar G. Brockett y Franklin J. Hildy, «History of the "
+                   "Theatre»")
+F_PAVIS = LIBRO("Patrice Pavis, «Diccionario del teatro»")
+
+def _tf(es, en):
+    return [W(f"Wikipedia (ES) — {es}",
+             f"https://es.wikipedia.org/wiki/{es.replace(' ', '_')}"),
+            W(f"Wikipedia (EN) — {en}",
+             f"https://en.wikipedia.org/wiki/{en}"),
+            F_BROCKETT]
+
+TEATRO = {
+
+"wiki-teatro-que-es": dict(
+    resumen="El arte de representar una acción en vivo ante un público que "
+            "comparte el mismo espacio y el mismo tiempo: sus elementos "
+            "mínimos, sus convenciones y qué lo distingue del cine.",
+    cuerpo=[
+        "El teatro es una **acción representada por intérpretes ante un "
+        "público**, en un espacio y un tiempo **compartidos**. Esa presencia "
+        "simultánea de quien actúa y quien mira es su rasgo definitorio: el "
+        "teatro **ocurre**, no se reproduce.",
+
+        "## Efímero e irrepetible",
+        "A diferencia del cine —que se rueda una vez y se proyecta idéntico "
+        "para siempre—, cada **función** es distinta y sucede una sola vez. "
+        "La energía del público, los pequeños accidentes, el estado de los "
+        "intérpretes: todo influye. Esa fragilidad es también su fuerza; el "
+        "espectador sabe que está viendo algo que no volverá a pasar igual.",
+
+        "## Los elementos",
+        "Suele haber un **texto dramático** (aunque existe teatro sin "
+        "palabras: mimo, danza-teatro, teatro de objetos), unos **intérpretes** "
+        "que encarnan la acción, un **público**, un **espacio escénico** y un "
+        "conjunto de **convenciones** que ambas partes aceptan tácitamente "
+        "(que ese actor «es» un rey, que ha pasado un año entre dos escenas, "
+        "que no vemos la «cuarta pared»). Sobre eso trabajan la **dirección**, "
+        "la **escenografía**, la **iluminación**, el **vestuario**, el "
+        "**sonido** y la **música** para dar forma a la **puesta en escena**.",
+
+        "## El pacto ficcional",
+        "El teatro funciona porque el espectador acepta un juego doble: sabe "
+        "que aquello no es real y, a la vez, se deja afectar como si lo fuera. "
+        "Coleridge lo llamó «suspensión voluntaria de la incredulidad». Cada "
+        "estilo negocia ese pacto de forma distinta: el realismo lo esconde, "
+        "el teatro épico de Brecht lo pone sobre la mesa.",
+
+        "## La definición mínima",
+        "El director **Peter Brook** abrió su libro «El espacio vacío» con la "
+        "formulación más económica: «Un hombre camina por este espacio vacío "
+        "mientras otro le observa, y esto es todo lo que se necesita para que "
+        "se realice un acto teatral». Todo lo demás —el edificio, el decorado, "
+        "la maquinaria— son grados de elaboración, no requisitos.",
+
+        "## Para qué ha servido",
+        "El teatro ha sido rito religioso (Dioniso, los misterios "
+        "medievales), instrumento político (Brecht, Boal), entretenimiento de "
+        "masas (el melodrama, el musical), laboratorio de la lengua y la "
+        "identidad de un pueblo, y espacio de experimentación artística. Rara "
+        "vez es solo una cosa a la vez.",
+    ],
+    verTambien=["wiki-teatro-oficios", "wiki-teatro-estructura-espacio",
+                "wiki-teatro-generos", "wiki-teatro-grecia", "wiki-tm-que-es"],
+    fuentes=[W("Wikipedia (ES) — Teatro", "https://es.wikipedia.org/wiki/Teatro"),
+             W("Wikipedia (EN) — Theatre", "https://en.wikipedia.org/wiki/Theatre"),
+             LIBRO("Peter Brook, «El espacio vacío»")],
+),
+
+"wiki-teatro-grecia": dict(
+    resumen="El nacimiento del teatro occidental en la Atenas del siglo V "
+            "a. C.: el culto a Dioniso, los concursos trágicos, la estructura "
+            "del teatro griego y la «Poética» de Aristóteles.",
+    cuerpo=[
+        "El teatro occidental nace en **Atenas** en el siglo VI-V a. C., "
+        "dentro de las fiestas religiosas en honor a **Dioniso**, dios del "
+        "vino, el éxtasis y la transformación. Se cree que surgió del "
+        "**ditirambo**, un canto coral, cuando alguien (por tradición, "
+        "Tespis) se separó del coro para **responderle**: nació el actor.",
+
+        "## Los concursos",
+        "En las **Grandes Dionisias**, cada primavera, tres poetas competían "
+        "presentando cada uno una **tetralogía**: tres tragedias más un "
+        "**drama satírico** (una pieza burlesca con coro de sátiros para "
+        "aligerar). Un jurado ciudadano premiaba al ganador. El Estado "
+        "financiaba la producción a través de un ciudadano rico (la "
+        "*choregía*). El teatro era, así, un acto **cívico y religioso** a la "
+        "vez.",
+
+        "## Los autores",
+        "**Esquilo** (añade el segundo actor y reduce el coro; «La Orestíada»). "
+        "**Sófocles** (añade el tercer actor y el decorado pintado; «Edipo "
+        "rey», «Antígona», «Electra»). **Eurípides** (más psicológico, más "
+        "escéptico, más atento a las mujeres y los marginados; «Medea», «Las "
+        "bacantes», «Troyanas»). En la **comedia**, **Aristófanes** (sátira "
+        "política feroz: «Las nubes», «Lisístrata», «Las ranas») y, ya en el "
+        "siglo IV, la **comedia nueva** de **Menandro** (enredos domésticos, "
+        "sin política, antecedente de Plauto).",
+
+        "## Cómo era la representación",
+        "Al **aire libre** y de día, en un **teatro** excavado en la ladera de "
+        "una colina: el ***theatron*** (las gradas), la ***orchestra*** (el "
+        "espacio circular donde cantaba y bailaba el **coro**) y la "
+        "***skené*** (la caseta del fondo, que servía de decorado y de "
+        "camerino, y de la que viene la palabra «escena»). El de **Epidauro** "
+        "tiene una acústica legendaria. Los actores, **siempre hombres**, "
+        "pocos, se repartían todos los papeles con ayuda de **máscaras** que "
+        "amplificaban el rostro y quizá la voz. Recursos: el ***ekkyklema*** "
+        "(plataforma rodante para «sacar» el interior de un palacio) y el "
+        "***mechané*** (grúa para los dioses: el *deus ex machina*).",
+
+        "## La «Poética» de Aristóteles",
+        "Hacia el 335 a. C., Aristóteles analiza la tragedia y funda la teoría "
+        "dramática occidental. Ideas que aún se usan: la obra es **mímesis** "
+        "(imitación) de una **acción**; provoca **compasión y temor** que "
+        "conducen a la **catarsis** (purga o clarificación emocional); su "
+        "engranaje son la **peripecia** (giro brusco de la fortuna) y la "
+        "**anagnórisis** (reconocimiento, cuando el personaje descubre la "
+        "verdad); el héroe cae por una ***hamartía*** (un error o falla de "
+        "juicio, no necesariamente un «vicio trágico»). Las llamadas **tres "
+        "unidades** (acción, tiempo, lugar) son en buena parte una "
+        "**interpretación posterior**, del Renacimiento italiano y el "
+        "clasicismo francés: Aristóteles solo exige de verdad la unidad de "
+        "acción.",
+    ],
+    verTambien=["wiki-teatro-roma", "wiki-historia-antiguedad", "wiki-teatro-generos",
+                "wiki-teatro-neoclasico", "wiki-teatro-que-es"],
+    fuentes=[W("Wikipedia (ES) — Teatro de la Antigua Grecia",
+               "https://es.wikipedia.org/wiki/Teatro_de_la_Antigua_Grecia"),
+             W("Wikipedia (EN) — Poetics (Aristotle)",
+               "https://en.wikipedia.org/wiki/Poetics_(Aristotle)"),
+             F_BROCKETT],
+),
+
+"wiki-teatro-roma": dict(
+    resumen="Roma adapta el modelo griego, hace de la comedia de enredo un "
+            "género popular con Plauto y Terencio, y añade el espectáculo de "
+            "masas; con la caída del Imperio el teatro casi desaparece de "
+            "Europa.",
+    cuerpo=[
+        "El teatro romano hereda casi todo de Grecia —a través de la Magna "
+        "Grecia del sur de Italia— y lo adapta a un público más numeroso y "
+        "menos interesado en el rito. Sus fiestas escénicas (*ludi scaenici*) "
+        "eran parte del calendario público y competían con las carreras y los "
+        "combates.",
+
+        "## La comedia: Plauto y Terencio",
+        "**Plauto** (c. 254-184 a. C.) adapta la comedia nueva griega y la "
+        "hace explosiva: enredos de identidad, **criados astutos** que "
+        "manejan la trama (*servus callidus*), padres tacaños, soldados "
+        "fanfarrones, prólogos que hablan al público, pasajes cantados "
+        "(*cantica*). «Anfitrión», «La olla», «El soldado fanfarrón». "
+        "**Terencio** (c. 195-159 a. C.), más contenido y sentimental, con un "
+        "latín elegante y tramas de doble enredo; será el modelo escolar de "
+        "«buen latín» durante siglos. De estos personajes-tipo y estas "
+        "situaciones beben la ***commedia dell'arte***, **Molière**, la "
+        "comedia de Shakespeare y el vodevil.",
+
+        "## La tragedia: Séneca",
+        "De la tragedia romana solo se conservan completas las de **Séneca** "
+        "(s. I d. C.), probablemente escritas para **recitarse** más que para "
+        "representarse. Transmiten a Europa el gusto por la **retórica** "
+        "intensa, la **violencia en escena**, los monólogos introspectivos y "
+        "los **fantasmas vengadores**: influirán decisivamente en la tragedia "
+        "isabelina (Kyd, el primer Shakespeare) y en el clasicismo francés.",
+
+        "## El edificio y el espectáculo de masas",
+        "Roma construye el teatro **exento** (ya no apoyado en una ladera): "
+        "muro de escena monumental de varios pisos (*scaenae frons*), "
+        "graderío semicircular sobre bóvedas, a veces toldo (*velarium*). "
+        "Junto al teatro «con texto» crecen géneros más taquilleros: la "
+        "**pantomima** (un bailarín solista que representa un mito mientras un "
+        "coro canta), el **mimo** (escenas cómicas realistas, con mujeres en "
+        "escena y sin máscara) y, en los anfiteatros, el circo y los "
+        "gladiadores.",
+
+        "## El eclipse",
+        "Con la crisis del Imperio, la presión de los Padres de la Iglesia "
+        "contra los espectáculos «paganos e inmorales» y la desaparición de "
+        "las estructuras que lo financiaban, el teatro como institución **se "
+        "apaga en Europa occidental** hacia los siglos V-VI. Sobrevive "
+        "malamente en manos de **juglares** y **mimos ambulantes** hasta que, "
+        "siglos después, renace dentro de la propia liturgia cristiana.",
+    ],
+    verTambien=["wiki-teatro-grecia", "wiki-teatro-medieval", "wiki-teatro-renacimiento",
+                "wiki-teatro-neoclasico"],
+    fuentes=[W("Wikipedia (ES) — Teatro en la Antigua Roma",
+               "https://es.wikipedia.org/wiki/Teatro_en_la_Antigua_Roma"),
+             W("Wikipedia (EN) — Theatre of ancient Rome",
+               "https://en.wikipedia.org/wiki/Theatre_of_ancient_Rome"),
+             F_BROCKETT],
+),
+
+"wiki-teatro-medieval": dict(
+    resumen="El teatro europeo renace dentro de la liturgia, sale del templo "
+            "a la plaza en lengua vulgar y se organiza en grandes ciclos "
+            "montados por los gremios: misterios, moralidades y autos "
+            "sacramentales.",
+    cuerpo=[
+        "Tras siglos de eclipse, el teatro europeo **renace dentro de la "
+        "Iglesia**, precisamente la institución que lo había combatido: como "
+        "herramienta para **enseñar** una religión a una población que no "
+        "leía.",
+
+        "## Del altar a la plaza",
+        "Hacia los siglos X-XII aparecen los **tropos dramatizados**: breves "
+        "diálogos cantados dentro de la misa. El más antiguo documentado es el "
+        "***Quem quaeritis***: el ángel pregunta a las Marías a quién buscan "
+        "ante el sepulcro vacío. De ahí surge el **drama litúrgico** (en "
+        "latín, dentro del templo) y, poco a poco, el **drama religioso "
+        "vernáculo**: representado **fuera**, en el atrio o la plaza, en "
+        "**lengua vulgar** y a cargo de **laicos**.",
+
+        "## Los géneros",
+        "**Misterios** (o *mystery plays*, *dramas*): la historia sagrada "
+        "completa, de la Creación al Juicio Final, en **ciclos** de decenas de "
+        "episodios que podían durar varios días; los montaban los **gremios** "
+        "de artesanos, a veces sobre **carros** móviles (*pageant wagons*) que "
+        "recorrían la ciudad, a veces en escenarios simultáneos con "
+        "«mansiones» (el Cielo, el Infierno con su boca de dragón, "
+        "Jerusalén…). "
+        "**Milagros**: vidas de santos y prodigios de la Virgen. "
+        "**Moralidades**: alegorías en las que Virtudes y Vicios se disputan "
+        "el alma de un personaje llamado Humanidad o Todohombre "
+        "(«*Everyman*»). En España, los **autos sacramentales** —piezas "
+        "alegóricas en un acto sobre la Eucaristía— alcanzan su cima con "
+        "**Calderón** ya en el Barroco.",
+
+        "## El teatro profano",
+        "En paralelo convivían formas cómicas: **farsas** (la francesa «La "
+        "farce de Maître Pathelin»), **juegos de escarnio**, **entremeses**, "
+        "**sotties**, y la tradición itinerante de **juglares, bufones y "
+        "saltimbanquis**. En las cortes, **momos** y entradas triunfales.",
+
+        "## Cómo se hacía",
+        "Sin edificios teatrales: la ciudad entera era el escenario. "
+        "Producción **comunitaria** y gremial, con contabilidad "
+        "conservada de algunos ciclos (York, Wakefield en Inglaterra). Efectos "
+        "espectaculares (*secretos*): apariciones, vuelos, fuego real en la "
+        "boca del Infierno. El público se movía o rodeaba la acción. Este "
+        "teatro perdura hasta que la **Reforma** y la **Contrarreforma**, por "
+        "motivos opuestos, empiezan a prohibirlo en el siglo XVI.",
+    ],
+    verTambien=["wiki-teatro-renacimiento", "wiki-historia-medieval", "wiki-teatro-roma",
+                "wiki-historia-musica-sacra"],
+    fuentes=[W("Wikipedia (ES) — Teatro medieval",
+               "https://es.wikipedia.org/wiki/Teatro_medieval"),
+             W("Wikipedia (EN) — Medieval theatre",
+               "https://en.wikipedia.org/wiki/Medieval_theatre"),
+             F_BROCKETT],
+),
+
+"wiki-teatro-renacimiento": dict(
+    resumen="Entre 1550 y 1680 el teatro se profesionaliza: la commedia "
+            "dell'arte italiana, el teatro isabelino de Shakespeare y el "
+            "Siglo de Oro español de Lope y Calderón.",
+    cuerpo=[
+        "En poco más de un siglo, el teatro europeo pasa de ser "
+        "entretenimiento ocasional a **profesión**: compañías estables, "
+        "edificios dedicados, un público de pago diario y dramaturgos que "
+        "viven de escribir.",
+
+        "## Italia: la commedia dell'arte",
+        "Compañías ambulantes (documentadas desde 1545) que **improvisan** "
+        "sobre un ***canovaccio*** (un guion esquemático) a partir de "
+        "**personajes fijos** enmascarados: **Arlecchino** (criado astuto y "
+        "hambriento), **Pantalone** (viejo avaro), **il Dottore** (pedante "
+        "boloñés), **il Capitano** (soldado fanfarrón), y los ***innamorati*** "
+        "(los jóvenes enamorados, sin máscara). Cada actor se especializaba de "
+        "por vida en un tipo y acumulaba ***lazzi*** (gags) y parlamentos. Fue "
+        "de las primeras en admitir **actrices**. Su huella llega a Molière, "
+        "la pantomima, el circo y el cine mudo. En paralelo, la Italia culta "
+        "inventa el **teatro a la italiana** (sala cerrada, arco de "
+        "proscenio, perspectiva pintada, maquinaria) que se impondrá en toda "
+        "Europa.",
+
+        "## Inglaterra: el teatro isabelino",
+        "En el Londres de Isabel I y Jacobo I, compañías profesionales bajo "
+        "patrocinio nobiliario actúan en **teatros públicos** al aire libre "
+        "(**The Globe**, The Rose): planta poligonal, escenario que **avanza** "
+        "sobre un patio donde el público está **de pie** (*groundlings*), "
+        "galerías cubiertas, **luz natural**, apenas decorado —la palabra crea "
+        "el lugar—, papeles femeninos a cargo de **chicos**. **Christopher "
+        "Marlowe** («Fausto») abre el camino; **William Shakespeare** escribe "
+        "allí tragedias («Hamlet», «Macbeth», «El rey Lear», «Otelo»), "
+        "comedias, «historias» y romances, con verso blanco flexible y una "
+        "profundidad de personaje nueva; **Ben Jonson** cultiva la comedia "
+        "satírica.",
+
+        "## España: el Siglo de Oro",
+        "Los **corrales de comedias** —patios de vecinos adaptados, con el "
+        "público segregado por sexo y clase, la *cazuela* de las mujeres, los "
+        "*mosqueteros* de pie— programan a diario. **Lope de Vega** fija en "
+        "«Arte nuevo de hacer comedias» (1609) la **comedia nueva**: tres "
+        "actos (*jornadas*), mezcla deliberada de lo trágico y lo cómico, "
+        "polimetría (cada estrofa para una situación), el **gracioso** como "
+        "contrapunto, temas de honor y de amor; escribió cientos de obras "
+        "(«Fuenteovejuna», «El perro del hortelano»). **Tirso de Molina** crea "
+        "el mito de **Don Juan** («El burlador de Sevilla»). **Calderón de la "
+        "Barca** lleva el género a su forma más filosófica y simbólica («La "
+        "vida es sueño», «El gran teatro del mundo») y perfecciona el auto "
+        "sacramental.",
+    ],
+    verTambien=["wiki-teatro-neoclasico", "wiki-historia-renacimiento", "wiki-teatro-medieval",
+                "wiki-teatro-mundo", "wiki-historia-espana"],
+    fuentes=[W("Wikipedia (ES) — Teatro isabelino",
+               "https://es.wikipedia.org/wiki/Teatro_isabelino"),
+             W("Wikipedia (ES) — Teatro español del Siglo de Oro",
+               "https://es.wikipedia.org/wiki/Teatro_espa%C3%B1ol_del_Siglo_de_Oro"),
+             F_BROCKETT],
+),
+
+"wiki-teatro-neoclasico": dict(
+    resumen="La Francia del siglo XVII impone el orden, el decoro y una "
+            "lectura estricta de Aristóteles: las tres unidades, la "
+            "separación de géneros y las tragedias de Corneille y Racine "
+            "frente a la comedia de Molière.",
+    cuerpo=[
+        "El **clasicismo** o neoclasicismo teatral francés (siglo XVII) es "
+        "una reacción de **orden** frente a la libertad del teatro isabelino y "
+        "del Siglo de Oro. Sus reglas, deducidas de una lectura rígida de "
+        "Aristóteles y Horacio por los teóricos italianos y luego franceses, "
+        "dominarán la escena «seria» europea hasta el Romanticismo.",
+
+        "## Las reglas",
+        "**Las tres unidades**: una sola **acción** principal, en un solo "
+        "**lugar**, dentro de un solo **día** (24 horas). **Separación de "
+        "géneros**: la tragedia y la comedia no se mezclan; nada de "
+        "graciosos en una tragedia. **Decoro** (*bienséance*): no se muestran "
+        "en escena la violencia, la muerte ni lo grosero —se **narran** "
+        "(la famosa *récit de Théramène* que cuenta la muerte de Hipólito en "
+        "«Fedra»)—. **Verosimilitud** (*vraisemblance*): lo representado debe "
+        "ser creíble y moralmente ejemplar. Verso alejandrino, cinco actos.",
+
+        "## Corneille y Racine",
+        "**Pierre Corneille** («El Cid», 1637) desata la primera gran "
+        "polémica —la *Querelle du Cid*— por saltarse las unidades; luego se "
+        "adapta («Horacio», «Cinna»). Sus héroes eligen entre el deber y la "
+        "pasión con voluntad de hierro. **Jean Racine** («Andrómaca», "
+        "«Fedra», «Británico») lleva la tragedia a su forma más pura y "
+        "concentrada: pocos personajes, acción mínima, y una fatalidad "
+        "interior —el deseo— que arrasa a figuras que no pueden evitarlo. Su "
+        "verso es de una musicalidad insuperada en francés.",
+
+        "## Molière",
+        "**Jean-Baptiste Poquelin, «Molière»**, actor, director y autor, "
+        "domina la **comedia**: de costumbres y de carácter, en la que un "
+        "**vicio o una manía** (la hipocresía en «Tartufo», la avaricia en "
+        "«El avaro», la misantropía en «El misántropo», la pedantería en «Las "
+        "mujeres sabias», la hipocondría en «El enfermo imaginario») organiza "
+        "toda la trama. Combina la herencia de Plauto y la ***commedia "
+        "dell'arte*** con una observación social afilada; «Tartufo» fue "
+        "prohibida cinco años por presión de los devotos.",
+
+        "## Institución y legado",
+        "En **1680**, Luis XIV fusiona las compañías rivales en la "
+        "**Comédie-Française**, la compañía nacional en activo más antigua del "
+        "mundo (apodada «la Casa de Molière»). El modelo francés se **exporta** "
+        "a casi toda Europa en el siglo XVIII; el Romanticismo, medio siglo "
+        "después, hará de romper sus reglas una bandera.",
+    ],
+    verTambien=["wiki-teatro-18-19", "wiki-teatro-grecia", "wiki-teatro-renacimiento",
+                "wiki-teatro-generos"],
+    fuentes=[W("Wikipedia (ES) — Clasicismo francés",
+               "https://es.wikipedia.org/wiki/Clasicismo"),
+             W("Wikipedia (EN) — Neoclassicism (theatre)",
+               "https://en.wikipedia.org/wiki/Neoclassicism"),
+             F_BROCKETT],
+),
+
+"wiki-teatro-18-19": dict(
+    resumen="La Ilustración y el drama burgués, la reforma de Goldoni, el "
+            "melodrama popular, el drama romántico que rompe las unidades, y "
+            "la aparición del director de escena.",
+    cuerpo=[
+        "Entre el clasicismo y el teatro moderno, el siglo XVIII y buena "
+        "parte del XIX ensanchan el público, mezclan de nuevo los géneros y, "
+        "al final del recorrido, inventan la figura que organizará todo el "
+        "teatro contemporáneo: el **director**.",
+
+        "## El siglo XVIII: drama burgués y reforma",
+        "**Diderot** teoriza el ***drame bourgeois***: un género intermedio, "
+        "serio pero no aristocrático, sobre familias y oficios corrientes, con "
+        "lenguaje en prosa. En Inglaterra triunfa la **comedia sentimental** "
+        "y, como reacción, la comedia de costumbres de **Sheridan** («La "
+        "escuela del escándalo»). En Italia, **Carlo Goldoni** reforma la "
+        "***commedia dell'arte***: sustituye la improvisación y las máscaras "
+        "por **textos escritos** y personajes de carne y hueso («La "
+        "posadera»), en polémica con Carlo Gozzi, que defiende lo fantástico "
+        "(«Turandot»). En Alemania, el ***Sturm und Drang*** y luego el "
+        "**clasicismo de Weimar** (Goethe, Schiller).",
+
+        "## El siglo XIX: el melodrama",
+        "El **melodrama** (literalmente «drama con música») es el gran género "
+        "**popular** del XIX: música que subraya la emoción, efectos "
+        "escénicos espectaculares (incendios, inundaciones, trenes), "
+        "**buenos y malos** nítidos, virtud perseguida y premiada. Nace en la "
+        "Francia posrevolucionaria y llena teatros enormes de nuevo público "
+        "urbano. Su maquinaria y su sentimentalismo pasan directamente al "
+        "**cine**.",
+
+        "## El drama romántico",
+        "El Romanticismo hace de **romper las unidades** neoclásicas un "
+        "manifiesto. El «prefacio de Cromwell» de **Victor Hugo** (1827) "
+        "reivindica mezclar lo sublime y lo grotesco; el estreno de su "
+        "«**Hernani**» (1830) acaba en batalla campal entre clásicos y "
+        "románticos. En España, «**Don Álvaro o la fuerza del sino**» del "
+        "Duque de Rivas (1835) y «**Don Juan Tenorio**» de Zorrilla (1844).",
+
+        "## Nace el director de escena",
+        "Hasta entonces, la «puesta en escena» la improvisaban el primer "
+        "actor y el apuntador. A partir de 1870, la compañía del **duque "
+        "Jorge II de Sajonia-Meiningen** gira por Europa con una idea nueva: "
+        "**una sola mano artística** coordina interpretación, decorado "
+        "histórico riguroso, luz, vestuario y —su especialidad— las **escenas "
+        "de multitudes**, con cada figurante caracterizado. Es el nacimiento "
+        "del **director** como autor de la representación, que André Antoine, "
+        "Stanislavski y todo el siglo XX llevarán al centro.",
+    ],
+    verTambien=["wiki-teatro-realismo", "wiki-teatro-neoclasico", "wiki-historia-romanticismo",
+                "wiki-teatro-oficios", "wiki-tm-antecedentes"],
+    fuentes=[W("Wikipedia (ES) — Melodrama",
+               "https://es.wikipedia.org/wiki/Melodrama"),
+             W("Wikipedia (EN) — Theatre director",
+               "https://en.wikipedia.org/wiki/Theatre_director"),
+             F_BROCKETT],
+),
+
+"wiki-teatro-realismo": dict(
+    resumen="A finales del siglo XIX el teatro quiere parecerse a la vida y "
+            "discutir sus problemas: el naturalismo, los teatros de arte "
+            "independientes, y Ibsen, Strindberg y Chéjov.",
+    cuerpo=[
+        "Hacia 1880, en reacción contra el melodrama y el drama romántico, un "
+        "movimiento quiere que el teatro **observe la realidad** —social, "
+        "psicológica, cotidiana— con la misma frialdad que la ciencia.",
+
+        "## Naturalismo y teatros de arte",
+        "**Émile Zola** pide un teatro que sea «un trozo de vida» puesto en "
+        "escena, un **experimento** sobre cómo el medio y la herencia "
+        "determinan a las personas. Como los teatros comerciales y la censura "
+        "no lo permiten, nacen **teatros de arte independientes**, por "
+        "suscripción: el **Théâtre Libre** de **André Antoine** en París "
+        "(1887), la **Freie Bühne** de Berlín, el **Independent Theatre** de "
+        "Londres, el **Teatro de Arte de Moscú** (1898). Allí se ensaya la "
+        "**cuarta pared**: la escena como una habitación real a la que le "
+        "falta un muro, y unos actores que actúan «como si nadie mirara».",
+
+        "## Ibsen",
+        "El noruego **Henrik Ibsen** funda el **drama de ideas** moderno: "
+        "conflictos morales y sociales en salones burgueses, con una técnica "
+        "de **relojería** (un secreto del pasado que estalla en el presente). "
+        "«**Casa de muñecas**» (1879) termina con Nora cerrando la puerta al "
+        "abandonar a marido e hijos: un portazo que resonó en toda Europa. "
+        "«Espectros», «Un enemigo del pueblo», «Hedda Gabler», «El pato "
+        "salvaje».",
+
+        "## Strindberg",
+        "El sueco **August Strindberg** lleva el realismo al **campo de "
+        "batalla psicológico** entre hombre y mujer («**La señorita Julia**», "
+        "1888, con un prólogo que es un manifiesto naturalista) y luego lo "
+        "**rompe** hacia lo onírico y fragmentario («El sueño», «La sonata de "
+        "los espectros»), anticipando el expresionismo.",
+
+        "## Chéjov",
+        "El ruso **Antón Chéjov** («La gaviota», «Tío Vania», «Las tres "
+        "hermanas», «El jardín de los cerezos») escribe un teatro en el que "
+        "**«no pasa casi nada»**: la acción está en lo que los personajes "
+        "**callan**, en los deseos frustrados, en el paso del tiempo y la "
+        "decadencia de una clase. Mezcla lo cómico y lo doloroso (él las "
+        "llamaba comedias) y necesita una forma de actuar **de conjunto**, sin "
+        "estrellas, con subtexto. El fracaso del estreno de «La gaviota» y su "
+        "éxito posterior en el Teatro de Arte de Moscú marcan el nacimiento "
+        "del teatro moderno de dirección.",
+    ],
+    verTambien=["wiki-teatro-stanislavski", "wiki-teatro-vanguardias", "wiki-teatro-18-19",
+                "wiki-teatro-oficios"],
+    fuentes=[W("Wikipedia (ES) — Naturalismo (teatro)",
+               "https://es.wikipedia.org/wiki/Naturalismo_(teatro)"),
+             W("Wikipedia (EN) — Naturalism (theatre)",
+               "https://en.wikipedia.org/wiki/Naturalism_(theatre)"),
+             F_BROCKETT],
+),
+
+"wiki-teatro-stanislavski": dict(
+    resumen="El primer método sistemático para construir un personaje «desde "
+            "dentro», su evolución hacia las acciones físicas, y su "
+            "descendencia: el Method estadounidense y las técnicas de Adler y "
+            "Meisner.",
+    cuerpo=[
+        "**Konstantín Stanislavski** (1863-1938), actor, director y "
+        "cofundador del **Teatro de Arte de Moscú** (1898), dedicó cuarenta "
+        "años a elaborar un **«sistema»**: un conjunto de herramientas para "
+        "que el actor **viva** el personaje con verdad, en lugar de solo "
+        "indicarlo con clichés. Fue la primera vez que la interpretación se "
+        "trató como una técnica enseñable y no como un don misterioso.",
+
+        "## El sistema (primera etapa)",
+        "Herramientas centrales: el **«si mágico»** (¿qué haría *yo* **si** "
+        "estuviera en estas circunstancias?), las **circunstancias dadas** "
+        "(todo lo que la obra establece sobre el personaje y su situación), "
+        "el **objetivo** de cada escena (qué quiere el personaje, formulado "
+        "como un verbo activo) y el **superobjetivo** de toda la obra, la "
+        "**acción a través** (la línea de deseo que recorre el papel de "
+        "principio a fin), la **concentración** («círculos de atención»), la "
+        "**relajación** muscular, la **fe escénica** y —en esta etapa— la "
+        "**memoria emotiva** (revivir una emoción propia análoga a la del "
+        "personaje).",
+
+        "## El giro: las acciones físicas",
+        "En sus últimos años, Stanislavski desconfió de excavar directamente "
+        "en la emoción (agotador y poco fiable) y desarrolló el **método de "
+        "las acciones físicas**: si el actor **ejecuta con verdad** una "
+        "secuencia de acciones concretas y bien definidas, la emoción "
+        "**aparece sola**, como consecuencia. Es su versión más madura y la "
+        "que defienden hoy la mayoría de sus herederos.",
+
+        "## La descendencia estadounidense",
+        "Discípulos que pasaron por el Group Theatre de Nueva York derivaron "
+        "el sistema en varias direcciones. **Lee Strasberg** (Actors Studio) "
+        "subrayó la **memoria emotiva** y la experiencia personal: es el "
+        "«**Method**» más conocido (Brando, De Niro, Pacino). **Stella "
+        "Adler** —que estudió con el propio Stanislavski— reaccionó poniendo "
+        "el foco en la **imaginación** y las circunstancias, no en los "
+        "traumas del actor. **Sanford Meisner** centró su técnica en la "
+        "**escucha y la reacción reales** con el compañero («la realidad del "
+        "hacer»). Casi toda la formación actoral occidental moderna desciende "
+        "de esta familia, junto a corrientes «externas» (Michael Chéjov, "
+        "Grotowski, Lecoq) que trabajan del cuerpo hacia dentro.",
+    ],
+    verTambien=["wiki-teatro-realismo", "wiki-teatro-oficios", "wiki-teatro-vanguardias",
+                "wiki-tm-roles"],
+    fuentes=[W("Wikipedia (ES) — Sistema Stanislavski",
+               "https://es.wikipedia.org/wiki/Sistema_Stanislavski"),
+             W("Wikipedia (EN) — Method acting",
+               "https://en.wikipedia.org/wiki/Method_acting"),
+             LIBRO("Konstantín Stanislavski, «El trabajo del actor sobre sí mismo»")],
+),
+
+"wiki-teatro-vanguardias": dict(
+    resumen="Frente al realismo, tres rupturas del siglo XX que redefinen "
+            "para qué sirve el teatro: la biomecánica de Meyerhold, el teatro "
+            "épico de Brecht y el teatro de la crueldad de Artaud.",
+    cuerpo=[
+        "Apenas consolidado el teatro realista, las primeras vanguardias del "
+        "siglo XX lo rechazan por distintos motivos y proponen teatros "
+        "**abiertamente teatrales**, que no imitan un salón sino que exhiben "
+        "sus propios medios.",
+
+        "## Meyerhold y la biomecánica",
+        "**Vsévolod Meyerhold**, discípulo díscolo de Stanislavski, rechaza el "
+        "psicologismo y el decorado naturalista. Concibe la escena como una "
+        "**máquina** (construcciones abstractas, andamios) y entrena al actor "
+        "como a un **atleta o un acróbata**: la **biomecánica**, una serie de "
+        "estudios de movimiento del que la emoción se deduce hacia fuera "
+        "(«de la postura al sentimiento»). Fue perseguido y **ejecutado** por "
+        "el estalinismo en 1940.",
+
+        "## Brecht y el teatro épico",
+        "**Bertolt Brecht** quiere un teatro que **haga pensar y actuar**, no "
+        "que hipnotice con la identificación emocional. Su herramienta es el "
+        "**efecto de distanciamiento** (*Verfremdungseffekt*): **romper la "
+        "ilusión** para que el espectador mire la escena con distancia "
+        "crítica, como algo **histórico y cambiable**, no natural y eterno. "
+        "Recursos: **canciones** (*songs*) que interrumpen la trama, "
+        "**carteles** que anuncian lo que va a pasar (se elimina el "
+        "suspense), luz **visible**, cambios de decorado a la vista, un actor "
+        "que **muestra** al personaje en tercera persona en lugar de "
+        "«ser»lo. Obras: «Madre Coraje y sus hijos», «La ópera de tres "
+        "centavos» (con música de Kurt Weill), «El círculo de tiza "
+        "caucasiano», «Vida de Galileo».",
+
+        "## Artaud y el teatro de la crueldad",
+        "En el extremo opuesto a Brecht, **Antonin Artaud** sueña con un "
+        "teatro **físico, ritual y sensorial** que actúe sobre los nervios "
+        "del espectador **por debajo del lenguaje y de la psicología**, como "
+        "una peste o un exorcismo (de ahí «crueldad»: rigor, necesidad, no "
+        "sangre). Apenas lo llevó a escena, pero su libro «**El teatro y su "
+        "doble**» (1938) es la biblia del **teatro experimental** posterior: "
+        "Grotowski, el Living Theatre, Peter Brook, Bob Wilson.",
+
+        "## En paralelo",
+        "**Erwin Piscator** desarrolla el **teatro político y documental** "
+        "(proyecciones, datos, montaje). El **expresionismo** alemán lleva a "
+        "escena estados de alma deformados. El **futurismo**, el **dadá** y el "
+        "**surrealismo** hacen del escenario un lugar de provocación y "
+        "*collage*.",
+    ],
+    verTambien=["wiki-teatro-absurdo", "wiki-teatro-stanislavski", "wiki-teatro-realismo",
+                "wiki-teatro-aplicado", "wiki-tm-rock-y-cambio"],
+    fuentes=[W("Wikipedia (ES) — Teatro épico",
+               "https://es.wikipedia.org/wiki/Teatro_%C3%A9pico"),
+             W("Wikipedia (EN) — Theatre of Cruelty",
+               "https://en.wikipedia.org/wiki/Theatre_of_Cruelty"),
+             F_BROCKETT],
+),
+
+"wiki-teatro-absurdo": dict(
+    resumen="Tras 1945, un teatro que pone en escena el sinsentido de la "
+            "existencia con lógica de pesadilla, y la explosión de "
+            "experimentación de la segunda mitad del siglo XX.",
+    cuerpo=[
+        "El crítico **Martin Esslin** acuñó en 1961 la etiqueta «**teatro del "
+        "absurdo**» para un grupo de autores que, sin formar escuela ni "
+        "conocerse siempre, coincidían en **dramatizar la falta de sentido** "
+        "de la existencia. Esslin tomó «lo absurdo» de «El mito de Sísifo» de "
+        "**Camus**: la desproporción entre la necesidad humana de sentido y "
+        "el silencio del mundo.",
+
+        "## Rasgos",
+        "Situaciones **circulares** o estancadas (nada avanza, nada se "
+        "resuelve), **lenguaje** que se vacía y se descompone en tópicos, "
+        "personajes sin biografía clara ni motivación, tiempo y espacio "
+        "**indeterminados**, humor **negro**. La forma **es** el contenido: la "
+        "estructura rota expresa un mundo roto.",
+
+        "## Los autores",
+        "**Samuel Beckett**: «**Esperando a Godot**» (1953) —dos vagabundos "
+        "esperan junto a un árbol a alguien que nunca llega—, «Final de "
+        "partida», «Los días felices». **Eugène Ionesco**: «La cantante "
+        "calva» (nació de las frases de un manual de inglés), «La lección», "
+        "«Rinoceronte» (una alegoría del ascenso del fascismo). **Jean "
+        "Genet** («Las criadas», «El balcón»), **Arthur Adamov**, y en "
+        "Inglaterra **Harold Pinter**, cuyo «*comedy of menace*» —silencios, "
+        "amenaza latente en una habitación cerrada— dio el adjetivo "
+        "«pinteresco».",
+
+        "## Otras corrientes de posguerra",
+        "**Jerzy Grotowski** y el **«teatro pobre»**: renunciar al decorado, "
+        "el vestuario, la luz y hasta el texto para concentrarlo todo en la "
+        "relación **actor-espectador** y en un entrenamiento físico y vocal "
+        "extremo. **Peter Brook** busca el **«espacio vacío»** y un teatro "
+        "**intercultural** («El Mahabharata»). El **Living Theatre** "
+        "(Beck/Malina) y el **Bread and Puppet** llevan el teatro a la calle "
+        "y a la protesta pacifista. Aparecen el ***happening***, la "
+        "**performance**, el **teatro-documento** (Peter Weiss), y más tarde "
+        "el **teatro posdramático** (Lehmann): sin trama ni personaje, hecho "
+        "de imágenes, tiempo real y presencia (Bob Wilson, la Societas "
+        "Raffaello Sanzio, Forced Entertainment).",
+    ],
+    verTambien=["wiki-teatro-vanguardias", "wiki-teatro-generos", "wiki-teatro-latinoamerica",
+                "wiki-teatro-que-es"],
+    fuentes=[W("Wikipedia (ES) — Teatro del absurdo",
+               "https://es.wikipedia.org/wiki/Teatro_del_absurdo"),
+             W("Wikipedia (EN) — Theatre of the Absurd",
+               "https://en.wikipedia.org/wiki/Theatre_of_the_Absurd"),
+             LIBRO("Martin Esslin, «El teatro del absurdo»")],
+),
+
+"wiki-teatro-generos": dict(
+    resumen="Las grandes familias en que se clasifican las obras —tragedia, "
+            "comedia y las formas intermedias— y las formas breves y "
+            "populares de cada tradición.",
+    cuerpo=[
+        "Los **géneros dramáticos** son las grandes cajas en las que se "
+        "clasifican las obras según su **tono**, la clase de **conflicto** que "
+        "plantean y cómo **terminan**. Son una guía, no una ley: muchas obras "
+        "mezclan varios a propósito, y cada época ha reajustado las etiquetas.",
+
+        "## Tragedia",
+        "Un protagonista de cierta **talla** (moral, social o simbólica) se "
+        "enfrenta a un conflicto —un destino, una ley, una pasión, una "
+        "contradicción— que lo **destruye**. Busca la **compasión y el "
+        "temor** y, según Aristóteles, la **catarsis**. La caída suele venir "
+        "de un error de juicio (*hamartía*) más que de una maldad. Modelos: "
+        "la tragedia ática, la senequista, la isabelina, la raciniana, y "
+        "reformulaciones modernas (la «tragedia del hombre común» de Arthur "
+        "Miller en «Muerte de un viajante»).",
+
+        "## Comedia",
+        "Personajes **corrientes**, enredo, obstáculos que se superan y "
+        "**final feliz** (a menudo una boda o una reconciliación). Se ríe de "
+        "los **defectos** humanos y de la sociedad. Variedades: comedia de "
+        "**enredo** o de **situación**, de **costumbres** (retrata una "
+        "sociedad), de **carácter** (un vicio domina a un personaje: el avaro, "
+        "el hipócrita), **satírica**, **sentimental**, **negra**.",
+
+        "## Las formas intermedias",
+        "La **tragicomedia** y el **drama** (o «pieza», «drama moderno») "
+        "**mezclan tonos** y tratan conflictos serios **sin desenlace "
+        "necesariamente fatal**: es el territorio de casi todo el teatro "
+        "moderno, de Ibsen y Chéjov en adelante. El **auto sacramental** "
+        "(alegórico, religioso) y la **pieza histórica** son géneros aparte "
+        "por su materia.",
+
+        "## Formas menores y populares",
+        "**Farsa**: comicidad exagerada, casi física, lógica disparatada. "
+        "**Melodrama**: emoción fuerte, moral simple, a menudo con música. Y "
+        "las **piezas breves cómicas** de cada tradición, que solían "
+        "representarse entre los actos de una obra larga: el **entremés** y el "
+        "**sainete** españoles, el ***vaudeville*** francés, el *interlude* "
+        "inglés, la ***farsa*** rioplatense, el ***petit comité***. De ahí "
+        "beben el music hall, la revista y buena parte de la comedia "
+        "televisiva.",
+    ],
+    verTambien=["wiki-teatro-grecia", "wiki-teatro-neoclasico", "wiki-teatro-absurdo",
+                "wiki-tm-que-es", "wiki-teatro-estructura-espacio"],
+    fuentes=[W("Wikipedia (ES) — Género dramático",
+               "https://es.wikipedia.org/wiki/G%C3%A9nero_dram%C3%A1tico"),
+             W("Wikipedia (EN) — Drama",
+               "https://en.wikipedia.org/wiki/Drama"),
+             F_PAVIS],
+),
+
+"wiki-teatro-oficios": dict(
+    resumen="Quién hace qué para que una función exista: el equipo de "
+            "creación (dirección, dramaturgia, interpretación, diseños) y el "
+            "equipo técnico y de producción que la sostiene.",
+    cuerpo=[
+        "El teatro es un arte **profundamente colectivo**: una función es el "
+        "resultado del trabajo coordinado de decenas de personas con oficios "
+        "muy distintos. Estos son los principales.",
+
+        "## El núcleo creativo",
+        "**Dramaturgia**: en sentido estricto, escribir el **texto**; en "
+        "sentido amplio (el *Dramaturg* alemán), el trabajo de mesa sobre el "
+        "sentido, la estructura y el contexto de la obra, y a veces la "
+        "**dramaturgia de la puesta** (qué se cuenta y cómo, más allá del "
+        "texto). **Dirección**: la mirada que **unifica** todas las "
+        "decisiones, propone una lectura de la obra y guía a los intérpretes. "
+        "**Interpretación**: los actores y actrices que **encarnan** la "
+        "acción; a veces un ***coach*** o asistente de dirección los apoya.",
+
+        "## El equipo de diseño",
+        "**Escenografía** (el espacio, la arquitectura escénica y los "
+        "objetos), **iluminación** (crea el tiempo, el foco, la atmósfera y "
+        "modela los cuerpos), **vestuario** y **caracterización** (maquillaje, "
+        "peluquería, máscaras, prótesis), **diseño de sonido** y **música** "
+        "(composición o selección, espacialización, refuerzo), y, en obras "
+        "con movimiento, **coreografía**. En producciones grandes hay también "
+        "**diseño de vídeo** y **dirección técnica**.",
+
+        "## El equipo que sostiene la función",
+        "**Producción**: consigue y administra los recursos (presupuesto, "
+        "contratos, gira, permisos). **Regiduría** (*stage manager*): la "
+        "figura clave durante las funciones; «canta» las entradas de luz, "
+        "sonido, vídeo, maquinaria y actores desde el libro de dirección, y "
+        "**garantiza que cada función sea igual** a la aprobada en el "
+        "estreno. **Maquinaria** (montaje y cambios de decorado), "
+        "**utilería** (los objetos que se manipulan), **sastrería**, "
+        "**caracterización de función**, **eléctricos** y **técnicos de "
+        "sonido**, **acomodación** y **taquilla**. Cada eslabón que falla se "
+        "nota desde la butaca.",
+    ],
+    verTambien=["wiki-teatro-estructura-espacio", "wiki-tm-roles", "wiki-teatro-que-es",
+                "wiki-teatro-stanislavski", "wiki-prod-directo"],
+    fuentes=[W("Wikipedia (ES) — Puesta en escena",
+               "https://es.wikipedia.org/wiki/Puesta_en_escena"),
+             W("Wikipedia (EN) — Stage management",
+               "https://en.wikipedia.org/wiki/Stage_management"),
+             F_PAVIS],
+),
+
+"wiki-teatro-estructura-espacio": dict(
+    resumen="Cómo se organiza una obra por dentro —actos, escenas, formas de "
+            "diálogo, arco dramático— y qué formas puede adoptar la sala.",
+    cuerpo=[
+        "Un texto dramático y el espacio en que se representa tienen cada uno "
+        "su gramática. Conocerlas ayuda a leer una obra y a entender por qué "
+        "un mismo texto cambia tanto según dónde se monte.",
+
+        "## Las divisiones del texto",
+        "**Acto**: gran bloque de la obra, a menudo separado por un descanso; "
+        "las tragedias neoclásicas tienen cinco, muchas obras modernas dos o "
+        "uno solo. **Escena**: unidad menor, marcada tradicionalmente por la "
+        "**entrada o salida** de un personaje (escena «a la francesa») o por "
+        "un cambio de situación. **Cuadro**: cambio de **lugar o de tiempo** "
+        "dentro de un acto.",
+
+        "## Las formas del habla escénica",
+        "**Diálogo** (la base), **monólogo** (un personaje solo, o dirigido a "
+        "otros, piensa en voz alta), **soliloquio** (a solas, se confiesa al "
+        "público: el «ser o no ser»), **aparte** (un comentario breve que el "
+        "público oye pero los demás personajes «no»), **voz en off**, y las "
+        "**acotaciones** (didascalias): las indicaciones del autor sobre "
+        "acción, espacio, tiempo, tono y movimiento, que no se dicen pero "
+        "condicionan la puesta.",
+
+        "## El arco dramático",
+        "El modelo clásico —**planteamiento, nudo, desenlace**— se detalla en "
+        "el esquema de Freytag (exposición, incidente incitador, ascenso, "
+        "clímax, caída, catástrofe/resolución). Muchas obras modernas lo "
+        "**rompen** a propósito: estructura **episódica** (Brecht), "
+        "**circular** (el absurdo), **simultánea** (varias acciones a la "
+        "vez), **fragmentaria** o **de estaciones** (el expresionismo).",
+
+        "## Tipos de espacio escénico",
+        "**A la italiana**: sala frontal, **arco de proscenio** que enmarca la "
+        "escena como un cuadro, **cuarta pared**, maquinaria oculta; el modelo "
+        "dominante desde el Barroco. **De tres frentes** (*thrust*): el "
+        "escenario **avanza** y el público lo rodea por tres lados (el "
+        "isabelino, muchos festivales). **Arena** o **circular**: público a "
+        "los **cuatro** lados; máxima cercanía, ningún «detrás». **Black "
+        "box**: sala negra, neutra y **reconfigurable** en cada montaje. Y el "
+        "**teatro de calle** y el **de sitio específico** (*site-specific*), "
+        "que usan espacios no teatrales —una fábrica, una casa, un bosque— "
+        "como parte del sentido.",
+    ],
+    verTambien=["wiki-teatro-oficios", "wiki-teatro-que-es", "wiki-teatro-generos",
+                "wiki-teatro-dramatologia", "wiki-teoria-formas"],
+    fuentes=[W("Wikipedia (ES) — Texto dramático",
+               "https://es.wikipedia.org/wiki/Texto_dram%C3%A1tico"),
+             W("Wikipedia (EN) — Stage (theatre)",
+               "https://en.wikipedia.org/wiki/Stage_(theatre)"),
+             F_PAVIS],
+),
+
+"wiki-teatro-mundo": dict(
+    resumen="Grandes tradiciones escénicas de Asia con siglos de continuidad: "
+            "el Noh y el Kabuki japoneses, la ópera de Pekín, el teatro "
+            "sánscrito y el Kathakali, y el wayang kulit indonesio.",
+    cuerpo=[
+        "Fuera de la tradición grecolatina existen sistemas teatrales "
+        "**completos y antiquísimos**, con su propia teoría, su "
+        "entrenamiento y una transmisión a menudo **familiar**, de maestro a "
+        "discípulo, durante generaciones. Casi todos integran de forma "
+        "inseparable **texto, música, canto y danza**.",
+
+        "## Japón: Noh, Kyōgen, Kabuki, Bunraku",
+        "El **Noh** (desde el siglo XIV; teorizado por **Zeami**) es lento, "
+        "**musical y simbólico**: un actor principal (*shite*), a menudo un "
+        "**espíritu** o un fantasma, con **máscara**, avanza a pasos "
+        "deslizantes por un escenario de madera fijo, acompañado por un coro y "
+        "una pequeña orquesta de flauta y tambores; el tiempo se dilata. Entre "
+        "obras de Noh se representan **Kyōgen**, farsas habladas. El "
+        "**Kabuki** (siglo XVII) es su contrapartida **popular**: colorista, "
+        "espectacular, con maquillaje codificado (*kumadori*), poses "
+        "congeladas (*mie*), giros de escenario, y el ***hanamichi***, una "
+        "pasarela que cruza la platea. El **Bunraku** es teatro de "
+        "**marionetas** de casi un metro, manejadas a la vista por tres "
+        "titiriteros, con un recitador y un *shamisen*.",
+
+        "## China: la ópera de Pekín",
+        "La ***jingju*** (siglo XIX, con raíces muy anteriores) combina "
+        "**canto, recitado, mímica, acrobacia y artes marciales**. Los "
+        "papeles se reparten en cuatro tipos fijos (*sheng* varón, *dan* "
+        "mujer, *jing* rostro pintado, *chou* cómico), con **maquillajes "
+        "codificados** por colores (rojo = lealtad, blanco = perfidia) y un "
+        "vestuario y unos gestos que **significan** (una fusta = ir a "
+        "caballo; caminar en círculo = un largo viaje).",
+
+        "## India y el sudeste asiático",
+        "El **teatro sánscrito** clásico se rige por el ***Nāṭya Śāstra*** "
+        "(entre el 200 a. C. y el 200 d. C.), tratado enciclopédico que "
+        "expone la teoría del ***rasa***: los «sabores» o emociones estéticas "
+        "(amoroso, cómico, heroico, terrible, compasivo…) que la obra debe "
+        "despertar. El **Kathakali** de Kerala es **teatro-danza** con "
+        "maquillaje escultórico, un lenguaje de gestos de manos (*mudrās*) y "
+        "expresiones faciales muy entrenadas. En Indonesia, el ***wayang "
+        "kulit*** es **teatro de sombras** con figuras de cuero recortado que "
+        "un solo titiritero (*dalang*) maneja y hace hablar toda la noche, "
+        "acompañado por **gamelán**.",
+    ],
+    verTambien=["wiki-historia-mundo", "wiki-teatro-renacimiento", "wiki-historia-mundo-2",
+                "wiki-teatro-que-es"],
+    fuentes=[W("Wikipedia (ES) — Nō", "https://es.wikipedia.org/wiki/N%C5%8D"),
+             W("Wikipedia (EN) — Chinese opera",
+               "https://en.wikipedia.org/wiki/Chinese_opera"),
+             F_BROCKETT],
+),
+
+"wiki-teatro-latinoamerica": dict(
+    resumen="De las representaciones coloniales de evangelización al teatro de "
+            "creación colectiva y de compromiso de los años 60-70 y a la "
+            "escena de autor contemporánea.",
+    cuerpo=[
+        "El teatro en América Latina se construyó, como su música, sobre el "
+        "**cruce** de lo indígena, lo europeo y lo africano, y ha tenido una "
+        "vocación **social y política** especialmente marcada.",
+
+        "## La Colonia",
+        "Convivieron el **teatro evangelizador** —autos y «danzas de "
+        "conquista» representados en lenguas indígenas por los frailes para "
+        "catequizar, con un mestizaje de formas prehispánicas y del auto "
+        "medieval— y el **teatro cortesano** de molde español, cuya figura "
+        "mayor es **Sor Juana Inés de la Cruz** en Nueva España (comedias, "
+        "autos y *loas*). En el siglo XIX domina el **costumbrismo**: cuadros "
+        "de tipos y hablas locales, con sátira política.",
+
+        "## El giro del siglo XX",
+        "Primero, el **realismo social** rioplatense (**Florencio Sánchez**, "
+        "«M'hijo el dotor», «Barranca abajo»), el teatro poético mexicano "
+        "(Villaurrutia, Usigli) y el circo criollo. Después, sobre todo en los "
+        "**años 60 y 70**, una oleada de **creación colectiva** y **teatro de "
+        "compromiso**, muchas veces bajo dictaduras y censura: **Enrique "
+        "Buenaventura** y el TEC en Colombia, **Santiago García** y **La "
+        "Candelaria**, **Augusto Boal** y el Teatro del Oprimido en Brasil, el "
+        "**Teatro Campesino** chicano de **Luis Valdez** en California, el "
+        "**Galpón** uruguayo, **Vicente Leñero** y el teatro documental "
+        "mexicano.",
+
+        "## Hoy",
+        "Conviven una **escena de autor** muy potente (Argentina —Spregelburd, "
+        "Tantanian, el «teatro de la desintegración»—, México, Chile, "
+        "Uruguay), el **teatro comunitario**, el **teatro indígena**, la "
+        "**performance** y las grandes producciones comerciales y musicales. "
+        "**Redes e institutos públicos** —como el **Instituto Nacional del "
+        "Teatro** argentino y su editorial **Inteatro**, o los festivales de "
+        "Manizales, Cádiz (FIT) y Buenos Aires— sostienen buena parte de la "
+        "actividad y la circulación entre países.",
+    ],
+    verTambien=["wiki-teatro-etnico-popular", "wiki-teatro-aplicado", "wiki-teatro-hispanoamerica-xix",
+                "wiki-historia-latinoamerica", "wiki-teatro-dramatologia"],
+    fuentes=[W("Wikipedia (ES) — Teatro latinoamericano",
+               "https://es.wikipedia.org/wiki/Teatro_latinoamericano"),
+             W("Wikipedia (EN) — Latin American theatre",
+               "https://en.wikipedia.org/wiki/Latin_American_theatre"),
+             F_BROCKETT],
+),
+
+"wiki-teatro-hispanoamerica-xix": dict(
+    resumen="Tras la Independencia, el teatro busca reflejar y discutir la "
+            "sociedad criolla naciente: costumbrismo, sátira política, circo "
+            "criollo y el nacimiento del sainete.",
+    cuerpo=[
+        "En el siglo XIX, ya rotas las estructuras coloniales, el teatro de "
+        "las nuevas repúblicas hispanoamericanas se convierte en un espacio "
+        "para **imaginar y discutir** qué es cada nación. Está muy ligado a la "
+        "**prensa**, a la **política** y a la formación de un público urbano.",
+
+        "## El costumbrismo",
+        "El género dominante en la primera mitad del siglo: **cuadros de "
+        "tipos y costumbres** locales, con **lenguaje popular**, y **sátira** "
+        "de la política, las modas afrancesadas y las tensiones entre lo "
+        "criollo y lo importado. En **Perú**, **Manuel Ascensio Segura** («Ña "
+        "Catita», «Un juguete») y **Felipe Pardo y Aliaga** —de posición más "
+        "conservadora— son las figuras centrales. En **México**, José "
+        "Joaquín Fernández de Lizardi y, más tarde, el teatro romántico e "
+        "histórico.",
+
+        "## El Río de la Plata: circo y gauchesca",
+        "En Argentina y Uruguay, el **circo criollo** —espectáculo popular "
+        "itinerante— incorpora pantomimas y dramas sobre temas locales. El "
+        "estreno de «**Juan Moreira**» (1884-86), a partir del folletín de "
+        "Eduardo Gutiérrez, sobre un gaucho perseguido por la injusticia, es "
+        "un hito: nace el **drama gauchesco** y, con él, un teatro rioplatense "
+        "con voz propia.",
+
+        "## De la zarzuela al sainete",
+        "Los teatros de las capitales alternan **ópera y zarzuela** "
+        "importadas con obras locales. De ahí surgen la **zarzuela criolla** "
+        "y, a fin de siglo, el **sainete** rioplatense: piezas breves, "
+        "cómicas, **con música**, que retratan el **conventillo** (la casa de "
+        "vecindad), la **inmigración** masiva y el **cocoliche** (el habla "
+        "mezclada de italianos y criollos). Es el germen del **grotesco "
+        "criollo** de Armando Discépolo en el siglo XX.",
+
+        "## Un teatro de país",
+        "El estudio de este repertorio —por ejemplo la antología «**Teatro "
+        "peruano, siglo XIX**» de Pablo Macera y Matilde Torres— muestra hasta "
+        "qué punto ese teatro fue un instrumento de **debate público** y de "
+        "**construcción de identidad nacional**, más que un arte de puro "
+        "entretenimiento.",
+    ],
+    verTambien=["wiki-teatro-latinoamerica", "wiki-tm-espana-latam", "wiki-teatro-generos",
+                "wiki-historia-latinoamerica", "wiki-historia-carlos-vega"],
+    fuentes=[LIBRO("Pablo Macera y Matilde Torres (eds.), «Teatro peruano, siglo XIX»"),
+             W("Wikipedia (ES) — Manuel Ascensio Segura",
+               "https://es.wikipedia.org/wiki/Manuel_Ascensio_Segura"),
+             W("Wikipedia (ES) — Sainete criollo",
+               "https://es.wikipedia.org/wiki/Sainete_criollo")],
+),
+
+"wiki-teatro-aplicado": dict(
+    resumen="Usar las herramientas del teatro fuera del escenario comercial "
+            "para transformar, educar o sanar: el Teatro del Oprimido de "
+            "Boal, el Teatro Playback y el campo de la dramaterapia.",
+    cuerpo=[
+        "El **teatro aplicado** («*applied theatre*») agrupa las prácticas en "
+        "las que el objetivo no es un **espectáculo** para vender entradas, "
+        "sino un **proceso** con un fin social, educativo o terapéutico: "
+        "teatro en escuelas, cárceles, hospitales, barrios, empresas, "
+        "campañas de salud, mediación de conflictos. El público casi siempre "
+        "**participa**, y a menudo desaparece la frontera entre quien actúa y "
+        "quien mira.",
+
+        "## Teatro del Oprimido",
+        "Creado por el brasileño **Augusto Boal** en los años 70, en diálogo "
+        "con la **pedagogía del oprimido** de **Paulo Freire**. Parte de una "
+        "idea: el espectador pasivo es un síntoma de opresión; hay que "
+        "convertirlo en «**espect-actor**». Sus formas: **teatro foro** (se "
+        "representa una escena de opresión que acaba mal; luego se repite y "
+        "**cualquier espectador puede detenerla y sustituir al protagonista** "
+        "para probar otra salida, mientras el resto discute si funcionaría); "
+        "**teatro imagen** (los cuerpos, sin palabras, componen esculturas "
+        "que muestran relaciones de poder y sus posibles cambios); **teatro "
+        "invisible** (una escena ensayada que se representa en un lugar "
+        "público **sin avisar de que es teatro**, para provocar debate real); "
+        "y **teatro legislativo** (Boal fue concejal en Río: convertir las "
+        "propuestas surgidas en el foro en proyectos de ley). El lema: "
+        "**«ensayar la revolución»**, practicar el cambio antes de intentarlo "
+        "fuera.",
+
+        "## Teatro Playback",
+        "Creado por **Jonathan Fox** y **Jo Salas** en Nueva York (1975). Un "
+        "espectador cuenta en voz alta, ante todos, una **experiencia "
+        "personal**; un conductor la recoge, y un grupo de actores y un "
+        "músico la **«devuelven» improvisada en el acto**, con formas "
+        "codificadas (fluidas esculturas, «pares», escenas). Se usa en "
+        "contextos comunitarios, educativos, de duelo y de reconciliación: "
+        "el valor está en que la persona **vea su historia reconocida** por "
+        "el grupo.",
+
+        "## El campo completo",
+        "Junto a estas dos prácticas, el teatro aplicado incluye la "
+        "**dramaterapia** (uso clínico del rol y la representación, con "
+        "formación terapéutica), el **psicodrama** y el **sociodrama** de "
+        "Jacob Moreno, el **teatro en la educación** (*Theatre in "
+        "Education*), el **teatro penitenciario** y el **teatro social** con "
+        "colectivos vulnerables.",
+    ],
+    verTambien=["wiki-teatro-latinoamerica", "wiki-teatro-vanguardias", "wiki-teatro-etnico-popular",
+                "wiki-teatro-que-es"],
+    fuentes=[LIBRO("Tomàs Motos y Domingo Ferrandis, «Teatro aplicado: teatro "
+                   "del oprimido, teatro playback, teatro imagen»"),
+             W("Wikipedia (EN) — Theatre of the Oppressed",
+               "https://en.wikipedia.org/wiki/Theatre_of_the_Oppressed"),
+             W("Wikipedia (EN) — Playback Theatre",
+               "https://en.wikipedia.org/wiki/Playback_Theatre")],
+),
+
+"wiki-teatro-etnico-popular": dict(
+    resumen="Un teatro hecho por y para comunidades, con su lengua, su "
+            "memoria y su cosmovisión: el teatro comunitario argentino y el "
+            "teatro indígena, con la obra de Luisa Calcumil como referencia.",
+    cuerpo=[
+        "Frente al teatro «de sala», culto y urbano, existe en América Latina "
+        "una corriente de teatro **hecho por y para comunidades concretas**, "
+        "que pone en el centro lo que aquel había dejado fuera: la "
+        "**oralidad**, el **canto sagrado**, la relación con la **tierra**, la "
+        "**memoria** del despojo, el humor del mundo rural.",
+
+        "## Teatro comunitario",
+        "Grupos de **vecinos y vecinas** —sin formación actoral previa— que "
+        "crean colectivamente espectáculos sobre **su propia historia** "
+        "(un barrio, un pueblo, una fábrica cerrada). En Argentina se "
+        "multiplicó tras la **crisis de 2001** como forma de reconstruir "
+        "lazos: grupos como Catalinas Sur o el Circuito Cultural Barracas "
+        "montan grandes fiestas escénicas al aire libre con centenares de "
+        "participantes de todas las edades.",
+
+        "## Teatro indígena",
+        "Compañías y creadores de pueblos originarios que trabajan en su "
+        "**lengua**, con sus **formas** (el relato oral, el canto ritual, la "
+        "ceremonia) y sus **temas** (la cosmovisión, el territorio, la "
+        "discriminación, la resistencia). No es folclore para turistas: es "
+        "teatro contemporáneo con raíz propia.",
+
+        "## Luisa Calcumil",
+        "Actriz y dramaturga **mapuche** (Neuquén, Argentina). Su obra "
+        "«**Es bueno mirarse en su propia sombra**» (1987) es un hito del "
+        "teatro indígena latinoamericano: **una sola actriz** encarna a Doña "
+        "Erminda, una anciana mapuche despojada de sus tierras, mezclando "
+        "**castellano rural**, **mapudungun**, **canto** (*tayül*) y "
+        "**memoria**. Otros trabajos: «Hebras» (con Valeria Fidel), «La "
+        "tropilla de Ruperto», «Narangitay». Sus textos **denuncian** el "
+        "despojo («alambraron hasta los ríos») y la discriminación, y a la "
+        "vez **celebran** la dignidad, la ternura y el humor de «la "
+        "paisanada». Ha llevado ese teatro «de los fogones» a escenarios de "
+        "todo el mundo, y su libro reúne varias piezas y reflexiones sobre "
+        "esa práctica.",
+    ],
+    verTambien=["wiki-teatro-latinoamerica", "wiki-teatro-aplicado", "wiki-teatro-mundo",
+                "wiki-historia-latinoamerica"],
+    fuentes=[LIBRO("Luisa Calcumil, «Teatro étnico-popular» (Inteatro, "
+                   "Instituto Nacional del Teatro, Buenos Aires, 2021)"),
+             W("Wikipedia (ES) — Luisa Calcumil",
+               "https://es.wikipedia.org/wiki/Luisa_Calcumil"),
+             W("Wikipedia (ES) — Teatro comunitario",
+               "https://es.wikipedia.org/wiki/Teatro_comunitario")],
+),
+
+"wiki-teatro-dramatologia": dict(
+    resumen="Un método para analizar el teatro **como teatro** y no solo como "
+            "literatura: los tres planos de García Barrientos y sus "
+            "herramientas (distancia representativa, tiempo, espacio y "
+            "personaje dramáticos).",
+    cuerpo=[
+        "Buena parte del análisis teatral tradicional estudia las obras como "
+        "**textos literarios** (temas, personajes, estilo). La "
+        "**dramatología**, propuesta por el teórico español **José Luis "
+        "García Barrientos**, propone en cambio estudiarlas como lo que son: "
+        "**materia para ser representada**.",
+
+        "## Los tres planos",
+        "**Teatro**: la **representación real**, aquí y ahora, con actores y "
+        "público en una sala; lo efímero, lo material. **Drama**: el **mundo "
+        "ficticio** que se muestra —sus personajes, su tiempo, su espacio, su "
+        "acción—, independiente de cualquier montaje concreto. "
+        "**Dramaturgia**: el **conjunto de decisiones y operaciones** que "
+        "convierten un texto o una idea en representación (cortes, "
+        "reordenaciones, dobles papeles, elección de espacio, de "
+        "convención…). El análisis dramatológico describe cómo se relacionan "
+        "esos tres planos en una puesta concreta.",
+
+        "## Herramientas centrales",
+        "La **distancia representativa**: cuánto **acerca o aleja** la puesta "
+        "en escena al espectador del mundo ficticio (la ilusión total del "
+        "naturalismo frente a la ruptura brechtiana; el actor que «es» el "
+        "personaje frente al que lo «muestra»). Y el análisis del **tiempo**, "
+        "el **espacio** y el **personaje** dramáticos: cómo se construyen con "
+        "recursos escénicos concretos —**elipsis**, **sumario**, "
+        "**simultaneidad**, **desdoblamiento** de un personaje en varios "
+        "actores o al revés, espacio **patente** (visible) frente a **latente** "
+        "(evocado)—.",
+
+        "## Para qué sirve",
+        "Es un método **operativo**: vale tanto para el análisis académico "
+        "como para el trabajo de **dirección y dramaturgia** (ayuda a decidir "
+        "qué se cuenta, desde qué distancia y con qué medios). Se ha aplicado, "
+        "por ejemplo, al teatro del director boliviano **Roberto Suárez**, "
+        "una figura central de la escena contemporánea de su país, en el "
+        "estudio «Teatro: no pasar. Rendimiento crítico del teatro de Roberto "
+        "Suárez» de Ignacio Gutiérrez Muiño.",
+    ],
+    verTambien=["wiki-teatro-estructura-espacio", "wiki-teatro-latinoamerica",
+                "wiki-teatro-oficios", "wiki-teatro-que-es"],
+    fuentes=[LIBRO("José Luis García Barrientos, «Cómo se analiza una obra de "
+                   "teatro» (Síntesis)"),
+             LIBRO("Ignacio Gutiérrez Muiño, «Teatro: no pasar. Rendimiento "
+                   "crítico del teatro de Roberto Suárez» (CSIC)"),
+             W("Wikipedia (ES) — Dramaturgia",
+               "https://es.wikipedia.org/wiki/Dramaturgia")],
+),
+
+}  # fin TEATRO
+
+NUEVOS.update(TEATRO)
+
+
+# =========================================================================
+#  DANZA
+# =========================================================================
+DANZA = {
+
+"wiki-danza-panorama": dict(
+    resumen="El cuerpo como instrumento de expresión en el tiempo: qué "
+            "comparte la danza con la música, sus grandes ramas y su papel en "
+            "el teatro y el cine.",
+    cuerpo=[
+        "Bailar es **mover el cuerpo con intención** —para expresar algo o "
+        "para un rito— dando forma a ese movimiento en el espacio y en el "
+        "tiempo. Es, con la música, una de las artes más antiguas y "
+        "universales, y durante casi toda la historia han ido de la mano.",
+
+        "## Qué comparte con la música",
+        "Los mismos parámetros temporales: **pulso** y **ritmo** (el cuerpo "
+        "marca, sincopa o contradice el compás), **frase** (secuencias de "
+        "movimiento con un arranque, un desarrollo y un cierre), **dinámica** "
+        "(la energía: un gesto puede ser *legato* o *staccato*, fuerte o "
+        "suave) y **forma** (repetición, contraste, variación, secciones). "
+        "Muchas **formas musicales son danzas** —minueto, giga, zarabanda, "
+        "vals, mazurca, tango, chacarera— y muchas danzas nacen ligadas a una "
+        "música concreta.",
+
+        "## Relación danza-música",
+        "Puede ir desde la **subordinación total** (el ballet clásico, donde "
+        "la coreografía «visualiza» la partitura compás a compás) hasta la "
+        "**independencia** deliberada (Merce Cunningham y John Cage creaban "
+        "danza y música por separado y las juntaban el día del estreno), "
+        "pasando por la danza **sobre silencio** o sobre el propio sonido de "
+        "los pasos (el claqué, el zapateado).",
+
+        "## Las grandes ramas",
+        "**Danza clásica** (el **ballet** y sus derivados). **Danza moderna y "
+        "contemporánea** (la ruptura del siglo XX). **Danza teatral y "
+        "comercial** (el **jazz** de Broadway, el **claqué**, la danza de "
+        "videoclip). **Bailes sociales** de pareja o grupo (vals, swing, "
+        "salsa, tango). **Danzas tradicionales y rituales** de cada cultura. "
+        "Y las **danzas urbanas** nacidas en la calle (breaking, popping).",
+
+        "## En el teatro y el cine",
+        "La danza **cuenta**: expresa lo que un personaje no puede o no "
+        "quiere decir con palabras (un *pas de deux* de amor, una pelea "
+        "coreografiada). En el **teatro musical** es uno de los tres pilares, "
+        "junto con el libro y la canción; en el cine, del musical clásico de "
+        "Hollywood a los números de Bollywood, es un lenguaje narrativo de "
+        "pleno derecho.",
+    ],
+    verTambien=["wiki-danza-ballet", "wiki-danza-contemporanea", "wiki-danza-en-el-musical",
+                "wiki-teoria-ritmo", "wiki-teatro-que-es"],
+    fuentes=[W("Wikipedia (ES) — Danza", "https://es.wikipedia.org/wiki/Danza"),
+             W("Wikipedia (EN) — Dance", "https://en.wikipedia.org/wiki/Dance"),
+             LIBRO("Curt Sachs, «Historia universal de la danza»")],
+),
+
+"wiki-danza-ballet": dict(
+    resumen="La danza teatral codificada que nació en las cortes del "
+            "Renacimiento, se sistematizó en la Francia de Luis XIV y dio los "
+            "grandes ballets narrativos rusos; base técnica de casi toda la "
+            "danza teatral posterior.",
+    cuerpo=[
+        "El **ballet** es un lenguaje de danza **codificado**: un vocabulario "
+        "cerrado de posiciones y pasos con nombre propio, que se aprende "
+        "durante años y se combina según reglas de equilibrio y línea.",
+
+        "## Orígenes cortesanos",
+        "Nace en las **cortes italianas** del siglo XV como espectáculo de "
+        "banquete, y se formaliza en la **Francia** de **Luis XIV** —él mismo "
+        "bailarín: su papel de «Rey Sol» viene de un ballet—. En 1661 funda la "
+        "**Académie Royale de Danse**. De ahí que **toda la terminología sea "
+        "francesa**: *plié* (flexión), *tendu* (estirar), *relevé* (elevarse), "
+        "*arabesque*, *jeté* (salto de una pierna a otra), *pirouette* (giro), "
+        "*fouetté*. Su base son las **cinco posiciones** de los pies, con las "
+        "piernas **en rotación externa** (*en dehors*).",
+
+        "## El ballet romántico",
+        "En el siglo XIX llegan el **tutú**, las **zapatillas de punta** "
+        "(bailar sobre la punta del pie, que da la ilusión de ingravidez) y "
+        "los argumentos de **seres sobrenaturales**: sílfides, willis, "
+        "fantasmas («La Sylphide», 1832; «Giselle», 1841).",
+
+        "## El ballet clásico ruso",
+        "El francés **Marius Petipa**, en San Petersburgo, fija el **ballet "
+        "de repertorio** en varios actos con estructura fija (*pas de deux* "
+        "con su adagio, variaciones y coda; el *grand pas*; el cuerpo de "
+        "baile). Con música de **Chaikovski**: «**El lago de los cisnes**», "
+        "«**La bella durmiente**», «**El cascanueces**»; y de Glazunov, "
+        "«Raymonda».",
+
+        "## El siglo XX",
+        "**Serguéi Diáguilev** y sus **Ballets Rusos** (1909-29) revolucionan "
+        "el género en París encargando obras a Stravinski («**El pájaro de "
+        "fuego**», «**Petrushka**», «**La consagración de la primavera**», que "
+        "provocó un tumulto), Debussy, Ravel, Falla, Prokófiev, con "
+        "coreografía de **Fokine**, **Nijinsky**, **Massine** y **Balanchine**, "
+        "y decorados de Picasso o Matisse. Balanchine llevará después a Nueva "
+        "York el **ballet neoclásico**, abstracto y musical. El ballet es "
+        "hoy la **base técnica** de casi toda la danza teatral, incluido el "
+        "jazz de Broadway.",
+    ],
+    verTambien=["wiki-danza-contemporanea", "wiki-danza-panorama", "wiki-comp-stravinsky",
+                "wiki-danza-en-el-musical", "wiki-historia-romanticismo"],
+    fuentes=[W("Wikipedia (ES) — Ballet", "https://es.wikipedia.org/wiki/Ballet"),
+             W("Wikipedia (EN) — Ballet", "https://en.wikipedia.org/wiki/Ballet"),
+             LIBRO("Curt Sachs, «Historia universal de la danza»")],
+),
+
+"wiki-danza-jazz-dance": dict(
+    resumen="La danza teatral estadounidense, de raíz afroamericana y ligada "
+            "al musical: enérgica, sincopada, con aislamientos del cuerpo; de "
+            "Jack Cole a Bob Fosse.",
+    cuerpo=[
+        "El **jazz dance** es el lenguaje de danza que Broadway y el cine "
+        "musical estadounidense desarrollaron a lo largo del siglo XX. No es "
+        "un estilo único, sino una **familia** con una raíz común.",
+
+        "## Raíces",
+        "Las **danzas sociales afroamericanas** —cakewalk, charlestón, black "
+        "bottom, **lindy hop**, swing— y el *vernacular jazz dance* de los "
+        "clubes de Harlem, más la tradición del *minstrel*, el vodevil y la "
+        "revista. De ahí vienen sus rasgos: **sincopación**, **aislamientos** "
+        "(mover una parte del cuerpo —cadera, hombros, cabeza— "
+        "independientemente del resto), **cambios de peso** rápidos, "
+        "flexión de rodillas, contacto con el suelo, y una relación directa "
+        "con el **swing** y el *groove* de la música.",
+
+        "## De la calle al escenario",
+        "**Jack Cole** (años 40-50), considerado el «padre del jazz dance "
+        "teatral», sistematiza el estilo fundiendo jazz vernáculo, danza "
+        "moderna y **danza india bharatanatyam**; entrena a las estrellas de "
+        "Hollywood. **Katherine Dunham** aporta la investigación de la danza "
+        "**afrocaribeña**. **Jerome Robbins** integra el ballet y el jazz en "
+        "la narración («West Side Story»). **Matt Mattox** codifica una "
+        "técnica de clase.",
+
+        "## Bob Fosse",
+        "**Bob Fosse** crea el estilo más reconocible del género, a partir de "
+        "sus propias limitaciones físicas convertidas en firma: **hombros "
+        "encorvados**, caderas adelantadas, **manos abiertas** (*jazz "
+        "hands*), pies hacia dentro (*turned-in*), sombreros y guantes, "
+        "movimientos **pequeños, precisos y aislados**, mucho *staccato* y "
+        "silencio. «Sweet Charity», «Pippin», «**Chicago**», y en cine "
+        "«Cabaret» y «All That Jazz».",
+
+        "## Hoy",
+        "«Jazz» engloba desde el **jazz teatral** clásico (Luigi, Giordano) "
+        "hasta el **jazz comercial / contemporáneo** de videoclip, gira y "
+        "programas de televisión, muy mezclado con el hip-hop.",
+    ],
+    verTambien=["wiki-danza-tap", "wiki-danza-en-el-musical", "wiki-historia-jazz",
+                "wiki-danza-urbana", "wiki-tm-edad-oro"],
+    fuentes=[W("Wikipedia (ES) — Jazz (danza)",
+               "https://es.wikipedia.org/wiki/Jazz_(danza)"),
+             W("Wikipedia (EN) — Jazz dance",
+               "https://en.wikipedia.org/wiki/Jazz_dance"),
+             LIBRO("Marshall y Jean Stearns, «Jazz Dance: The Story of "
+                   "American Vernacular Dance»")],
+),
+
+"wiki-danza-tap": dict(
+    resumen="Bailar y percutir a la vez: el pie como instrumento de ritmo. "
+            "Del cruce irlandés-africano en Estados Unidos a las dos escuelas, "
+            "Broadway y rhythm tap.",
+    cuerpo=[
+        "El **claqué** (*tap*) es una forma de danza en la que **cada paso "
+        "suena**: unas **chapas metálicas** (*taps*) en la puntera y el tacón "
+        "de los zapatos golpean el suelo. El bailarín es, literalmente, un "
+        "**percusionista** que además se ve.",
+
+        "## Raíces",
+        "Nace en Estados Unidos, en el siglo XIX, del **cruce** entre el "
+        "*step dance* **irlandés** (percusión de pies, torso quieto), las "
+        "danzas **africanas** (*juba*, uso de todo el cuerpo, polirritmia) y "
+        "el *clogging* inglés, en un contexto de mezcla forzada —y también de "
+        "los espectáculos *minstrel*, con su carga racista—. Bill «Bojangles» "
+        "**Robinson** lleva el sonido «a la punta», más ligero y melódico.",
+
+        "## Edad de oro",
+        "Años 20 a 50, en el **cine** y el **teatro**: **Fred Astaire** "
+        "(elegancia, integración del claqué en la narración de la pareja "
+        "romántica), **Eleanor Powell**, los **Nicholas Brothers** (acrobacia "
+        "deslumbrante), Gene Kelly (atlético). El declive del musical de "
+        "estudio casi lo hace desaparecer.",
+
+        "## Las dos escuelas",
+        "**Broadway / show tap**: más **visual** —brazos, líneas, cara al "
+        "público, sincronía de conjunto—, integrado en el número musical. "
+        "**Rhythm tap** (o *jazz tap*): más **sonoro** y **grave**, "
+        "improvisado, cercano al jazz, escuchando y respondiendo a los "
+        "músicos como un instrumentista más; su linaje va de John Bubbles a "
+        "**Gregory Hines** y **Savion Glover** («Bring in 'da "
+        "Noise, Bring in 'da Funk»), que reivindicó el claqué como arte negro "
+        "y contemporáneo.",
+
+        "## Cómo se escucha",
+        "En un buen número de claqué, la coreografía es a la vez una "
+        "**composición rítmica**: hay tema, variación, llamada y respuesta con "
+        "la banda, *trading fours* (intercambiar compases) y solos. Se puede "
+        "«leer» con los mismos oídos que un solo de batería.",
+    ],
+    verTambien=["wiki-danza-jazz-dance", "wiki-teoria-ritmo", "wiki-inst-percusion",
+                "wiki-historia-jazz", "wiki-danza-en-el-musical"],
+    fuentes=[W("Wikipedia (ES) — Claqué",
+               "https://es.wikipedia.org/wiki/Claqu%C3%A9"),
+             W("Wikipedia (EN) — Tap dance",
+               "https://en.wikipedia.org/wiki/Tap_dance"),
+             LIBRO("Constance Valis Hill, «Tap Dancing America: A Cultural "
+                   "History»")],
+),
+
+"wiki-danza-contemporanea": dict(
+    resumen="La ruptura con las reglas del ballet a lo largo del siglo XX: de "
+            "Isadora Duncan y Martha Graham a Cunningham, el contact "
+            "improvisation y el teatro-danza de Pina Bausch.",
+    cuerpo=[
+        "La **danza moderna** primero y la **contemporánea** después nacen de "
+        "un rechazo consciente de las **reglas del ballet** —la rotación "
+        "externa, las puntas, el corsé, el vocabulario cerrado, los "
+        "argumentos de hadas— en busca de un movimiento más **personal, "
+        "expresivo y conectado con la gravedad**.",
+
+        "## Las pioneras (danza moderna, 1900-1930)",
+        "**Isadora Duncan** baila descalza, con túnica, inspirada en el arte "
+        "griego y en «el oleaje del mar»: movimiento **natural**, nacido del "
+        "plexo solar. **Ruth St. Denis** y **Ted Shawn** (la escuela "
+        "**Denishawn**) exploran danzas «orientales» y forman a la generación "
+        "siguiente. **Loie Fuller** experimenta con telas y luz eléctrica.",
+
+        "## Las grandes técnicas (1930-1950)",
+        "**Martha Graham** crea una **técnica** codificada basada en la "
+        "**contracción y relajación** (*contraction / release*) del torso al "
+        "ritmo de la respiración, y el trabajo en el **suelo**; sus obras "
+        "tratan mitos y psicología («Appalachian Spring», con música de "
+        "Copland). **Doris Humphrey** teoriza la caída y la recuperación "
+        "(*fall and recovery*), el juego con el desequilibrio. **José Limón** "
+        "continúa esa línea con el peso y el impulso.",
+
+        "## La vanguardia (desde 1950)",
+        "**Merce Cunningham** **separa** la danza de la música (se crean "
+        "aparte y coinciden en escena), usa el **azar** para componer y "
+        "declara que **cualquier movimiento** puede ser material de danza y "
+        "**cualquier punto** del escenario, el centro. El **Judson Dance "
+        "Theater** (Nueva York, años 60: Yvonne Rainer, Trisha Brown, Steve "
+        "Paxton) lleva a escena el **movimiento cotidiano** (caminar, cargar "
+        "un objeto) y el «no» al espectáculo.",
+
+        "## La danza contemporánea",
+        "Desde los 70-80 convive todo: la técnica **release** (economía de "
+        "esfuerzo, fluidez, uso de la gravedad), el **contact improvisation** "
+        "(dúos que **comparten el peso** y ruedan uno sobre otro, de Steve "
+        "Paxton), el **teatro-danza** de **Pina Bausch** (danza + palabra + "
+        "objetos + repetición obsesiva, «Café Müller»), y las corrientes "
+        "actuales (danza conceptual, no-danza, danza inclusiva). La música "
+        "puede ser de todo: partitura contemporánea, electrónica, sonido en "
+        "vivo o **silencio**.",
+    ],
+    verTambien=["wiki-danza-ballet", "wiki-danza-panorama", "wiki-teatro-vanguardias",
+                "wiki-cur-433", "wiki-historia-siglo-xx"],
+    fuentes=[W("Wikipedia (ES) — Danza contemporánea",
+               "https://es.wikipedia.org/wiki/Danza_contempor%C3%A1nea"),
+             W("Wikipedia (EN) — Modern dance",
+               "https://en.wikipedia.org/wiki/Modern_dance"),
+             LIBRO("Curt Sachs, «Historia universal de la danza»")],
+),
+
+"wiki-danza-social-latina": dict(
+    resumen="Danzas de pareja o de grupo pensadas para bailar, no para "
+            "mirar: cada una con su compás, su clave y su relación directa "
+            "con la música que suena.",
+    cuerpo=[
+        "Los **bailes sociales** existen para **bailarlos**, no para verlos "
+        "desde una butaca: se aprenden en la fiesta, en la milonga, en el "
+        "club, y su valor está en el **diálogo entre la pareja y la música** "
+        "en tiempo real.",
+
+        "## Europa y Norteamérica",
+        "El **vals** (compás de **3/4**, giro continuo; escandalizó en el "
+        "siglo XIX por el abrazo cerrado), la **polca**, la **mazurca**. En "
+        "Estados Unidos, el **lindy hop** y el **swing** (sobre el jazz de "
+        "big band, con su *bounce* y sus *breakaways*), el **charlestón**, y "
+        "más tarde el **rock and roll** de baile.",
+
+        "## América Latina y el Caribe",
+        "El **tango** (Argentina y Uruguay: compás de 4, caminata, cortes y "
+        "quebradas, improvisación dentro del abrazo). La **salsa** y el "
+        "**son** cubano, organizados sobre la **clave de son** (un patrón de "
+        "5 golpes en 2 compases —«3-2» o «2-3»— que es la columna rítmica de "
+        "toda la música afrocubana); pasos «a tiempo» o «en clave» según la "
+        "escuela (cubana, en línea de Nueva York, caleña). La **bachata** "
+        "(Rep. Dominicana, 4 tiempos con un «pop» de cadera en el cuarto), el "
+        "**merengue** (rápido, 2/4, marcha de cadera), la **cumbia** "
+        "(colombiana, paso arrastrado; hoy con decenas de variantes por todo "
+        "el continente), el **mambo**, el **chachachá**, el **danzón**.",
+
+        "## La relación con la música es literal",
+        "En estos bailes, el **tiempo fuerte**, la **clave**, el "
+        "**montuno** del piano, el **tumbao** del bajo y los **cortes** "
+        "(*breaks*) de la orquesta **marcan los pasos**: un buen bailarín "
+        "«escucha» a los timbales y responde. Por eso entender el ritmo de la "
+        "música es entender el baile.",
+
+        "## Del salón al escenario",
+        "Muchas de estas danzas pasaron a la **sala de concierto** (Piazzolla "
+        "con el tango), al **escenario del musical** («On Your Feet!», sobre "
+        "Gloria Estefan) y a la competición deportiva (el baile deportivo, "
+        "*DanceSport*).",
+    ],
+    verTambien=["wiki-historia-latinoamerica", "wiki-comp-piazzolla", "wiki-teoria-ritmo",
+                "wiki-historia-carlos-vega", "wiki-danza-panorama"],
+    fuentes=[W("Wikipedia (ES) — Baile social",
+               "https://es.wikipedia.org/wiki/Baile_social"),
+             W("Wikipedia (EN) — Social dance",
+               "https://en.wikipedia.org/wiki/Social_dance"),
+             LIBRO("Carlos Vega, «Las danzas populares argentinas»")],
+),
+
+"wiki-danza-en-el-musical": dict(
+    resumen="En un buen musical la danza no adorna: expresa lo que la palabra "
+            "no alcanza y hace avanzar la historia. Del «dream ballet» de "
+            "«Oklahoma!» al director-coreógrafo de hoy.",
+    cuerpo=[
+        "En el teatro musical moderno, la **coreografía** es uno de los tres "
+        "pilares del relato, junto con el **libro** y las **canciones**. Bien "
+        "usada, no interrumpe la historia: **la cuenta**.",
+
+        "## El salto: «Oklahoma!» (1943)",
+        "**Agnes de Mille** coreografió para «Oklahoma!» un **«dream "
+        "ballet»**: al final del primer acto, la protagonista se duerme y una "
+        "**secuencia de danza** —bailada por dobles— pone en escena sus "
+        "**miedos y deseos** sobre los dos hombres que la pretenden. Por "
+        "primera vez, un número de danza **desarrollaba la psicología** de un "
+        "personaje y **cambiaba la trama**. A partir de ahí, la coreografía "
+        "entra en el ADN del género.",
+
+        "## Los directores-coreógrafos",
+        "La figura que **dirige y coreografía a la vez** dominó la edad de oro "
+        "y sigue vigente. **Jerome Robbins**: «On the Town», «El violinista en "
+        "el tejado» (el número de la botella), y sobre todo «**West Side "
+        "Story**», donde el conflicto de las bandas **se baila** (el prólogo, "
+        "«Cool», «America»). **Bob Fosse**: «Sweet Charity», «Pippin», "
+        "«**Chicago**», con su estilo hiperreconocible. **Michael Bennett**: "
+        "«**A Chorus Line**» (1975), un musical **sobre** una audición de "
+        "bailarines, contado casi todo con danza y en primera persona. "
+        "**Gower Champion**, **Michael Kidd**, **Onna White**.",
+
+        "## Hoy",
+        "El director-coreógrafo sigue siendo clave: **Susan Stroman** («The "
+        "Producers», «Contact»), **Rob Marshall**, **Kathleen Marshall**, **Bill "
+        "T. Jones** («Spring Awakening», «Fela!»), **Andy Blankenbuehler** "
+        "(«**Hamilton**», «In the Heights»), **Sergio Trujillo** («On Your "
+        "Feet!»). El estilo va del ballet y el jazz clásico al hip-hop, según "
+        "la obra.",
+    ],
+    verTambien=["wiki-danza-jazz-dance", "wiki-tm-edad-oro", "wiki-tm-roles",
+                "wiki-danza-panorama", "wiki-tm-siglo-xxi"],
+    fuentes=[W("Wikipedia (EN) — Musical theatre",
+               "https://en.wikipedia.org/wiki/Musical_theatre"),
+             W("Wikipedia (EN) — Agnes de Mille",
+               "https://en.wikipedia.org/wiki/Agnes_de_Mille"),
+             LIBRO("Larry Stempel, «Showtime: A History of the Broadway "
+                   "Musical Theater»")],
+),
+
+"wiki-danza-urbana": dict(
+    resumen="Estilos nacidos en la calle y en la cultura del hip-hop y el "
+            "funk: breaking, popping, locking, krump, y su versión de plató, "
+            "la danza comercial.",
+    cuerpo=[
+        "Las **danzas urbanas** (o *street dance*) nacieron en espacios "
+        "públicos —fiestas de barrio, esquinas, parques— de comunidades "
+        "afroamericanas y latinas de Estados Unidos, y se transmiten sobre "
+        "todo por **imitación, círculo (*cypher*) y batalla**, no por "
+        "academia.",
+
+        "## Breaking",
+        "El **breaking** (o *b-boying* / *b-girling*; «breakdance» es el "
+        "término mediático) surge en el **Bronx** a mediados de los años 70, "
+        "como uno de los cuatro elementos de la cultura **hip-hop** (junto al "
+        "DJ, el MC y el grafiti). Se baila sobre los **breaks** —los "
+        "fragmentos instrumentales más percusivos que los DJ, como Kool Herc, "
+        "aislaban y repetían—. Vocabulario: **toprock** (de pie), **footwork** "
+        "o *downrock* (en el suelo, con las manos), **freezes** (posturas "
+        "congeladas) y **power moves** (giros: *windmill*, *headspin*, "
+        "*flare*). Es **disciplina olímpica** desde París 2024.",
+
+        "## Los estilos funk (costa oeste)",
+        "Anteriores o paralelos al hip-hop, de California: el **locking** "
+        "(Don Campbell: bloqueos bruscos del movimiento, muy cómico y "
+        "extrovertido) y el **popping** (contracciones rápidas del músculo "
+        "que producen un «tirón», con submodalidades: *boogaloo*, *tutting*, "
+        "*waving*, *robot*). Después llegan el **krump** (Los Ángeles, "
+        "explosivo y catártico), el **waacking** (de la escena disco/LGTB, "
+        "brazos rapidísimos), el **house dance** (footwork fluido sobre "
+        "música house), el **vogue** (de los *balls* de Harlem).",
+
+        "## Danza comercial",
+        "La versión de **plató**: coreografías para giras de artistas, "
+        "**videoclips**, publicidad y programas de televisión (*So You Think "
+        "You Can Dance*, *World of Dance*). Toma prestado del jazz, el hip-hop "
+        "y el contemporáneo, muy sincronizada y pensada para la **cámara**. "
+        "Ha profesionalizado la figura del bailarín y del coreógrafo "
+        "comercial.",
+    ],
+    verTambien=["wiki-cur-amen-break", "wiki-historia-popular", "wiki-danza-jazz-dance",
+                "wiki-prod-sampleo", "wiki-danza-panorama"],
+    fuentes=[W("Wikipedia (ES) — Danza urbana",
+               "https://es.wikipedia.org/wiki/Danza_urbana"),
+             W("Wikipedia (EN) — Street dance",
+               "https://en.wikipedia.org/wiki/Street_dance"),
+             LIBRO("Jeff Chang, «Can't Stop Won't Stop: A History of the "
+                   "Hip-Hop Generation»")],
+),
+
+}  # fin DANZA
+
+NUEVOS.update(DANZA)
+
+
+# =========================================================================
+#  TEATRO MUSICAL
+# =========================================================================
+F_STEMPEL = LIBRO("Larry Stempel, «Showtime: A History of the Broadway "
+                  "Musical Theater» (Norton)")
+F_MORDDEN = LIBRO("Ethan Mordden, serie de historia del musical por décadas "
+                  "(«Make Believe», «Coming Up Roses», etc.)")
+
+def _tmf(en, extra=None):
+    out = [W(f"Wikipedia (EN) — {en}",
+             f"https://en.wikipedia.org/wiki/{en}"), F_STEMPEL]
+    if extra:
+        out.insert(1, extra)
+    return out
+
+TEATRO_MUSICAL = {
+
+"wiki-tm-que-es": dict(
+    resumen="Una forma teatral en la que el libro hablado, las canciones y la "
+            "danza cuentan **juntos** la historia; qué la distingue de la "
+            "ópera, la opereta y la revista.",
+    cuerpo=[
+        "Un **musical** combina tres materiales: un **libro** (*book*: la "
+        "parte hablada, la trama, los personajes), unas **canciones** (música "
+        "más letra) y, casi siempre, **coreografía**. Lo específico del género "
+        "moderno no es que tenga canciones, sino la **integración**: cada "
+        "elemento hace avanzar la acción, y la canción aparece **cuando la "
+        "emoción desborda a la palabra**.",
+
+        "## La «regla de oro»",
+        "Se pasa de **hablar** a **cantar** —y de cantar a **bailar**— cuando "
+        "el sentimiento crece y el diálogo se queda corto. En un buen musical, "
+        "la escena previa «**gana**» la canción: cuando el personaje rompe a "
+        "cantar, al público le parece **inevitable**, no un adorno. Y la "
+        "canción **deja al personaje en otro sitio** del que estaba: ha "
+        "decidido algo, ha entendido algo, ha cambiado.",
+
+        "## Frente a la ópera",
+        "En la **ópera**, casi todo se canta y la **música manda**; el texto "
+        "suele estar al servicio de la partitura y las voces son "
+        "«instrumentos» entrenados para proyectar sin micrófono sobre una "
+        "orquesta. En el **musical** hay **diálogo hablado**, la **palabra "
+        "pesa tanto como la música**, se canta con **amplificación** y con "
+        "técnicas más cercanas al habla (el *belting*, el *patter*). La "
+        "frontera es porosa: los musicales *sung-through* («Les Misérables», "
+        "«Hamilton») casi no tienen diálogo y se acercan a la ópera popular.",
+
+        "## Frente a la opereta y la revista",
+        "La **opereta** (Offenbach, Strauss, Gilbert y Sullivan) y la "
+        "**zarzuela** ya mezclaban canción y diálogo, pero con tramas ligeras "
+        "y convenciones fijas. La **revista** (*revue*) es una **sucesión de "
+        "números sin argumento** (las Ziegfeld Follies). El musical moderno "
+        "**subordina cada número a la historia**: esa es su conquista.",
+
+        "## Un arte de equipo y de industria",
+        "Detrás de un musical hay **compositor**, **letrista**, **libretista**, "
+        "**director**, **coreógrafo**, **director musical**, **orquestador** y "
+        "**productor**, además de todos los oficios del teatro. Y una "
+        "**industria** muy concreta, centrada históricamente en **Broadway** "
+        "(Nueva York) y el **West End** (Londres), con sus circuitos de "
+        "pruebas regionales, giras y licencias para montajes amateurs y "
+        "escolares.",
+    ],
+    verTambien=["wiki-tm-antecedentes", "wiki-tm-numero", "wiki-tm-estructura",
+                "wiki-teatro-que-es", "wiki-historia-opera"],
+    fuentes=_tmf("Musical theatre"),
+),
+
+"wiki-tm-antecedentes": dict(
+    resumen="El musical nace de la mezcla de tradiciones populares del siglo "
+            "XIX: opereta, zarzuela, ópera cómica, music hall, minstrel show, "
+            "vaudeville y burlesque.",
+    cuerpo=[
+        "El musical no lo inventó nadie de golpe: **cristalizó** a comienzos "
+        "del siglo XX a partir de varias formas de **teatro popular con "
+        "música** que llevaban décadas conviviendo a ambos lados del "
+        "Atlántico.",
+
+        "## Europa: opereta y ópera cómica",
+        "La **opereta** —trama ligera, con números cantados y diálogo "
+        "hablado, y grandes finales de conjunto— triunfa con **Offenbach** en "
+        "el París del Segundo Imperio, **Johann Strauss hijo** en Viena («El "
+        "murciélago») y **Gilbert y Sullivan** en Inglaterra («The Mikado», "
+        "«The Pirates of Penzance»), cuya sátira social y sus letras "
+        "endiabladas influyen directamente en el libretismo anglosajón. La "
+        "**zarzuela** española hace algo equivalente con sabor local, y la "
+        "**opéra comique** francesa aporta el diálogo hablado dentro de un "
+        "marco «culto».",
+
+        "## Gran Bretaña: el music hall",
+        "El **music hall** británico (y el ***variety*** posterior) llevan a "
+        "un público obrero canciones cómicas y sentimentales, estrellas "
+        "populares y un maestro de ceremonias. De ahí sale buena parte del "
+        "*tempo* cómico y del contacto directo con la platea.",
+
+        "## Estados Unidos: un abanico de formas",
+        "Conviven el **minstrel show** (números con actores blancos "
+        "maquillados de negro —*blackface*—, un legado **racista** que el "
+        "género tardó décadas en superar y que dejó su huella en canciones y "
+        "personajes-tipo), el **vaudeville** (variedades familiares, "
+        "respetables), el **burlesque** (paródico y picante) y la "
+        "***extravaganza*** (espectáculo con maquinaria y ballet). Se suele "
+        "citar «**The Black Crook**» (1866) —un melodrama al que se añadió una "
+        "compañía de ballet francesa que se había quedado sin teatro— como el "
+        "primer gran espectáculo que **funde drama, música y danza** en una "
+        "sola función de cinco horas.",
+
+        "## El resultado",
+        "De toda esa mezcla surge, hacia 1900-1920, la **comedia musical "
+        "americana** (*musical comedy*): argumento ligero como excusa, "
+        "canciones de **Tin Pan Alley**, estrellas cómicas, coristas. Es el "
+        "punto de partida de todo lo que vendrá después.",
+    ],
+    verTambien=["wiki-tm-nacimiento", "wiki-tm-1920s-30s", "wiki-historia-popular",
+                "wiki-historia-opera", "wiki-tm-espana-latam"],
+    fuentes=_tmf("Musical theatre"),
+),
+
+"wiki-tm-nacimiento": dict(
+    resumen="De las comedias íntimas del Princess Theatre a «Show Boat» "
+            "(1927), el primer gran musical «integrado» y adulto.",
+    cuerpo=[
+        "Entre 1915 y 1930, la comedia musical americana da dos pasos que "
+        "definen el género: **hacer que las canciones nazcan de los "
+        "personajes** y **atreverse con temas serios**.",
+
+        "## Las Princess Theatre shows",
+        "En los años 1910, en un teatro pequeño de Broadway (el **Princess**, "
+        "de 299 butacas), el compositor **Jerome Kern**, el libretista "
+        "**Guy Bolton** y el humorista **P. G. Wodehouse** montan comedias "
+        "**íntimas y baratas** («Very Good Eddie», «Oh, Boy!») en las que las "
+        "canciones **surgen de situaciones cotidianas y de personajes "
+        "reconocibles**, en lugar de ser números de lucimiento "
+        "intercambiables. Es el germen del musical «de personaje».",
+
+        "## Los años 20: la comedia musical brillante",
+        "Década de **glamour** y de la mejor canción popular estadounidense: "
+        "**George e Ira Gershwin** («Lady, Be Good!», «Girl Crazy» con «I Got "
+        "Rhythm»), **Cole Porter**, **Rodgers y Hart** («A Connecticut "
+        "Yankee»), **Irving Berlin**. Muchas de esas canciones se "
+        "independizaron de sus shows y se volvieron **estándares de jazz**.",
+
+        "## «Show Boat» (1927)",
+        "**Jerome Kern** y **Oscar Hammerstein II** adaptan la novela de Edna "
+        "Ferber sobre un barco-teatro del Misisipi. Es un salto: una historia "
+        "**seria** que abarca **cuarenta años**, con personajes negros y "
+        "blancos, que aborda el **racismo** y los **matrimonios "
+        "interraciales** (la trama de Julie, mulata que «pasa» por blanca), "
+        "con canciones que **nacen de la situación** —«Ol' Man River», cantada "
+        "por un estibador negro, como lamento y denuncia—. Se suele señalar "
+        "como el primer musical **«integrado»** y **adulto**, aunque su "
+        "tratamiento de la raza hoy se discute y se revisa en cada montaje. "
+        "El camino que abrió no se recorrería del todo hasta «Oklahoma!», "
+        "dieciséis años después.",
+    ],
+    verTambien=["wiki-tm-edad-oro", "wiki-tm-1920s-30s", "wiki-historia-jazz",
+                "wiki-comp-gershwin", "wiki-tm-antecedentes"],
+    fuentes=_tmf("Show_Boat"),
+),
+
+"wiki-tm-edad-oro": dict(
+    resumen="«Oklahoma!» (1943) fija el modelo del «libro musical» integrado y "
+            "abre dos décadas doradas: Rodgers y Hammerstein, Lerner y Loewe, "
+            "Loesser, Bernstein.",
+    cuerpo=[
+        "La **edad de oro** del musical de Broadway va, por convención, de "
+        "**1943 a mediados de los años 60**. Su modelo es el **«libro "
+        "musical» integrado**: trama, personajes, canciones y danza con el "
+        "**mismo peso**, todos empujando la historia.",
+
+        "## «Oklahoma!» (1943)",
+        "**Richard Rodgers** (música) y **Oscar Hammerstein II** (libro y "
+        "letras) adaptan una obra sobre granjeros y vaqueros del territorio de "
+        "Oklahoma. Rompió varias convenciones: **empieza sin número de "
+        "apertura vistoso** (una mujer bate mantequilla mientras se oye "
+        "cantar fuera «Oh, What a Beautiful Mornin'»), integra un **«dream "
+        "ballet»** de **Agnes de Mille** que expone los miedos de la "
+        "protagonista y **mata a un personaje** en el segundo acto. Batió el "
+        "récord de permanencia (más de 2200 funciones) y se convirtió en la "
+        "**plantilla** del género durante veinte años.",
+
+        "## Rodgers y Hammerstein",
+        "El tándem siguió con «**Carousel**» (1945, considerada por muchos su "
+        "obra maestra: un antihéroe, la violencia doméstica, la muerte y una "
+        "escena en el más allá), «**South Pacific**» (1949, sobre el racismo, "
+        "con «You've Got to Be Carefully Taught»), «**The King and I**» y "
+        "«**The Sound of Music**». Su fórmula: emoción sincera, secundarios "
+        "cómicos, y un tema social de fondo.",
+
+        "## La otra generación dorada",
+        "**Lerner y Loewe** («**My Fair Lady**», 1956, sobre «Pigmalión» de "
+        "Shaw; «Camelot»). **Frank Loesser** («**Guys and Dolls**», 1950, con "
+        "los apostadores de Damon Runyon; «The Most Happy Fella», casi una "
+        "ópera). **Leonard Bernstein**, que en «**West Side Story**» (1957), "
+        "con letras del joven **Stephen Sondheim** y coreografía-dirección de "
+        "**Jerome Robbins**, lleva la partitura (jazz, tritonos, ritmos "
+        "latinos) y la danza a una ambición **casi operística**, y traslada "
+        "«Romeo y Julieta» a las bandas del Upper West Side. También **Jule "
+        "Styne** («Gypsy», 1959).",
+
+        "## Qué buscaba",
+        "El libro musical de esta época tiene **metas dramáticas serias** y "
+        "quiere **emocionar de verdad**, no solo divertir; a la vez, casi "
+        "siempre termina en reconciliación y en un número de conjunto "
+        "luminoso. Esa combinación de ambición y consuelo es su sello.",
+    ],
+    verTambien=["wiki-tm-nacimiento", "wiki-tm-sondheim", "wiki-danza-en-el-musical",
+                "wiki-tm-numero", "wiki-tm-rock-y-cambio"],
+    fuentes=_tmf("Oklahoma!"),
+),
+
+"wiki-tm-sondheim": dict(
+    resumen="En los años 70 el musical se vuelve más adulto, oscuro y "
+            "ambicioso: el «concept musical», y la obra de Stephen Sondheim, "
+            "que eleva el listón de la letra y de la armonía.",
+    cuerpo=[
+        "Tras la edad de oro, y en plena competencia del rock y el cine, el "
+        "musical de Broadway se **repliega y se sofistica**: menos «familiar», "
+        "más autoconsciente, formalmente más audaz. La figura central es "
+        "**Stephen Sondheim**.",
+
+        "## El concept musical",
+        "Organiza la obra en torno a una **idea o un tema**, no a una trama "
+        "lineal. «**Company**» (1970), de Sondheim y el director **Harold "
+        "Prince**, son **escenas casi independientes** sobre el matrimonio "
+        "vistas alrededor de Bobby, un soltero de 35 años, sin argumento "
+        "continuo. «**Follies**» (1971) reúne a antiguas coristas en un teatro "
+        "que van a demoler, con los fantasmas de sus yo jóvenes en escena.",
+
+        "## Sondheim",
+        "Empezó como **letrista** («West Side Story», «Gypsy») y se convirtió "
+        "en **compositor y letrista completo**. Su aportación: letras de "
+        "**rimas exactas**, ironía, densidad de información y sentido teatral "
+        "milimétrico; y una **música armónicamente compleja**, con motivos "
+        "que se desarrollan como en la música de concierto. Obras: «**A "
+        "Little Night Music**» (1973, todo en compases ternarios; contiene "
+        "«Send in the Clowns»), «**Sweeney Todd**» (1979, un «musical "
+        "thriller» casi operístico sobre un barbero asesino), «**Sunday in "
+        "the Park with George**» (1984, sobre Seurat y el acto de crear; "
+        "Pulitzer), «**Into the Woods**» (1987, los cuentos de hadas y sus "
+        "consecuencias), «Assassins», «Merrily We Roll Along».",
+
+        "## En paralelo",
+        "**Bob Fosse** convierte la **coreografía en el motor** del "
+        "espectáculo, con una mirada cínica sobre el propio *show business* "
+        "(«Pippin», 1972; «**Chicago**», 1975, «un vodevil» sobre el crimen "
+        "como espectáculo). **Michael Bennett** hace de la **vida real de los "
+        "bailarines** el tema de «**A Chorus Line**» (1975), construida a "
+        "partir de sesiones grabadas con bailarines contando sus vidas; ganó "
+        "el Pulitzer y fue el musical más longevo de Broadway durante años.",
+    ],
+    verTambien=["wiki-tm-edad-oro", "wiki-tm-rock-y-cambio", "wiki-tm-numero",
+                "wiki-danza-en-el-musical", "wiki-danza-jazz-dance"],
+    fuentes=_tmf("Stephen_Sondheim"),
+),
+
+"wiki-tm-rock-y-cambio": dict(
+    resumen="Los años 60 y 70 abren el musical al rock y a temas incómodos "
+            "—raza, sexualidad, política, la guerra de Vietnam— y a formas "
+            "que distancian al espectador.",
+    cuerpo=[
+        "Mientras el rock se comía la cultura juvenil, el musical reaccionó "
+        "de dos maneras: **incorporando** el nuevo sonido y **ampliando** los "
+        "temas de los que se podía hablar en un escenario comercial.",
+
+        "## El rock entra en Broadway",
+        "«**Hair**» (1967, «el musical tribal de amor y rock»): contracultura, "
+        "desnudo integral, drogas, y **protesta contra la guerra de "
+        "Vietnam**, con una partitura de **rock** de verdad (banda "
+        "amplificada, no orquesta de foso). Le siguen «**Jesus Christ "
+        "Superstar**» (1970, de Andrew Lloyd Webber y Tim Rice, primero como "
+        "disco) y «**Godspell**». La partitura de un musical **ya no tiene "
+        "que sonar a Broadway clásico**.",
+
+        "## El musical que hace pensar",
+        "«**Cabaret**» (1966, **Kander y Ebb**, dirección de **Harold "
+        "Prince**) usa los **números del club nocturno** —presentados por un "
+        "maestro de ceremonias siniestro— como **comentario** del ascenso del "
+        "nazismo en el Berlín de 1931: la fórmula del **«musical con marco»**, "
+        "que **distancia** al público y lo obliga a mirar críticamente, en "
+        "línea con **Brecht** (Kander y Ebb volverían a ella en «Chicago»). "
+        "«**Company**» y el concept musical van en la misma dirección.",
+
+        "## Se amplían el público y los temas",
+        "Raza («Purlie», «The Wiz» —«El mago de Oz» con reparto y música "
+        "negros—), **sexualidad** («A Chorus Line» habla de ello con "
+        "naturalidad), política, la crítica al propio *show business*. El "
+        "musical **deja de ser solo evasión** y empieza a reclamar el mismo "
+        "estatus que el teatro «serio», sin renunciar a la taquilla.",
+    ],
+    verTambien=["wiki-tm-sondheim", "wiki-tm-megamusical", "wiki-teatro-vanguardias",
+                "wiki-historia-popular", "wiki-tm-jukebox-y-contemporaneo"],
+    fuentes=_tmf("Rock_musical"),
+),
+
+"wiki-tm-megamusical": dict(
+    resumen="En los años 80 y 90, desde Londres, un modelo nuevo: partitura "
+            "casi continua y pegadiza, puesta en escena espectacular, "
+            "amplificación total y montajes idénticos girando por el mundo "
+            "como franquicias.",
+    cuerpo=[
+        "El **megamusical** (o *pop opera*) es el formato que dominó la "
+        "taquilla mundial entre 1980 y el cambio de siglo. Nació sobre todo en "
+        "el **West End** y se exportó a Broadway y a decenas de ciudades.",
+
+        "## Rasgos",
+        "Partitura **casi enteramente cantada** (*sung-through*), con melodías "
+        "«**de himno**» fáciles de recordar; **espectáculo** como argumento de "
+        "venta (el candelabro que cae en «El fantasma de la ópera», la "
+        "barricada giratoria de «Los Miserables», el helicóptero de «Miss "
+        "Saigon»); **amplificación total** y un sonido más cercano al disco "
+        "que al teatro; y una **estética de marca**: logotipo icónico (el gato "
+        "de «Cats», la niña Cosette), cartel reconocible en cualquier idioma.",
+
+        "## Las figuras",
+        "El compositor **Andrew Lloyd Webber** («**Cats**», 1981, sobre "
+        "poemas de T. S. Eliot; «**Starlight Express**»; «**The Phantom of "
+        "the Opera**», 1986, el espectáculo más taquillero de la historia de "
+        "Broadway) y el productor **Cameron Mackintosh**, que además llevó a "
+        "Londres «**Les Misérables**» (1985, de los franceses Boublil y "
+        "Schönberg) y produjo «**Miss Saigon**» (1989).",
+
+        "## Franquicia global",
+        "La clave del modelo es la **replicación**: la producción de Londres "
+        "se **clona** —misma escenografía, misma dirección, mismas marcas de "
+        "movimiento— en Nueva York, Toronto, Sídney, Hamburgo, Madrid, "
+        "Tokio… y se mantiene **años en cartel**. Convirtió el musical en un "
+        "**producto industrial exportable**, con supervisores que viajan para "
+        "que cada montaje sea idéntico.",
+
+        "## La crítica",
+        "El reproche habitual: el **espectáculo y la maquinaria pueden tapar "
+        "el drama**, y la homogeneización deja poco espacio a la relectura. "
+        "El **éxito comercial**, en cambio, fue enorme y sostenido, y "
+        "financió buena parte de la actividad teatral de esas décadas.",
+    ],
+    verTambien=["wiki-tm-britanico-80s", "wiki-tm-disney-y-90s", "wiki-tm-broadway-westend",
+                "wiki-prod-directo", "wiki-tm-westend"],
+    fuentes=_tmf("Megamusical"),
+),
+
+"wiki-tm-disney-y-90s": dict(
+    resumen="Broadway se renueva en los años 90 con adaptaciones de estudio "
+            "(Disney) y, a la vez, con el regreso del riesgo artístico "
+            "(«Rent»).",
+    cuerpo=[
+        "Los años 90 sacan a Broadway de un cierto agotamiento: entra el "
+        "**capital de los grandes estudios** y, casi al mismo tiempo, "
+        "reaparecen los **autores jóvenes con algo que decir**.",
+
+        "## Disney en el escenario",
+        "**Disney** adapta sus películas de animación al teatro. «**Beauty "
+        "and the Beast**» (1994) es un traslado bastante literal y un éxito "
+        "de familias. «**The Lion King**» (1997) es otra cosa: la directora "
+        "**Julie Taymor** usa **máscaras, siluetas y marionetas gigantes** de "
+        "raíz asiática y africana, con actores visibles manejándolas; es una "
+        "de las producciones **más taquilleras de la historia** y demostró "
+        "que una adaptación de estudio podía ser también **arriesgada "
+        "visualmente**. Disney contribuyó además a **sanear la zona de Times "
+        "Square**, entonces degradada.",
+
+        "## El otro extremo: «Rent»",
+        "«**Rent**» (1996), de **Jonathan Larson**, traslada «La bohème» de "
+        "Puccini al **East Village** de la Nueva York del **sida**, con rock "
+        "alternativo, personajes queer y con VIH, y una energía de concierto. "
+        "Larson **murió de un aneurisma la víspera del primer preestreno "
+        "off-Broadway**, a los 35 años, sin ver su éxito. Conectó con un "
+        "**público joven** que no iba al teatro musical.",
+
+        "## El equilibrio de la década",
+        "Al final de los 90 conviven las **grandes marcas** (Disney, los "
+        "megamusicales que siguen en cartel) y una **nueva ola de autores** "
+        "(«Ragtime», «Parade», «The Last Five Years»). Broadway vuelve a ser, "
+        "a la vez, **negocio** y **laboratorio**.",
+    ],
+    verTambien=["wiki-tm-megamusical", "wiki-tm-jukebox-y-contemporaneo", "wiki-tm-siglo-xxi",
+                "wiki-teatro-mundo", "wiki-tm-broadway-westend"],
+    fuentes=_tmf("Rent_(musical)"),
+),
+
+"wiki-tm-jukebox-y-contemporaneo": dict(
+    resumen="El musical hecho con canciones ya existentes (jukebox) y una "
+            "generación de autores que mezcla pop, rock, folk y hip-hop sin "
+            "complejos.",
+    cuerpo=[
+        "El siglo XXI trae dos corrientes paralelas: reciclar **catálogos de "
+        "éxitos** y una **nueva autoría** que ya no distingue entre «música de "
+        "Broadway» y música popular.",
+
+        "## El jukebox musical",
+        "Construye una historia —de ficción o **biográfica**— alrededor del "
+        "**repertorio de un artista o una época**. «**Mamma Mia!**» (1999, "
+        "canciones de **ABBA** engarzadas en una trama nueva), «**We Will Rock "
+        "You**» (**Queen**), «**Jersey Boys**» (2005, la biografía de **The "
+        "Four Seasons**, con las canciones en su contexto real), «**Beautiful**» "
+        "(Carole King), «**& Juliet**» (los éxitos de Max Martin). "
+        "Comercialmente **muy potente**; artísticamente, muy **desigual**: "
+        "funciona mejor cuando la trama justifica de verdad cada canción "
+        "(biografía) que cuando las encaja a la fuerza.",
+
+        "## Los autores nuevos",
+        "«**Wicked**» (2003, música de Stephen Schwartz) reinventa «El mago "
+        "de Oz» desde el punto de vista de la **«bruja mala»** y se convierte "
+        "en uno de los mayores éxitos de la historia. «**Avenue Q**» "
+        "(marionetas para adultos) y «**The Book of Mormon**» (2011, de los "
+        "creadores de *South Park* con Robert Lopez) hacen **comedia "
+        "irreverente**. «**Spring Awakening**» (rock alternativo sobre "
+        "adolescencia y represión, s. XIX), «**Fun Home**» (2015, adaptación "
+        "de la **novela gráfica** de Alison Bechdel; primer musical de "
+        "Broadway con una protagonista lesbiana, escrito por un equipo "
+        "íntegramente femenino), «**Next to Normal**» (salud mental; "
+        "Pulitzer).",
+
+        "## Un género sin complejo",
+        "El musical contemporáneo **mezcla estilos** —pop, rock, folk, R&B, "
+        "hip-hop, electrónica— según lo pida la historia, y trata temas que "
+        "antes quedaban fuera. La orquesta de foso convive con bandas de "
+        "rock y con pistas pregrabadas.",
+    ],
+    verTambien=["wiki-tm-siglo-xxi", "wiki-tm-disney-y-90s", "wiki-historia-popular",
+                "wiki-tm-espana-latam", "wiki-tm-numero"],
+    fuentes=_tmf("Jukebox_musical"),
+),
+
+"wiki-tm-siglo-xxi": dict(
+    resumen="«Hamilton», el hip-hop, el reparto diverso y la difusión global "
+            "por álbum, YouTube y streaming.",
+    cuerpo=[
+        "El musical de los últimos veinte años se define por tres cosas: "
+        "**nuevos lenguajes musicales** (sobre todo el hip-hop), un impulso "
+        "consciente hacia el **reparto diverso**, y una **difusión "
+        "planetaria** que ya no depende de pisar el teatro.",
+
+        "## Lin-Manuel Miranda",
+        "«**In the Heights**» (2008) lleva a Broadway el barrio dominicano de "
+        "Washington Heights con salsa, merengue y **rap**. «**Hamilton**» "
+        "(2015) cuenta la **fundación de Estados Unidos** —a partir de la "
+        "biografía de Alexander Hamilton por Ron Chernow— con **hip-hop, R&B "
+        "y guiños al musical clásico**, y con un **reparto de actores "
+        "afroamericanos y latinos** interpretando a los Padres Fundadores "
+        "(«América entonces contada por América ahora»). Fenómeno cultural, "
+        "**Pulitzer de teatro** y récord de nominaciones a los Tony.",
+
+        "## Otros títulos",
+        "«**Dear Evan Hansen**» (2016, ansiedad social y redes), «**Hadestown**» "
+        "(2019, de la cantautora **Anaïs Mitchell**: el mito de Orfeo en un "
+        "folk-jazz de Nueva Orleans; Tony al mejor musical), «**Six**» (2017, "
+        "las seis esposas de Enrique VIII como un **girl group** de pop), "
+        "«**A Strange Loop**» (2022, Pulitzer), «**Kimberly Akimbo**».",
+
+        "## La difusión sin teatro",
+        "El **álbum del reparto** (*cast recording*), **YouTube**, TikTok y "
+        "las **grabaciones en vídeo** de la función han cambiado el alcance "
+        "del género: «Hamilton» se estrenó en **Disney+** en 2020 y millones "
+        "de personas se saben la obra sin haberla visto en directo. Un "
+        "musical puede ser un **fenómeno global** partiendo de una sala de "
+        "mil butacas.",
+    ],
+    verTambien=["wiki-tm-jukebox-y-contemporaneo", "wiki-tm-broadway-westend",
+                "wiki-historia-popular", "wiki-danza-en-el-musical", "wiki-tm-espana-latam"],
+    fuentes=_tmf("Hamilton_(musical)"),
+),
+
+"wiki-tm-numero": dict(
+    resumen="Los tipos de canción de un musical y las herramientas —reprise, "
+            "underscoring, finale de acto— con que se dosifica la emoción.",
+    cuerpo=[
+        "Las canciones de un musical **no son intercambiables**: cada una "
+        "cumple una función dramática concreta y se coloca en un momento "
+        "preciso. Estos son los tipos más reconocibles.",
+
+        "## Canciones que sitúan y presentan",
+        "**Número de apertura** (*opening number*): establece el **mundo, el "
+        "tono y las reglas** del musical en sus primeros minutos («Tradition» "
+        "en «El violinista en el tejado», «Willkommen» en «Cabaret»). "
+        "**Canción «I want»** (o «I wish»): pronto en el primer acto, el "
+        "**protagonista canta su deseo**, el motor de toda la trama («Somewhere "
+        "That's Green», «Wouldn't It Be Loverly», «Part of Your World»). "
+        "**Canción «I am»**: **define quién es** un personaje al presentarlo.",
+
+        "## Canciones de desarrollo y de conjunto",
+        "**Charm song**: ligera y simpática, hace querer a un personaje o a "
+        "una pareja. ***Production number***: gran número de **conjunto con "
+        "baile**, mucho aparato («Steam Heat», «Rich Man's Frug»). "
+        "**Canción de amor**, **dúo de conflicto**, **canción de comedia** "
+        "(*comedy song*, a menudo un *patter* rápido).",
+
+        "## El «eleven o'clock number»",
+        "Una canción **demoledora hacia el final del segundo acto** "
+        "(históricamente, sobre las 23:00), en la que un personaje principal "
+        "llega a una **revelación** o hace balance, y que **reactiva al "
+        "público** para el desenlace: «Rose's Turn» («Gypsy»), «I'm Still "
+        "Here» («Follies»), «Defying Gravity» (cierre de acto en «Wicked»).",
+
+        "## Herramientas transversales",
+        "El **reprise**: una canción **vuelve cambiada de sentido** por lo "
+        "que ha pasado entre medias (la misma melodía, ahora irónica o "
+        "trágica). El **underscoring**: música instrumental **bajo el "
+        "diálogo** que sostiene la tensión y prepara la siguiente canción. Y "
+        "el **finale del primer acto**, que deja el conflicto en su **punto "
+        "más alto** justo antes del descanso, para que el público vuelva.",
+    ],
+    verTambien=["wiki-tm-estructura", "wiki-teoria-formas", "wiki-tm-que-es",
+                "wiki-tm-roles", "wiki-tm-edad-oro"],
+    fuentes=[W("Wikipedia (EN) — «I want» song",
+               "https://en.wikipedia.org/wiki/%22I_want%22_song"),
+             W("Wikipedia (EN) — 11 o'clock number",
+               "https://en.wikipedia.org/wiki/11_o%27clock_number"),
+             F_STEMPEL],
+),
+
+"wiki-tm-estructura": dict(
+    resumen="Por qué casi todos los musicales tienen dos actos, cuándo la "
+            "escena se convierte en canción, y qué es un musical "
+            "«sung-through».",
+    cuerpo=[
+        "Casi todos los musicales están cortados por el mismo patrón, y no por "
+        "falta de imaginación: ese molde funciona, tanto en lo teatral como en "
+        "lo comercial.",
+
+        "## Dos actos y un descanso",
+        "El **primer acto** presenta el mundo, los personajes y sus deseos, "
+        "planta el conflicto y termina en un **finale que sube la apuesta** "
+        "(y que vende bebidas en el intermedio). El **segundo acto**, más "
+        "corto, desarrolla las **consecuencias**, incluye el *eleven o'clock "
+        "number* y **resuelve**. El descanso no es solo comercial: da al "
+        "público un respiro y permite un **salto temporal** o un cambio de "
+        "tono al volver.",
+
+        "## Cuándo se canta",
+        "La **regla de oro**: se pasa de **hablar a cantar** (y de cantar a "
+        "**bailar**) cuando la **emoción crece** y la palabra sola se queda "
+        "corta. El diálogo previo debe **«ganar» la canción**: cuando el "
+        "personaje rompe a cantar, tiene que parecer **inevitable**. Una "
+        "canción bien colocada **cambia algo**: al terminar, el personaje ha "
+        "decidido, ha entendido o ha revelado algo que antes no.",
+
+        "## Musicales «sung-through»",
+        "Algunos prescinden casi por completo del **diálogo hablado** y lo "
+        "cantan (o lo recitan sobre música) **todo**: «**Les Misérables**», "
+        "«**Jesus Christ Superstar**», «**Hamilton**», «**Hadestown**», "
+        "«**Evita**». Se acercan a la **ópera**, pero con **lenguaje y ritmo "
+        "populares** y con recitativos que suenan a habla o a rap. Exigen una "
+        "**construcción musical continua**, con leitmotivs y grandes "
+        "arquitecturas armónicas.",
+
+        "## Variantes",
+        "El **revue** (sin trama), el **song cycle** (un ciclo de canciones "
+        "temáticas, tipo «Songs for a New World»), el **musical de cámara** "
+        "(pocos intérpretes, banda pequeña: «The Last Five Years», "
+        "«[title of show]»), el **inmersivo** («Natasha, Pierre & the Great "
+        "Comet of 1812», con el público entre las mesas).",
+    ],
+    verTambien=["wiki-tm-numero", "wiki-teatro-estructura-espacio", "wiki-tm-que-es",
+                "wiki-historia-opera", "wiki-teoria-formas"],
+    fuentes=_tmf("Musical theatre"),
+),
+
+"wiki-tm-roles": dict(
+    resumen="Quién crea la partitura, el texto y la puesta en escena: "
+            "compositor, letrista y libretista definen la obra; luego el "
+            "equipo de producción la levanta.",
+    cuerpo=[
+        "Un musical es obra de **tres autores** —a veces dos o una sola "
+        "persona— y de un **equipo de montaje** grande. Conviene no "
+        "confundir sus funciones.",
+
+        "## Los tres autores",
+        "**Compositor**: escribe la **música**. **Letrista** (*lyricist*): "
+        "escribe las **letras** de las canciones; puede ser la misma persona "
+        "que el compositor (Sondheim, Lin-Manuel Miranda) o un socio "
+        "(Rodgers **y** Hammerstein, Kander **y** Ebb). **Libretista** o "
+        "**autor del libro** (*bookwriter*): escribe la **estructura "
+        "dramática** y el **diálogo hablado**, y decide **dónde van las "
+        "canciones**. El libro es la parte menos visible y la que más "
+        "musicales hunde cuando falla.",
+
+        "## El equipo musical de producción",
+        "**Director musical** (*music director* / *conductor*): dirige a la "
+        "orquesta y **prepara musicalmente** a los cantantes. **Orquestador**: "
+        "convierte el **borrador de piano** del compositor en la **partitura "
+        "para el foso**, decidiendo qué instrumento toca qué (un trabajo "
+        "enorme y a menudo poco reconocido; el «sonido de Broadway» de cada "
+        "época lo definen orquestadores como Robert Russell Bennett o Jonathan "
+        "Tunick). **Arreglista vocal** y **dance arranger** (crea la música "
+        "de los números de baile a partir de los temas).",
+
+        "## El resto del equipo",
+        "**Director** (visión escénica y trabajo con los actores), "
+        "**coreógrafo** (clave en el género; a veces la misma persona que el "
+        "director), y los **diseñadores** de escenografía, vestuario, "
+        "iluminación y **sonido** (en el musical, el diseño de sonido es "
+        "crítico: cientos de micrófonos, mezcla en vivo). Por encima de "
+        "todo, el **productor**, que **reúne el dinero y el equipo y asume el "
+        "riesgo**: montar un musical en Broadway cuesta hoy entre 10 y 25 "
+        "millones de dólares, y la mayoría **no recupera la inversión**.",
+    ],
+    verTambien=["wiki-teatro-oficios", "wiki-tm-broadway-westend", "wiki-tm-numero",
+                "wiki-teoria-timbre", "wiki-prod-directo"],
+    fuentes=_tmf("Musical theatre"),
+),
+
+"wiki-tm-broadway-westend": dict(
+    resumen="Dónde vive el teatro musical y cómo se organiza el circuito: "
+            "Broadway y el West End en la cima, y debajo el off, los teatros "
+            "regionales y las giras.",
+    cuerpo=[
+        "El teatro musical comercial se organiza en una **pirámide** bastante "
+        "clara, con dos distritos en la cúspide y varios escalones por debajo "
+        "donde se prueban y se abaratan las obras.",
+
+        "## Broadway",
+        "El conjunto de **41 teatros** de gran aforo (500+ butacas) en torno "
+        "a **Times Square**, Nueva York. Un estreno «en Broadway» es el mayor "
+        "**sello de prestigio** del género. Sus premios son los **Tony** "
+        "(desde 1947). El **West End** es su equivalente en **Londres** —unos "
+        "40 teatros en torno a Shaftesbury Avenue y Covent Garden—, con los "
+        "premios **Laurence Olivier**. Entre las dos ciudades hay un "
+        "**tráfico constante** de producciones en ambos sentidos.",
+
+        "## Off-Broadway y regional",
+        "**Off-Broadway** (100-499 butacas) y **off-off-Broadway** (menos de "
+        "100): **costes más bajos, riesgo artístico más alto**; muchos "
+        "éxitos nacieron ahí antes de «subir» («A Chorus Line», «Rent», "
+        "«Hamilton», «Little Shop of Horrors»). Los **teatros regionales** "
+        "(La Jolla Playhouse, Seattle Rep, el Public Theater) **estrenan y "
+        "ajustan** producciones —con público real— antes de arriesgarse en "
+        "Nueva York.",
+
+        "## Las giras y las licencias",
+        "Las **giras** (*touring*) llevan las producciones por Norteamérica y "
+        "el mundo y suelen ser el verdadero **negocio a largo plazo** de un "
+        "título. Y las **licencias** (MTI, Concord, R&H) permiten que "
+        "institutos, universidades y compañías amateurs monten los musicales "
+        "pagando derechos: para muchos títulos, ahí está el grueso de la "
+        "recaudación durante décadas.",
+
+        "## En español",
+        "Hay circuito propio: la **Gran Vía** de Madrid funciona como un "
+        "pequeño Broadway (grandes adaptaciones y creación local), y **Ciudad "
+        "de México** y **Buenos Aires** tienen escenas muy activas, además de "
+        "la tradición viva de la **zarzuela**.",
+    ],
+    verTambien=["wiki-tm-westend", "wiki-tm-off-broadway", "wiki-tm-megamusical",
+                "wiki-tm-espana-latam", "wiki-tm-roles"],
+    fuentes=[W("Wikipedia (EN) — Broadway theatre",
+               "https://en.wikipedia.org/wiki/Broadway_theatre"),
+             W("Wikipedia (EN) — West End theatre",
+               "https://en.wikipedia.org/wiki/West_End_theatre"),
+             F_STEMPEL],
+),
+
+"wiki-tm-1920s-30s": dict(
+    resumen="La era del glamour: la revista de lujo (Ziegfeld Follies) y la "
+            "comedia musical, con la mejor cosecha de canciones de Broadway y "
+            "Tin Pan Alley.",
+    cuerpo=[
+        "Entre el final de la Primera Guerra Mundial y la Segunda, Broadway "
+        "vive su etapa **más glamurosa y más prolífica en canciones**, aunque "
+        "todavía con libros flojos.",
+
+        "## Dos formatos",
+        "La **revista** (*revue*): una **sucesión de números** —canciones, "
+        "sketches cómicos, bailes, coristas— **sin trama**. Las «**Ziegfeld "
+        "Follies**» de Florenz Ziegfeld son la cima del lujo (vestuario "
+        "fastuoso, escaleras, decenas de bailarinas); también «George White's "
+        "Scandals», «The Band Wagon». La **comedia musical** (*musical "
+        "comedy*): un **argumento ligero** —enredos amorosos, ricos "
+        "excéntricos— como **excusa** para canciones, chistes y bailes, con "
+        "estrellas cómicas (los hermanos Marx empezaron aquí).",
+
+        "## La edad de oro de la canción",
+        "Es la cosecha del **Great American Songbook**: **George e Ira "
+        "Gershwin** («Lady, Be Good!», «Of Thee I Sing» —primer musical "
+        "Pulitzer—), **Cole Porter** («Anything Goes», 1934), **Jerome "
+        "Kern**, **Irving Berlin** («Face the Music», «As Thousands Cheer»), "
+        "**Rodgers y Hart** («On Your Toes», con el ballet «Slaughter on Tenth "
+        "Avenue»). Canciones como «**I Got Rhythm**», «**Night and Day**», "
+        "«**Embraceable You**», «**Summertime**» se **desprendieron de sus "
+        "shows** y se volvieron **estándares de jazz** para siempre.",
+
+        "## El golpe de la Depresión",
+        "El **crac de 1929** y el auge del **cine sonoro** (que se llevó a "
+        "compositores, intérpretes y público a Hollywood) hundieron parte del "
+        "sector. Pero también empujaron hacia musicales **con más sustancia** "
+        "—sátira política («Of Thee I Sing»), ambición social— que "
+        "desembocarían en la edad de oro de los años 40. «Show Boat» (1927) "
+        "ya había mostrado el camino.",
+    ],
+    verTambien=["wiki-tm-nacimiento", "wiki-tm-cine-musical", "wiki-comp-gershwin",
+                "wiki-historia-jazz", "wiki-tm-edad-oro"],
+    fuentes=_tmf("Musical theatre"),
+),
+
+"wiki-tm-cine-musical": dict(
+    resumen="El género salta a la pantalla con el cine sonoro y desarrolla un "
+            "lenguaje propio: Busby Berkeley, Astaire-Rogers, el Freed Unit y "
+            "los renacimientos posteriores.",
+    cuerpo=[
+        "En cuanto el cine tuvo sonido (1927), el musical **se mudó también a "
+        "la pantalla**, donde ganó recursos que el escenario no tiene y "
+        "perdió otros.",
+
+        "## Los primeros años y Busby Berkeley",
+        "Los primeros musicales filmados (1929-33) son casi teatro grabado. "
+        "**Busby Berkeley** rompe con eso: coreografías pensadas para la "
+        "**cámara**, no para un espectador de butaca —**planos cenitales**, "
+        "decenas de bailarinas formando **figuras geométricas** "
+        "caleidoscópicas, grúas imposibles— en «42nd Street» y las «Gold "
+        "Diggers».",
+
+        "## Astaire y Rogers, y el Freed Unit",
+        "**Fred Astaire** y **Ginger Rogers** (RKO, años 30) integran el "
+        "**claqué y el baile de salón en la trama romántica**, filmados en "
+        "**planos largos y enteros** para que se vea el cuerpo entero "
+        "bailando de verdad («Top Hat», «Swing Time»). En los años 40-50, la "
+        "**MGM** y la unidad de producción de **Arthur Freed** hacen la "
+        "cumbre del género: «**An American in Paris**» (1951), «**Singin' in "
+        "the Rain**» (1952), «**The Band Wagon**», con **Gene Kelly** "
+        "(atlético, callejero) y **Vincente Minnelli** o **Stanley Donen** "
+        "dirigiendo.",
+
+        "## Qué gana y qué pierde en la pantalla",
+        "**Gana**: montaje, **primeros planos** (la emoción en la cara), "
+        "**exteriores reales**, coreografía diseñada para el objetivo, "
+        "repeticiones hasta la toma perfecta. **Pierde**: la **energía del "
+        "directo**, el aquí y ahora, la relación con un público que responde.",
+
+        "## Renacimientos",
+        "Tras un largo bajón, el musical de cine ha vuelto por **oleadas**: "
+        "«Cabaret» (1972) y «Grease» (1978) en los 70; «Chicago» (2002, Óscar "
+        "a mejor película) y «Moulin Rouge!» en los 2000; «Los Miserables» "
+        "(2012, cantado en directo en el rodaje), «La La Land» (2016), y las "
+        "adaptaciones recientes («In the Heights», «West Side Story» de "
+        "Spielberg, «Wicked»).",
+    ],
+    verTambien=["wiki-tm-1920s-30s", "wiki-danza-tap", "wiki-danza-en-el-musical",
+                "wiki-cur-wilhelm", "wiki-tm-siglo-xxi"],
+    fuentes=[W("Wikipedia (EN) — Musical film",
+               "https://en.wikipedia.org/wiki/Musical_film"),
+             W("Wikipedia (EN) — Arthur Freed",
+               "https://en.wikipedia.org/wiki/Arthur_Freed"),
+             F_STEMPEL],
+),
+
+"wiki-tm-britanico-80s": dict(
+    resumen="Londres toma la delantera: por primera vez en décadas, el West "
+            "End exporta más éxitos a Broadway que al revés, gracias al "
+            "megamusical.",
+    cuerpo=[
+        "Durante casi todo el siglo XX, el flujo del musical fue de **Nueva "
+        "York a Londres**. En los años 80 se **invirtió**: el West End se "
+        "convirtió en la **fábrica de éxitos mundiales**.",
+
+        "## Los protagonistas",
+        "**Andrew Lloyd Webber**: «**Cats**» (1981, sobre poemas de T. S. "
+        "Eliot, sin apenas trama, todo atmósfera y danza; batió récords de "
+        "permanencia), «**Starlight Express**» (1984, sobre patines), «**The "
+        "Phantom of the Opera**» (1986, romanticismo gótico y una partitura "
+        "casi operística). Su productor y luego rival, **Cameron "
+        "Mackintosh**, llevó a Londres «**Les Misérables**» (1985, de los "
+        "franceses **Alain Boublil** y **Claude-Michel Schönberg**; la "
+        "crítica inicial fue tibia y el público la convirtió en fenómeno) y "
+        "produjo «**Miss Saigon**» (1989, «Madama Butterfly» en la guerra de "
+        "Vietnam, con un helicóptero en escena).",
+
+        "## El modelo",
+        "**Partitura pegadiza y casi continua**, **puesta en escena "
+        "espectacular** con maquinaria protagonista, y —la clave— **montajes "
+        "réplica** que giran **por decenas de ciudades a la vez**, "
+        "idénticos, durante años. Convirtió el musical en un **producto de "
+        "exportación** británico de primer orden.",
+
+        "## El debate",
+        "La crítica habitual: el **espectáculo y la técnica pueden tapar el "
+        "drama**, y la réplica exacta deja poco margen a la relectura. El "
+        "**éxito comercial**, sostenido durante décadas («El fantasma de la "
+        "ópera» estuvo 35 años en Broadway), es indiscutible y financió gran "
+        "parte del teatro de la época.",
+    ],
+    verTambien=["wiki-tm-megamusical", "wiki-tm-westend", "wiki-tm-broadway-westend",
+                "wiki-prod-directo", "wiki-tm-disney-y-90s"],
+    fuentes=_tmf("Megamusical"),
+),
+
+"wiki-tm-westend": dict(
+    resumen="El distrito teatral de Londres: unos 40 teatros, los premios "
+            "Olivier, temporadas larguísimas y un intercambio constante con "
+            "Broadway.",
+    cuerpo=[
+        "El **West End** es el distrito de teatro comercial de Londres y, "
+        "junto con Broadway, la **otra gran capital mundial** del teatro en "
+        "inglés.",
+
+        "## Qué es",
+        "Unos **40 teatros** de aforo grande en torno a **Shaftesbury "
+        "Avenue**, el **Strand** y **Covent Garden**, muchos de ellos "
+        "edificios victorianos y eduardianos protegidos. Un estreno «en el "
+        "West End» es, con Broadway, el mayor **sello de prestigio** del "
+        "teatro comercial anglosajón. Sus premios son los **Laurence "
+        "Olivier** (desde 1976), que entrega la Society of London Theatre.",
+
+        "## Diferencias con Broadway",
+        "Entradas **más baratas de media**; **temporadas que pueden ser "
+        "larguísimas** (la obra de misterio «**The Mousetrap**» de Agatha "
+        "Christie lleva en cartel **desde 1952**; «Les Misérables», desde "
+        "1985); y una **relación de ida y vuelta** constante de producciones y "
+        "de talento entre las dos ciudades (un montaje que triunfa en una "
+        "suele cruzar el Atlántico).",
+
+        "## Títulos nacidos aquí",
+        "Además de los megamusicales de los 80 («Cats», «El fantasma de la "
+        "ópera», «Los Miserables» en su versión inglesa), el West End ha dado "
+        "en el siglo XXI «**Matilda the Musical**» (Royal Shakespeare "
+        "Company, música de Tim Minchin), «**Six**», «**The Girl from the "
+        "North Country**» (canciones de Bob Dylan), «**Hamilton**» en su "
+        "producción londinense y las de la subvencionada **National "
+        "Theatre** («War Horse», «The Curious Incident…»).",
+    ],
+    verTambien=["wiki-tm-broadway-westend", "wiki-tm-britanico-80s", "wiki-tm-off-broadway",
+                "wiki-tm-megamusical", "wiki-teatro-que-es"],
+    fuentes=[W("Wikipedia (EN) — West End theatre",
+               "https://en.wikipedia.org/wiki/West_End_theatre"),
+             W("Wikipedia (EN) — Laurence Olivier Award",
+               "https://en.wikipedia.org/wiki/Laurence_Olivier_Award"),
+             F_STEMPEL],
+),
+
+"wiki-tm-espana-latam": dict(
+    resumen="De la zarzuela como precedente vivo a la Gran Vía madrileña y a "
+            "las escenas de México y Buenos Aires: adaptaciones traducidas y "
+            "creación propia.",
+    cuerpo=[
+        "El teatro musical en español tiene un **precedente propio y todavía "
+        "vivo** —la zarzuela— y una escena comercial que despegó, sobre todo, "
+        "en el cambio de siglo.",
+
+        "## La zarzuela como raíz",
+        "España cuenta con un género propio de **más de siglo y medio**: la "
+        "**zarzuela**, teatro lírico con **partes habladas**, canción y "
+        "baile, que ya hacía lo que el musical anglosajón haría después "
+        "(Barbieri, Chueca, Bretón, Chapí, Sorozábal). La **zarzuela "
+        "grande** y el **género chico** (piezas breves de una hora) llenaron "
+        "los teatros españoles y latinoamericanos durante décadas.",
+
+        "## La Gran Vía de Madrid",
+        "El musical al estilo de Broadway llegó primero como **adaptaciones "
+        "traducidas**. Desde los años 2000, la **Gran Vía** madrileña "
+        "funciona como un **pequeño Broadway**: grandes licencias "
+        "internacionales («El Rey León», «Los Miserables», «El Fantasma de la "
+        "Ópera», «Wicked») producidas en español, y también **creación "
+        "propia**: «**Hoy no me puedo levantar**» (2005, jukebox con "
+        "canciones de **Mecano**, un enorme éxito que abrió el mercado), «El "
+        "Médico», «Marta tiene un marcapasos», «La llamada» (de Los Javis).",
+
+        "## Latinoamérica",
+        "**Ciudad de México** tiene una escena muy activa (grandes montajes y "
+        "producción local), y **Buenos Aires** una tradición fuerte de comedia "
+        "musical y de adaptaciones, además de **giras itinerantes** que "
+        "recorren el continente. La barrera del idioma hace que las "
+        "**traducciones** (letras que rimen y encajen en la música) sean un "
+        "oficio especializado y muy valorado.",
+    ],
+    verTambien=["wiki-historia-espana", "wiki-tm-jukebox-y-contemporaneo",
+                "wiki-historia-latinoamerica", "wiki-tm-broadway-westend", "wiki-teatro-hispanoamerica-xix"],
+    fuentes=[W("Wikipedia (ES) — Zarzuela",
+               "https://es.wikipedia.org/wiki/Zarzuela"),
+             W("Wikipedia (ES) — Teatro musical",
+               "https://es.wikipedia.org/wiki/Teatro_musical"),
+             F_STEMPEL],
+),
+
+"wiki-tm-off-broadway": dict(
+    resumen="Las salas donde se prueban las ideas antes —o en vez— de llegar "
+            "a los grandes teatros: aforos pequeños, costes bajos, riesgo "
+            "artístico alto.",
+    cuerpo=[
+        "Debajo de Broadway hay un **ecosistema** más pequeño y más libre "
+        "donde nace buena parte de lo que luego triunfa (y mucho de lo que "
+        "no necesita triunfar para tener valor).",
+
+        "## Las categorías",
+        "**Off-Broadway**: salas de **100 a 499 butacas** en Nueva York, con "
+        "convenios sindicales más baratos que los de Broadway. "
+        "**Off-off-Broadway**: **menos de 100 butacas**, a menudo en sótanos, "
+        "iglesias y locales reconvertidos; el terreno de la "
+        "**experimentación** pura y de las compañías jóvenes. Menos dinero en "
+        "juego significa **más margen para arriesgar** en tema y en forma.",
+
+        "## Trampolín",
+        "Muchos éxitos **nacieron off** y luego «subieron» a Broadway: «**A "
+        "Chorus Line**», «**Rent**», «**Hamilton**», «**Little Shop of "
+        "Horrors**», «**Dear Evan Hansen**», «**Fun Home**». El **Public "
+        "Theater** (fundado por Joseph Papp) es la institución emblemática de "
+        "este circuito.",
+
+        "## O destino final",
+        "Otros títulos **se quedan** off y funcionan durante años o décadas: "
+        "«**The Fantasticks**» estuvo en cartel **42 años** (1960-2002), el "
+        "espectáculo de mayor duración de la historia del teatro musical "
+        "estadounidense; «**Blue Man Group**», «**Stomp**» y «**Perfect "
+        "Crime**» llevan décadas.",
+
+        "## El equivalente fuera de Nueva York",
+        "Los **teatros regionales** con subvención o abono (La Jolla "
+        "Playhouse, Seattle Rep, Berkeley Rep, el American Repertory Theater "
+        "de Harvard) **estrenan y ajustan** musicales nuevos con público real "
+        "antes de la gran ciudad: «Jersey Boys», «Memphis», «Come From Away» "
+        "y muchos más pasaron por ahí.",
+    ],
+    verTambien=["wiki-tm-broadway-westend", "wiki-tm-westend", "wiki-tm-siglo-xxi",
+                "wiki-teatro-absurdo", "wiki-tm-disney-y-90s"],
+    fuentes=[W("Wikipedia (EN) — Off-Broadway",
+               "https://en.wikipedia.org/wiki/Off-Broadway"),
+             W("Wikipedia (EN) — Regional theater in the United States",
+               "https://en.wikipedia.org/wiki/Regional_theater_in_the_United_States"),
+             F_STEMPEL],
+),
+
+}  # fin TEATRO_MUSICAL
+
+NUEVOS.update(TEATRO_MUSICAL)
+
+
+# =========================================================================
+#  MITOS Y RUMORES
+# =========================================================================
+MITOS = {
+
+"wiki-mitos-27-club": dict(
+    resumen="La idea de que un número anormal de músicos famosos muere a los "
+            "27 años. Lo que dice el único estudio serio: no hay ningún pico "
+            "a esa edad.",
+    cuerpo=[
+        "El **«Club de los 27»** es la creencia de que las estrellas del rock "
+        "y el blues mueren con una frecuencia inusual a los **27 años**.",
+
+        "## De dónde viene",
+        "La leyenda cuajó en **1970-71**, cuando **Jimi Hendrix**, **Janis "
+        "Joplin** y **Jim Morrison** murieron con 27 años en menos de dos "
+        "años; poco antes había muerto a esa edad **Brian Jones**, de los "
+        "Rolling Stones. La lista retrospectiva incluye a **Robert Johnson** "
+        "(1938) y **Ron «Pigpen» McKernan**. Las muertes de **Kurt Cobain** "
+        "(1994) y **Amy Winehouse** (2011), ambas a los 27, reactivaron el "
+        "mito en cada generación.",
+
+        "## Qué dicen los datos",
+        "Un estudio publicado en el **British Medical Journal en 2011** "
+        "(Wolkewitz *et al.*) analizó **1064 músicos** con un número uno en "
+        "el Reino Unido entre 1956 y 2007. Resultado: **no hay ningún pico de "
+        "mortalidad a los 27**; el riesgo a esa edad es similar al de los 25 "
+        "o los 32. El «club» **no es un fenómeno estadístico real**: es un "
+        "**sesgo de confirmación** —cada nueva muerte a los 27 se recuerda y "
+        "se suma a la lista; las de 26 o 29 se olvidan—.",
+
+        "## Lo que el estudio sí encontró",
+        "Los músicos de éxito tienen, en conjunto, **entre dos y tres veces "
+        "más riesgo** de morir jóvenes (en la veintena y la treintena) que la "
+        "población general, por sobredosis, accidentes y suicidio ligados al "
+        "estilo de vida de la fama temprana. El problema es **real**; la "
+        "cifra concreta del 27 es **una coincidencia que se retroalimenta** "
+        "al repetirse.",
+    ],
+    verTambien=["wiki-mitos-crossroads", "wiki-mitos-gloomy-sunday", "wiki-historia-popular"],
+    fuentes=[W("Wolkewitz et al., «Is 27 really a dangerous age…?», BMJ (2011)",
+               "https://www.bmj.com/content/343/bmj.d7799"),
+             W("Scientific American — The Myth That Musicians Die at 27",
+               "https://www.scientificamerican.com/article/the-myth-that-musicians-die-at-27-shows-how-superstitions-are-made/"),
+             W("Wikipedia (ES) — Club de los 27",
+               "https://es.wikipedia.org/wiki/Club_de_los_27")],
+),
+
+"wiki-mitos-paul-is-dead": dict(
+    resumen="El rumor de 1969 de que Paul McCartney había muerto en 1966 y "
+            "sido sustituido por un doble, con «pistas» ocultas en discos y "
+            "portadas.",
+    cuerpo=[
+        "En otoño de **1969**, emisoras universitarias de Estados Unidos "
+        "difundieron la teoría de que **Paul McCartney había muerto en un "
+        "accidente de coche en 1966** y que los Beatles lo habían sustituido "
+        "en secreto por un doble (a veces llamado «Billy Shears» o «Faul»), "
+        "dejando **pistas** en sus discos por remordimiento o como juego.",
+
+        "## Las supuestas pistas",
+        "La portada de **«Abbey Road»** (Paul **descalzo** y fuera de paso "
+        "con los otros tres, «como en un cortejo fúnebre»; una matrícula "
+        "cercana que reza **«28IF»**, la edad que tendría «si» viviera). "
+        "Frases que al reproducir un tema **al revés** (*backmasking*) "
+        "sonarían como «Paul is dead» o «I buried Paul» (en realidad, John "
+        "dice «cranberry sauce» al final de «Strawberry Fields Forever»). Un "
+        "parche en el brazo en la portada de **«Sgt. Pepper's»** leído como "
+        "**«O.P.D.»** («Officially Pronounced Dead»; en realidad es «O.P.P.», "
+        "de la policía de Ontario). La mano abierta sobre su cabeza en varias "
+        "fotos «como símbolo de muerte».",
+
+        "## Qué es en realidad",
+        "Un caso de manual de **pareidolia** y **apofenia**: cuando alguien "
+        "se pone a **buscar** un patrón, lo encuentra en cualquier sitio, "
+        "sobre todo en material ambiguo (audio invertido, fotos "
+        "simbólicas). La revista *Life* fotografió a un McCartney muy vivo en "
+        "su granja en noviembre de 1969. Él respondió con humor durante "
+        "décadas: en 1993 tituló un disco en directo «**Paul Is Live**», con "
+        "una parodia de la portada de «Abbey Road».",
+    ],
+    verTambien=["wiki-mitos-backmasking", "wiki-mitos-metal-satanico", "wiki-historia-popular"],
+    fuentes=[W("Wikipedia (ES) — Paul está muerto",
+               "https://es.wikipedia.org/wiki/Paul_est%C3%A1_muerto"),
+             W("Rolling Stone — The Bizarre Story of «Paul Is Dead»",
+               "https://www.rollingstone.com/feature/beatles-paul-is-dead-hoax-crazy-story-113696/")],
+),
+
+"wiki-mitos-crossroads": dict(
+    resumen="La historia de que el bluesman Robert Johnson vendió su alma al "
+            "diablo en un cruce de caminos a cambio de su talento con la "
+            "guitarra.",
+    cuerpo=[
+        "**Robert Johnson** (1911-1938) grabó solo **29 canciones** en dos "
+        "sesiones (1936-37) y murió a los **27 años**, probablemente "
+        "**envenenado** por un marido celoso. Su influencia en el rock "
+        "(Clapton, los Stones, Led Zeppelin) es enorme, y su figura está "
+        "envuelta en leyenda.",
+
+        "## La leyenda",
+        "Cuenta que Johnson, mal guitarrista, llevó su instrumento a un "
+        "**cruce de caminos** del Delta del Misisipi a **medianoche**, donde "
+        "una **figura oscura** (el diablo, o el *lwa* Papa Legba de raíz "
+        "africana, guardián de las encrucijadas) le **afinó la guitarra** y "
+        "se la devolvió; a cambio, Johnson entregó su alma y volvió tocando "
+        "de forma sobrenatural.",
+
+        "## De dónde sale",
+        "El motivo del **pacto en la encrucijada** es folclore **muy "
+        "anterior** a Johnson, presente en toda Europa y África occidental. "
+        "Se asociaba antes al bluesman **Tommy Johnson** (sin parentesco), "
+        "cuyo hermano Ledell contó esa historia en los años 60. Las canciones "
+        "de Robert Johnson —«Cross Road Blues», «Me and the Devil Blues», "
+        "«Hellhound on My Trail»— hablan de **angustia, culpa y "
+        "persecución**, pero **no narran un pacto**: el diablo es una figura "
+        "del blues, no una confesión.",
+
+        "## Lo comprobable",
+        "Johnson **desapareció una temporada** de su zona y, al volver, "
+        "tocaba muchísimo mejor. La explicación prosaica: **estudió con el "
+        "guitarrista Ike Zimmerman**, que —según su familia— ensayaba de "
+        "noche **en cementerios** para no molestar. De esa práctica nocturna "
+        "y de su muerte joven se alimentó un mito potente y duradero.",
+    ],
+    verTambien=["wiki-mitos-27-club", "wiki-mitos-tritono", "wiki-historia-jazz"],
+    fuentes=[W("Wikipedia (ES) — Robert Johnson",
+               "https://es.wikipedia.org/wiki/Robert_Johnson"),
+             W("Wikipedia (EN) — Crossroads (folklore)",
+               "https://en.wikipedia.org/wiki/Crossroads_(folklore)")],
+),
+
+"wiki-mitos-backmasking": dict(
+    resumen="La creencia de que ciertos discos esconden mensajes satánicos "
+            "audibles solo al reproducirlos hacia atrás, y el juicio a Judas "
+            "Priest de 1990.",
+    cuerpo=[
+        "El **backmasking** (o *backward masking*) es la idea de que ciertas "
+        "canciones de rock contienen **mensajes ocultos** —satánicos, "
+        "sobre drogas— que solo se oyen al **reproducir el disco al revés**.",
+
+        "## El pánico",
+        "En los años **70 y 80**, sobre todo en el cinturón bíblico "
+        "estadounidense, predicadores y grupos religiosos organizaron "
+        "**quemas de discos**. El caso más citado es «**Stairway to "
+        "Heaven**» de Led Zeppelin: al invertir un fragmento de la sección "
+        "central, algunos «oían» frases sobre Satanás. También se señaló a "
+        "los Eagles, Queen, Electric Light Orchestra.",
+
+        "## Qué es real",
+        "El backmasking **existe como recurso artístico deliberado y "
+        "evidente**: los **Beatles** («Rain», «Revolution 9»), **Pink "
+        "Floyd**, **Frank Zappa** o **«Weird Al» Yankovic** metieron mensajes "
+        "invertidos a propósito, a menudo bromas. Eso no tiene nada de "
+        "oculto.",
+
+        "## Qué no lo es",
+        "El oído humano **no procesa el habla invertida** como lenguaje: no "
+        "puede haber un mensaje que el cerebro «capte sin darse cuenta». "
+        "Cuando alguien **«oye»** una frase siniestra en un audio al revés es "
+        "porque **se la han enseñado antes** (percepción guiada): sin la "
+        "sugerencia previa, solo se oye ruido. En **1990**, el grupo "
+        "**Judas Priest** fue llevado a juicio en Nevada, acusado de que un "
+        "supuesto mensaje subliminal («**do it**») había inducido al suicidio "
+        "a dos jóvenes. El tribunal **falló a favor de la banda**: ni se "
+        "demostró que el sonido estuviera puesto a propósito, ni que un "
+        "mensaje así pueda influir en la conducta.",
+    ],
+    verTambien=["wiki-mitos-paul-is-dead", "wiki-mitos-metal-satanico", "wiki-mitos-tritono"],
+    fuentes=[W("Wikipedia (ES) — Grabación inversa",
+               "https://es.wikipedia.org/wiki/Grabaci%C3%B3n_inversa"),
+             W("Wikipedia (EN) — Judas Priest subliminal message trial",
+               "https://en.wikipedia.org/wiki/Judas_Priest#Subliminal_message_trial")],
+),
+
+"wiki-mitos-tritono": dict(
+    resumen="La idea de que en la Edad Media el tritono estaba prohibido por "
+            "«invocar al diablo». No hay ninguna fuente medieval que registre "
+            "esa prohibición.",
+    cuerpo=[
+        "El **tritono** (tres tonos enteros: la 4ª aumentada o la 5ª "
+        "disminuida) recibió el apodo latino ***diabolus in musica***, «el "
+        "diablo en la música». De ahí la leyenda de que la **Iglesia lo "
+        "prohibió** y **castigaba** a quien lo cantara.",
+
+        "## Lo que dicen los musicólogos",
+        "**No existe ninguna fuente medieval** que registre esa prohibición "
+        "ni ese apodo aplicado con esa intención. Las citas documentadas de "
+        "*diabolus in musica* son **del siglo XVIII** (en tratados de "
+        "**Fux**, **Mattheson**, **Werckmeister**) y ya entonces se "
+        "atribuían **vagamente «a los antiguos»**. Compositores medievales "
+        "como **Pérotin** usaron el tritono sin ningún problema, y en el "
+        "gótico y el Renacimiento aparece con normalidad como disonancia "
+        "controlada.",
+
+        "## Qué hay de cierto",
+        "El tritono **sí se evitaba** en el canto y el contrapunto, por "
+        "razones **prácticas y teóricas**: es muy **disonante**, **difícil "
+        "de entonar** a capela y rompía las reglas de consonancia del "
+        "sistema modal. Existía una **regla mnemotécnica** para enseñar a los "
+        "cantores a esquivar ese salto: «***mi contra fa est diabolus in "
+        "musica***» (el «mi» de un hexacordo contra el «fa» de otro forman un "
+        "tritono). Era una **regla de solfeo**, no un exorcismo. El apodo "
+        "«diabólico» es real como **etiqueta didáctica tardía y "
+        "medio en broma**, y el heavy metal lo reivindicó siglos después "
+        "justamente por su fama siniestra.",
+    ],
+    verTambien=["wiki-teoria-intervalos", "wiki-mitos-tartini", "wiki-cur-tritono-metal"],
+    fuentes=[W("Wikipedia (EN) — Tritone (Historical uses)",
+               "https://en.wikipedia.org/wiki/Tritone"),
+             W("Open Culture — Debunking the «Devil's Tritone» Myth",
+               "https://www.openculture.com/2021/10/the-medieval-ban-against-the-devils-tritone-debunking-a-great-myth-in-music-theory.html")],
+),
+
+"wiki-mitos-tartini": dict(
+    resumen="La sonata «El trino del diablo», que Giuseppe Tartini habría "
+            "oído tocar al diablo en un sueño. Un ejemplo clásico de "
+            "creatividad atribuida al sueño.",
+    cuerpo=[
+        "**Giuseppe Tartini** (1692-1770), violinista y compositor italiano "
+        "—y también teórico: descubrió los **sonidos resultantes** o «terzo "
+        "suono»—, es autor de la **Sonata para violín en sol menor** "
+        "conocida como «**El trino del diablo**».",
+
+        "## El relato",
+        "Según lo recogió el astrónomo francés **Jérôme Lalande** tras "
+        "conocer a Tartini, este contó que **soñó** que hacía un pacto con el "
+        "diablo y le entregaba su violín; el diablo tocó entonces «**una "
+        "sonata de una belleza y una destreza tan singulares que superaba "
+        "todo lo que yo había imaginado jamás**». Al despertar, Tartini "
+        "intentó **reconstruirla de memoria**: el resultado, dijo, era «con "
+        "mucho la mejor obra que he escrito» y **aun así muy inferior** a la "
+        "que había oído.",
+
+        "## Qué hay de cierto",
+        "El relato es de **segunda o tercera mano** y no se puede verificar; "
+        "puede ser un **adorno romántico** posterior o una anécdota que el "
+        "propio Tartini cultivó. La sonata **existe** y es real su "
+        "dificultad: largos **trinos** con doble cuerda en el pasaje final "
+        "(de ahí el nombre), aunque la versión más tocada hoy lleva una "
+        "**cadenza añadida por Fritz Kreisler** en el siglo XX.",
+
+        "## Por qué se repite",
+        "Es uno de los ejemplos más citados de **creatividad atribuida a un "
+        "sueño**, junto con el anillo de benceno de **Kekulé**, la melodía "
+        "de «**Yesterday**» que Paul McCartney dijo haber soñado, o «Kubla "
+        "Khan» de Coleridge. Lo que muestran estos casos es menos «el sueño "
+        "compone» y más «el trabajo previo del experto sigue en marcha "
+        "mientras duerme».",
+    ],
+    verTambien=["wiki-mitos-tritono", "wiki-mitos-crossroads", "wiki-historia-barroco"],
+    fuentes=[W("Wikipedia (EN) — Violin Sonata in G minor (Tartini)",
+               "https://en.wikipedia.org/wiki/Violin_Sonata_in_G_minor_(Tartini)"),
+             W("Wikipedia (ES) — Giuseppe Tartini",
+               "https://es.wikipedia.org/wiki/Giuseppe_Tartini")],
+),
+
+"wiki-mitos-salieri": dict(
+    resumen="La acusación de que Antonio Salieri, por envidia, envenenó a "
+            "Mozart. No hay ninguna prueba; la fijó la ficción, de Pushkin a "
+            "«Amadeus».",
+    cuerpo=[
+        "**Mozart** murió en **Viena el 5 de diciembre de 1791**, a los **35 "
+        "años**, tras unas dos semanas de enfermedad con **fiebre alta, "
+        "hinchazón generalizada, dolor y sarpullido**. El diagnóstico de la "
+        "época fue «fiebre miliar aguda».",
+
+        "## Las hipótesis médicas",
+        "Hoy se barajan una **fiebre reumática aguda** (que ya había "
+        "padecido de niño), una **infección estreptocócica** con "
+        "glomerulonefritis y **fallo renal**, o una **triquinosis**. Ninguna "
+        "requiere veneno, y todas encajan con los síntomas descritos.",
+
+        "## De dónde sale la acusación",
+        "Corrieron **rumores ya en vida** de Salieri, que él **negó "
+        "expresamente**, incluso —según su enfermero— en su lecho de muerte. "
+        "Un Salieri anciano y demente pudo haber murmurado una autoacusación "
+        "que nadie tomó en serio. La leyenda la **fijó la ficción**: "
+        "**Pushkin** («Mozart y Salieri», 1830), **Rimski-Kórsakov** (una "
+        "ópera sobre ese texto, 1897) y sobre todo **Peter Shaffer** con la "
+        "obra «**Amadeus**» (1979) y la **película** de Miloš Forman (1984), "
+        "que ganó ocho Óscar y grabó en el imaginario la imagen del **rival "
+        "mediocre y asesino**.",
+
+        "## Quién fue Salieri en realidad",
+        "Un compositor **respetado y poderoso** (maestro de capilla imperial "
+        "en Viena durante 36 años), autor de óperas de éxito, y **profesor "
+        "de Beethoven, Schubert, Liszt, Czerny y Hummel**, entre otros. Su "
+        "relación con Mozart fue de **rivalidad profesional normal** —"
+        "competían por los mismos encargos— con episodios de colaboración "
+        "cordial. En 1997, un «juicio» simbólico en Milán lo **absolvió** "
+        "formalmente.",
+    ],
+    verTambien=["wiki-mitos-efecto-mozart", "wiki-mitos-genio", "wiki-comp-mozart"],
+    fuentes=[W("Wikipedia (ES) — Muerte de Mozart",
+               "https://es.wikipedia.org/wiki/Muerte_de_Wolfgang_Amadeus_Mozart"),
+             W("Wikipedia (EN) — Antonio Salieri",
+               "https://en.wikipedia.org/wiki/Antonio_Salieri")],
+),
+
+"wiki-mitos-efecto-mozart": dict(
+    resumen="La idea popular de que escuchar Mozart hace más inteligentes a "
+            "los niños. El estudio original medía otra cosa, duraba 15 "
+            "minutos y no se ha podido replicar bien.",
+    cuerpo=[
+        "El «**efecto Mozart**» es la creencia de que **escuchar música de "
+        "Mozart aumenta la inteligencia**, sobre todo en bebés y niños.",
+
+        "## Qué decía el estudio original",
+        "En **1993**, un artículo breve en ***Nature*** (Rauscher, Shaw y Ky) "
+        "informó de que **estudiantes universitarios** mejoraban en una "
+        "tarea de **razonamiento espacial** (doblar y cortar papel "
+        "mentalmente) tras **10 minutos** escuchando la Sonata para dos "
+        "pianos K. 448. La mejora era **modesta** y duraba **10-15 "
+        "minutos**. **No** se midió el CI, **no** participaron niños ni "
+        "bebés, y **no** se comparó con otra música que gustara.",
+
+        "## Cómo se deformó",
+        "La prensa lo convirtió en «**Mozart te hace más listo**». Una "
+        "industria de discos y juguetes «Baby Einstein» lo explotó; el "
+        "**estado de Georgia** (EE. UU.) llegó a **regalar un CD de música "
+        "clásica a cada recién nacido** en 1998. Nada de eso tenía respaldo "
+        "en el estudio.",
+
+        "## Qué sabemos ahora",
+        "**Numerosos laboratorios no pudieron replicar** ni siquiera el "
+        "efecto original y modesto. Un **metaanálisis de 2010** (Pietschnig "
+        "*et al.*) concluyó que el efecto específico de Mozart es "
+        "**insignificante**. Lo poco que se observa se explica por el "
+        "**«disfrute y activación»** (*arousal and mood*): cualquier estímulo "
+        "que te ponga de buen humor y más despierto —una canción que te "
+        "guste, un pasaje de Schubert, incluso un relato interesante— produce "
+        "la misma mejora transitoria. **Aprender** a tocar un instrumento sí "
+        "tiene efectos, pero eso es otra cosa (ver «¿Tocar un instrumento te "
+        "hace más inteligente?»).",
+    ],
+    verTambien=["wiki-mitos-salieri", "wiki-mitos-instrumento-inteligente",
+                "wiki-mitos-plantas", "wiki-mitos-432hz"],
+    fuentes=[W("Rauscher et al., «Music and spatial task performance», Nature (1993)",
+               "https://www.nature.com/articles/365611a0"),
+             W("Pietschnig et al., meta-análisis del «efecto Mozart» (2010)",
+               "https://doi.org/10.1016/j.intell.2010.03.001")],
+),
+
+"wiki-mitos-stradivarius": dict(
+    resumen="La creencia de que los violines de Stradivari suenan mejor que "
+            "cualquier violín moderno gracias a un secreto perdido. Los tests "
+            "a doble ciego no lo respaldan.",
+    cuerpo=[
+        "Los violines construidos por **Antonio Stradivari** en Cremona "
+        "(sobre todo entre 1700 y 1720) valen **millones** y tienen fama de "
+        "un sonido **irrepetible**.",
+
+        "## Las explicaciones «mágicas»",
+        "Se ha atribuido su supuesta superioridad a un **barniz secreto**, a "
+        "la **densidad de la madera** por la **«Pequeña Edad de Hielo»** "
+        "(inviernos largos, crecimiento lento, anillos apretados), a "
+        "**tratamientos químicos** de la madera contra los hongos, o a un "
+        "**secreto de taller** que murió con el autor.",
+
+        "## Los tests a ciegas",
+        "La investigadora **Claudia Fritz** y el lutier Joseph Curtin "
+        "organizaron pruebas **doble ciego** (los violinistas tocaban con "
+        "**gafas opacas de soldador** y en salas con poca luz, sin saber qué "
+        "instrumento tenían). En **2012** y **2014** (este último publicado "
+        "en **PNAS**), solistas de élite **prefirieron en general violines "
+        "nuevos** a Stradivarius y Guarneri «del Gesù»; en pruebas de "
+        "**proyección en una sala grande** con público y jurado, los nuevos "
+        "**también ganaron**, y los oyentes **no distinguían** unos de "
+        "otros.",
+
+        "## Qué significa",
+        "**No** que los Stradivarius sean malos —son excelentes "
+        "instrumentos—, sino que su **superioridad audible** sobre los "
+        "mejores violines actuales **no se sostiene** cuando nadie sabe qué "
+        "está sonando. Gran parte del aura es **histórica, psicológica y "
+        "económica**: sabemos que vale millones, así que lo oímos «mejor». "
+        "Los estudios tienen críticos (número de instrumentos, condiciones), "
+        "pero han desplazado claramente la carga de la prueba.",
+    ],
+    verTambien=["wiki-mitos-432hz", "wiki-inst-violin", "wiki-historia-instrumentos"],
+    fuentes=[W("Fritz et al., PNAS (2014) — Soloist evaluations of violins",
+               "https://www.pnas.org/doi/10.1073/pnas.1323367111"),
+             W("Science — «Million-dollar Strads fall to modern violins…»",
+               "https://www.science.org/content/article/million-dollar-strads-fall-modern-violins-blind-sound-check")],
+),
+
+"wiki-mitos-432hz": dict(
+    resumen="La afirmación de que afinar el LA a 432 Hz es «más natural» y "
+            "que el estándar de 440 Hz fue una imposición (a veces atribuida "
+            "a los nazis).",
+    cuerpo=[
+        "Hoy el LA central se afina normalmente a **440 Hz**. Una corriente "
+        "sostiene que **432 Hz** está «en sintonía con el universo», con el "
+        "cuerpo o con la «geometría sagrada», y que 440 Hz fue **impuesto** "
+        "—en la versión más extrema, por la propaganda de **Goebbels**— para "
+        "manipular el ánimo de la gente.",
+
+        "## La historia real del diapasón",
+        "Durante siglos **no hubo un estándar**: cada ciudad, iglesia y "
+        "orquesta afinaba a su aire. En el Barroco el LA rondaba los "
+        "**415 Hz**; en el Clasicismo, los **430**. Durante el siglo XIX el "
+        "diapasón **fue subiendo sin control** (había orquestas por encima de "
+        "**450 Hz**), porque un sonido más agudo «brilla» más; eso forzaba a "
+        "los cantantes. Francia fijó por ley un *diapason normal* de **435 "
+        "Hz** en 1859. En **1939**, una conferencia internacional en Londres "
+        "recomendó **440 Hz** por una razón puramente **práctica**: que todo "
+        "el mundo afinara igual. Se consolidó tras la Segunda Guerra Mundial "
+        "con la industria de instrumentos estadounidense (norma ISO 16 en "
+        "1955).",
+
+        "## Qué es falso y qué no",
+        "**Falso**: que exista una «frecuencia del universo» en 432, que "
+        "haya una **conspiración documentada**, o que los nazis tuvieran "
+        "nada que ver (el estándar es de una conferencia con delegados de "
+        "varios países). **Cierto**: que **Verdi** defendió un diapasón más "
+        "bajo, cercano a 432, para no forzar la voz de sus cantantes (lo "
+        "llamó «*la* científico»). Musicalmente, la diferencia entre 432 y "
+        "440 son unos **32 cents**, un tercio de semitono: perceptible como "
+        "«un poco más grave», nada más.",
+    ],
+    verTambien=["wiki-teoria-temperamento", "wiki-mitos-efecto-mozart", "wiki-comp-verdi"],
+    fuentes=[W("Boing Boing — How a tuning debate turned into a Nazi conspiracy",
+               "https://boingboing.net/2021/01/27/how-a-centuries-old-debate-about-musical-tuning-turned-into-a-nazi-conspiracy-theory.html"),
+             W("Wikipedia (EN) — Concert pitch",
+               "https://en.wikipedia.org/wiki/Concert_pitch")],
+),
+
+"wiki-mitos-gloomy-sunday": dict(
+    resumen="La leyenda de que una canción húngara de 1933 provocó una "
+            "oleada de suicidios y fue prohibida por la BBC.",
+    cuerpo=[
+        "«**Szomorú vasárnap**» («Domingo triste»), compuesta por **Rezső "
+        "Seress** en Budapest en **1933** con letra de László Jávor, se hizo "
+        "mundialmente famosa en la versión inglesa «**Gloomy Sunday**», "
+        "grabada por **Billie Holiday** en **1941**. Se la conoce como «la "
+        "canción húngara del suicidio».",
+
+        "## La leyenda",
+        "La prensa de los años 30 la vinculó a **decenas de suicidios** en "
+        "Hungría y otros países: personas que se habrían quitado la vida "
+        "escuchándola, con la partitura en la mano o citando su letra en la "
+        "nota de despedida.",
+
+        "## Cuánto hay de cierto",
+        "**Hungría tenía —y tuvo durante todo el siglo XX— una de las tasas "
+        "de suicidio más altas del mundo**, por razones sociales, económicas "
+        "e históricas, **no por una canción**. Los casos concretos que se le "
+        "atribuyen están **mal documentados**, se repiten sin fuente y "
+        "**crecieron con cada nueva noticia** (una profecía que se "
+        "autoalimenta en la prensa amarilla). No hay ningún estudio que "
+        "muestre un efecto de la canción sobre la mortalidad.",
+
+        "## Lo verificable",
+        "La **BBC sí restringió** la difusión de la versión **cantada** "
+        "durante la Segunda Guerra Mundial, por considerarla **mala para la "
+        "moral** en tiempo de guerra (la instrumental se seguía "
+        "programando); la restricción se levantó formalmente en **2002**. Y "
+        "el propio **Seress se suicidó en 1968**, lo que reforzó el mito.",
+    ],
+    verTambien=["wiki-mitos-27-club", "wiki-mitos-backmasking", "wiki-historia-popular"],
+    fuentes=[W("Wikipedia (ES) — Gloomy Sunday",
+               "https://es.wikipedia.org/wiki/Gloomy_Sunday"),
+             W("Wikipedia (EN) — Gloomy Sunday",
+               "https://en.wikipedia.org/wiki/Gloomy_Sunday")],
+),
+
+"wiki-mitos-brown-note": dict(
+    resumen="La supuesta frecuencia grave que, a suficiente volumen, haría "
+            "perder el control de los intestinos.",
+    cuerpo=[
+        "La «**nota marrón**» (*brown note*) es la leyenda de que existe una "
+        "**frecuencia infrasónica** concreta (se citan cifras entre 5 y "
+        "9 Hz) que, reproducida a **gran volumen**, provocaría una "
+        "**evacuación intestinal involuntaria**. Aparece en «South Park», en "
+        "relatos sobre «armas sónicas» y en foros militares.",
+
+        "## Lo que se ha comprobado",
+        "El programa **MythBusters** lo probó en **2005** con un sistema de "
+        "altavoces potente y un barrido de frecuencias de **5 a 150 Hz**. "
+        "Los participantes notaron **vibración, presión en el pecho y "
+        "malestar**, pero **nadie perdió el control de nada**. No existe "
+        "**ninguna evidencia científica** publicada de la «brown note», ni "
+        "un mecanismo fisiológico plausible: los órganos no tienen una "
+        "frecuencia de resonancia tan específica y catastrófica.",
+
+        "## Lo que sí es real",
+        "El **infrasonido** (por debajo de 20 Hz) y los sonidos **muy "
+        "intensos** pueden causar **náuseas, ansiedad, vértigo y "
+        "desorientación**, y se han asociado a sensaciones de «presencia» en "
+        "lugares con maquinaria (el famoso experimento del *fantasma* a "
+        "19 Hz). Por eso existen **dispositivos acústicos** (LRAD) para "
+        "dispersar multitudes, basados en volumen y direccionalidad "
+        "**dolorosos**, no en una frecuencia mágica.",
+    ],
+    verTambien=["wiki-teoria-acustica", "wiki-mitos-silbato-azteca", "wiki-mitos-plantas"],
+    fuentes=[W("Wikipedia (ES) — Nota marrón",
+               "https://es.wikipedia.org/wiki/Nota_marr%C3%B3n"),
+             W("Wikipedia (EN) — Brown note",
+               "https://en.wikipedia.org/wiki/Brown_note")],
+),
+
+"wiki-mitos-plantas": dict(
+    resumen="La idea de que a las plantas «les gusta» la música clásica y se "
+            "marchitan con el rock.",
+    cuerpo=[
+        "Desde el libro «**The Secret Life of Plants**» (1973) circula la "
+        "idea de que las plantas **perciben** la música, **prefieren** unos "
+        "estilos (Bach, Ravi Shankar) y **sufren** con otros (rock, ruido).",
+
+        "## Qué dicen los experimentos serios",
+        "Los estudios bien controlados **no encuentran ningún efecto de la "
+        "música como tal** —es decir, como estructura de melodía y armonía— "
+        "sobre el crecimiento, la floración o la salud de las plantas. El "
+        "libro original y el documental que lo siguió están **desacreditados** "
+        "por su metodología.",
+
+        "## Qué sí puede influir",
+        "**Vibración mecánica**: algunas investigaciones recientes muestran "
+        "que las plantas responden a **vibraciones concretas** (por ejemplo, "
+        "el sonido de una oruga masticando activa defensas químicas; ciertas "
+        "frecuencias afectan a la germinación). Pero eso es **física del "
+        "estímulo**, no apreciación musical. Y, sobre todo, el **efecto del "
+        "cuidador**: quien pone música a una planta suele **regarla y "
+        "atenderla más**, le habla, se acerca (y exhala CO₂). El «experimento "
+        "casero» confunde la música con la atención.",
+
+        "## Conclusión",
+        "Ponerle música a una planta **no le hace daño**, pero atribuirle un "
+        "**gusto estético** («prefiere a Mozart») **no tiene base**.",
+    ],
+    verTambien=["wiki-mitos-efecto-mozart", "wiki-mitos-brown-note", "wiki-teoria-acustica"],
+    fuentes=[W("Wikipedia (EN) — The Secret Life of Plants",
+               "https://en.wikipedia.org/wiki/The_Secret_Life_of_Plants"),
+             W("Appel & Cocroft (2014) — Plants respond to leaf vibrations",
+               "https://doi.org/10.1007/s00442-014-2995-6")],
+),
+
+"wiki-mitos-oido-absoluto": dict(
+    resumen="Ni es imprescindible para ser gran músico, ni lo tuvieron todos "
+            "los grandes, ni es puramente genético.",
+    cuerpo=[
+        "El **oído absoluto** (*perfect pitch*) es la capacidad de "
+        "**identificar o producir una nota sin ninguna referencia** («eso es "
+        "un FA♯»). Alrededor de esta rareza hay tres ideas falsas muy "
+        "extendidas.",
+
+        "## «Hace falta para ser buen músico»",
+        "Falso. **Muchísimos músicos excelentes no lo tienen** —se cita a "
+        "Wagner, a Ravel, a Stravinski entre los que no—. Lo que un músico "
+        "usa a diario es el **oído relativo**: reconocer **intervalos, "
+        "acordes, funciones y progresiones** por su relación entre sí. Eso es "
+        "lo que se entrena en el solfeo y lo que de verdad sirve para "
+        "transportar, armonizar, improvisar o afinar.",
+
+        "## «Lo tenían todos los genios»",
+        "Falso. Es **poco frecuente** en la población general (en torno a 1 "
+        "de cada 10 000, con muchísima variación según la definición y la "
+        "muestra), y **más común** en dos grupos: quienes **empezaron música "
+        "muy pronto** (antes de los 6-7 años) y los **hablantes de lenguas "
+        "tonales** (mandarín, vietnamita), donde la altura ya distingue "
+        "significados.",
+
+        "## «Es solo genético»",
+        "Simplificación. Hay un componente hereditario y una **ventana "
+        "crítica** en la primera infancia, pero **el entrenamiento temprano "
+        "es decisivo**. En la edad adulta es **muy difícil** adquirir el "
+        "absoluto pleno (aunque se puede mejorar la memoria de tono). Además, "
+        "**a veces estorba**: complica tocar con instrumentos afinados de "
+        "otra manera, cantar música transportada o disfrutar de "
+        "interpretaciones históricas a 415 Hz.",
+    ],
+    verTambien=["wiki-mitos-oido-no-tengo", "wiki-teoria-intervalos", "wiki-mitos-genio"],
+    fuentes=[W("Wikipedia (ES) — Oído absoluto",
+               "https://es.wikipedia.org/wiki/O%C3%ADdo_absoluto"),
+             W("Wikipedia (EN) — Absolute pitch",
+               "https://en.wikipedia.org/wiki/Absolute_pitch")],
+),
+
+"wiki-mitos-genio": dict(
+    resumen="La imagen de Mozart escribiendo obras maestras sin esfuerzo. "
+            "Detrás de casi todo «genio precoz» hay miles de horas de "
+            "práctica y un entorno que la hizo posible.",
+    cuerpo=[
+        "La versión popular del **genio**: un niño que compone sinfonías "
+        "perfectas jugando, sin estudiar. La película «Amadeus» reforzó esa "
+        "imagen de **talento caído del cielo** (y de Salieri como el que sí "
+        "trabajaba y aun así era mediocre).",
+
+        "## Lo documentado sobre Mozart",
+        "Su padre, **Leopold Mozart**, era un **pedagogo** de primer nivel "
+        "(autor de un método de violín muy influyente) y sometió a Wolfgang "
+        "desde los **3-4 años** a un entrenamiento **intensísimo y diario**. "
+        "Las **primeras obras** del niño son en buena parte **arreglos, "
+        "ejercicios y copias** de otros compositores, algunas corregidas por "
+        "Leopold. Sus **obras maestras** —los conciertos, las óperas Da "
+        "Ponte— llegan tras **más de quince años** de práctica constante y "
+        "de viajar oyendo toda la música de Europa.",
+
+        "## Y sobre los demás",
+        "**Beethoven** llenaba cuadernos **reescribiendo un mismo tema "
+        "decenas de veces** hasta dar con la forma. **Bach**, preguntado por "
+        "su virtuosismo, respondió: «He tenido que trabajar duro; quien "
+        "trabaje igual de duro llegará igual de lejos» (probablemente "
+        "apócrifo, pero fiel a su biografía de autodidacta obsesivo). Los "
+        "**Beatles** tocaron cientos de horas en los clubes de Hamburgo "
+        "antes de su primer éxito.",
+
+        "## Qué queda del «genio»",
+        "No se niega que exista un **talento** de partida ni una **capacidad "
+        "de trabajo** poco común. Pero la investigación sobre pericia "
+        "(**Ericsson** y la «práctica deliberada», con matices) muestra que "
+        "detrás de casi todo prodigio hay **miles de horas de práctica "
+        "estructurada** y un **entorno** —familia, recursos, maestros, "
+        "época— que la hizo posible. El «genio sin esfuerzo» es sobre todo "
+        "**una historia que nos gusta contar**.",
+    ],
+    verTambien=["wiki-mitos-salieri", "wiki-mitos-efecto-mozart", "wiki-mitos-oido-absoluto"],
+    fuentes=[W("Wikipedia (EN) — Wolfgang Amadeus Mozart",
+               "https://en.wikipedia.org/wiki/Wolfgang_Amadeus_Mozart"),
+             W("Wikipedia (EN) — Practice (learning method) / deliberate practice",
+               "https://en.wikipedia.org/wiki/Practice_(learning_method)")],
+),
+
+"wiki-mitos-vinilo": dict(
+    resumen="«El vinilo suena mejor»: conviene separar fidelidad técnica, "
+            "«calidez» y —sobre todo— qué máster lleva cada edición.",
+    cuerpo=[
+        "Afirmación habitual: el **vinilo** es **más fiel** y más **«cálido»** "
+        "que el CD o el archivo digital. Hay que separar tres cosas.",
+
+        "## Fidelidad técnica",
+        "Un **CD** (16 bits / 44,1 kHz) o un archivo digital de buena calidad "
+        "tiene **más rango dinámico** (~96 dB frente a ~65-70 del vinilo), "
+        "**menos ruido de fondo**, **menos distorsión**, **mejor separación "
+        "de canales** y **respuesta plana** en graves y agudos. El vinilo "
+        "añade **ruido de superficie** (clics, *crackle*), **lloro y "
+        "centelleo** (*wow & flutter*) por irregularidades del giro, "
+        "distorsión que **aumenta hacia el centro del disco**, y **límites "
+        "físicos** en los graves (que deben ir casi en mono) y en los "
+        "agudos. Objetivamente, el vinilo es **menos fiel**.",
+
+        "## «Calidez»",
+        "Esa misma coloración —ligera compresión, **distorsión armónica de "
+        "orden par**, recorte suave de extremos, ruido de fondo constante— es "
+        "lo que a mucha gente le resulta **agradable y «analógico»**. Es una "
+        "preferencia estética legítima; no es «más real».",
+
+        "## La clave: el máster",
+        "A menudo la edición en **vinilo** se prepara a partir de un **máster "
+        "con más dinámica** (menos «aplastado» por la guerra del volumen), "
+        "porque un vinilo demasiado comprimido y fuerte **no se puede "
+        "grabar** físicamente. Es decir: **cuando un vinilo suena mejor que "
+        "el streaming del mismo disco, casi siempre es por el máster, no por "
+        "el formato**. Y el ritual —la carátula grande, poner la aguja, "
+        "escuchar una cara entera— también influye en cómo lo percibimos.",
+    ],
+    verTambien=["wiki-historia-grabacion", "wiki-prod-mastering", "wiki-prod-formatos"],
+    fuentes=[W("Wikipedia (EN) — Comparison of analog and digital recording",
+               "https://en.wikipedia.org/wiki/Comparison_of_analog_and_digital_recording"),
+             W("Wikipedia (EN) — Loudness war",
+               "https://en.wikipedia.org/wiki/Loudness_war")],
+),
+
+"wiki-mitos-oido-no-tengo": dict(
+    resumen="Casi todo el mundo puede aprender a cantar afinado y a "
+            "reconocer música. La incapacidad real (amusia) es poco "
+            "frecuente.",
+    cuerpo=[
+        "«**No tengo oído**» es una de las frases más repetidas y peor "
+        "usadas sobre música. Casi siempre significa «**no lo he "
+        "entrenado**», no «soy incapaz».",
+
+        "## La incapacidad real: la amusia",
+        "La **amusia congénita** es una dificultad **de base "
+        "neurológica** —independiente de la inteligencia y de la audición— "
+        "para percibir o reproducir **diferencias de altura** y, a menudo, "
+        "para reconocer melodías conocidas o notar que alguien desafina. "
+        "Afecta a alrededor del **1,5-4 %** de la población. Existe también "
+        "la amusia **adquirida** tras una lesión cerebral. Es una minoría.",
+
+        "## Cantar afinado se aprende",
+        "Afinar la voz es una **habilidad motora**: **oír** una nota, "
+        "**compararla** con la que produces y **ajustar** la tensión de las "
+        "cuerdas vocales. Es un bucle de **retroalimentación** que mejora con "
+        "práctica guiada. Estudios con **adultos** que se consideraban "
+        "«negados» muestran **progresos claros** en semanas. La mayoría de "
+        "los «desafinados» simplemente **nunca han practicado escucharse**.",
+
+        "## Lo que de verdad usa un músico",
+        "El **oído relativo**: reconocer **intervalos, acordes y funciones** "
+        "por su relación. Se entrena **a cualquier edad** con solfeo, "
+        "transcripción y canto, y es mucho más útil que el oído absoluto. "
+        "Decir «no tengo oído» a los 30 años es como decir «no sé nadar»: "
+        "una descripción del presente, no una condena.",
+    ],
+    verTambien=["wiki-mitos-oido-absoluto", "wiki-mitos-genio", "wiki-teoria-intervalos"],
+    fuentes=[W("Wikipedia (ES) — Amusia", "https://es.wikipedia.org/wiki/Amusia"),
+             W("Wikipedia (EN) — Amusia", "https://en.wikipedia.org/wiki/Amusia")],
+),
+
+"wiki-mitos-instrumento-inteligente": dict(
+    resumen="Los músicos puntúan mejor en varias pruebas cognitivas, pero la "
+            "relación causa-efecto sobre la inteligencia general no está "
+            "clara.",
+    cuerpo=[
+        "«**Tocar un instrumento te hace más inteligente**» es una afirmación "
+        "a medio camino entre lo demostrado y lo exagerado.",
+
+        "## Lo que hay: correlación y cambios en el cerebro",
+        "De media, quienes estudian música **rinden algo mejor** en "
+        "**memoria de trabajo**, **atención**, **función ejecutiva** y "
+        "ciertas tareas **verbales y espaciales**. Hay además diferencias "
+        "**medibles** en el cerebro de músicos entrenados (más materia gris "
+        "en áreas auditivas y motoras, un **cuerpo calloso** mayor en quienes "
+        "empezaron de niños).",
+
+        "## El problema: correlación no es causa",
+        "Quienes reciben **clases de música** suelen tener también un "
+        "**entorno familiar, económico y educativo favorable**, más "
+        "constancia y más apoyo. Cuando los estudios **controlan** esas "
+        "variables —o asignan las clases **al azar**—, el efecto sobre el "
+        "**CI general** se vuelve **pequeño o inconsistente**. Grandes "
+        "revisiones (Sala y Gobet, 2017 y 2020) concluyen que el "
+        "**«transfer»** a habilidades no musicales es **débil**.",
+
+        "## Lo que sí parece sólido",
+        "Estudiar música **mejora en la propia música** y en habilidades "
+        "**muy relacionadas**: percepción del **ritmo**, discriminación de "
+        "**sonidos**, procesamiento **auditivo** y algunos aspectos de la "
+        "**lectura fonológica**. Y aporta cosas que no se miden en un test: "
+        "disciplina, trabajo en grupo, disfrute. **Merece la pena por sí "
+        "misma**, sin necesidad de venderla como un truco para subir el CI.",
+    ],
+    verTambien=["wiki-mitos-efecto-mozart", "wiki-mitos-genio", "wiki-teoria-ritmo"],
+    fuentes=[W("Sala & Gobet (2020) — Cognitive and academic benefits of music training: meta-analysis",
+               "https://doi.org/10.1016/j.edurev.2020.100341"),
+             W("Nature Scientific Reports — música y cognición (2020)",
+               "https://www.nature.com/articles/s41598-020-60732-w")],
+),
+
+"wiki-mitos-metal-satanico": dict(
+    resumen="La idea de que el heavy metal (y antes el rock) corrompe a la "
+            "juventud e incita al suicidio y la violencia; los juicios de los "
+            "años 80-90 y lo que dice la investigación.",
+    cuerpo=[
+        "Desde los años 50 (el rock and roll) y con fuerza en los **80** (el "
+        "heavy metal), sectores conservadores y religiosos de Estados Unidos "
+        "acusaron a esta música de fomentar el **satanismo, el suicidio y la "
+        "delincuencia**. Es un **pánico moral** clásico: una minoría cultural "
+        "juvenil señalada como amenaza para el orden.",
+
+        "## El PMRC y la etiqueta «Parental Advisory»",
+        "En **1985**, el comité **PMRC** (Parents Music Resource Center), "
+        "impulsado por Tipper Gore y otras esposas de políticos, llevó el "
+        "debate al **Senado**. De ahí salió la pegatina «**Parental "
+        "Advisory: Explicit Content**». En las audiencias declararon, entre "
+        "otros, **Frank Zappa**, **Dee Snider** (Twisted Sister) y **John "
+        "Denver**, en contra de la censura.",
+
+        "## Los juicios",
+        "**Ozzy Osbourne** («Suicide Solution», 1986) y **Judas Priest** "
+        "(1990) fueron demandados por familias que atribuían el suicidio de "
+        "sus hijos a mensajes en las canciones. **Los tribunales fallaron a "
+        "favor de los músicos**: no hay pruebas de que letras o supuestos "
+        "mensajes subliminales **causen** ese comportamiento.",
+
+        "## Qué dice la investigación",
+        "Escuchar metal **no causa** violencia ni suicidio. Los estudios "
+        "encuentran que los adolescentes con **problemas previos** (depresión, "
+        "conflictos familiares) pueden **sentirse atraídos** por letras "
+        "oscuras y por la comunidad del género, que a menudo les sirve de "
+        "**válvula de escape** y de identidad, no de detonante. Es "
+        "**correlación**, y probablemente **protectora** más que dañina.",
+    ],
+    verTambien=["wiki-mitos-backmasking", "wiki-mitos-tritono", "wiki-cur-tritono-metal"],
+    fuentes=[W("Wikipedia (ES) — Parents Music Resource Center",
+               "https://es.wikipedia.org/wiki/Parents_Music_Resource_Center"),
+             W("Wikipedia (EN) — Music and moral panic",
+               "https://en.wikipedia.org/wiki/Parents_Music_Resource_Center")],
+),
+
+"wiki-mitos-silbato-azteca": dict(
+    resumen="Un objeto arqueológico con forma de calavera que produce un "
+            "sonido áspero parecido a un grito humano, rodeado de leyendas "
+            "sobre su función.",
+    cuerpo=[
+        "Se han hallado en México pequeños **silbatos de cerámica con forma "
+        "de calavera** que, soplados con fuerza, generan un **chillido "
+        "áspero y caótico**, a medio camino entre un grito humano y una "
+        "ráfaga de viento. Se los llama popularmente «**silbatos de la "
+        "muerte**».",
+
+        "## El contexto arqueológico",
+        "Los ejemplares mejor documentados proceden de un enterramiento "
+        "**mexica** hallado en el templo de **Ehécatl-Quetzalcóatl** (dios "
+        "del viento) en Tlatelolco: uno en cada mano de un joven "
+        "sacrificado. Aparecen, pues, en contextos **funerarios y de "
+        "sacrificio**, y a menudo asociados al **viento**.",
+
+        "## La leyenda y lo que se sabe",
+        "De ahí las hipótesis populares: que se usaban para **aterrorizar al "
+        "enemigo** en la batalla (tocados por cientos a la vez), para "
+        "**acompañar a los muertos** al inframundo o para inducir estados "
+        "alterados en ritos. Son **plausibles pero no están demostradas**: "
+        "la **función exacta se desconoce**, y muchos «silbatos de la "
+        "muerte» que circulan hoy son **reproducciones modernas** "
+        "amplificadas para YouTube.",
+
+        "## Lo comprobable es acústico",
+        "Su diseño de **dos cámaras enfrentadas** que fuerzan el choque de "
+        "dos chorros de aire produce un **ruido de banda ancha, inarmónico y "
+        "modulado de forma irregular** —justo el tipo de sonido que el "
+        "sistema auditivo humano procesa como **una voz en peligro o una "
+        "alarma**, por su parecido con un grito de terror—.",
+    ],
+    verTambien=["wiki-mitos-brown-note", "wiki-teoria-acustica", "wiki-historia-antiguedad"],
+    fuentes=[W("Wikipedia (EN) — Aztec death whistle",
+               "https://en.wikipedia.org/wiki/Aztec_death_whistle"),
+             W("Frühholz et al. (2024) — Nature Communications Psychology, sobre "
+               "la percepción del silbato de la muerte", ""),
+             W("Smithsonian Magazine — The Eerie Sound of the Aztec «Death Whistle»",
+               "https://www.smithsonianmag.com/smart-news/")],
+),
+
+}  # fin MITOS
+
+NUEVOS.update(MITOS)
+
+
+# =========================================================================
+#  CURIOSIDADES
+# =========================================================================
+CURIOSIDADES = {
+
+"wiki-cur-433": dict(
+    resumen="«4′33″» de John Cage: la pieza en la que el intérprete no "
+            "produce ningún sonido a propósito, y por qué es una de las más "
+            "influyentes del siglo XX.",
+    cuerpo=[
+        "«**4′33″**» de **John Cage** se estrenó el **29 de agosto de 1952**, "
+        "con el pianista **David Tudor** en Woodstock (Nueva York). Tres "
+        "movimientos —marcados solo con «TACET»— durante los cuales el "
+        "intérprete **no produce ningún sonido intencionado**. Tudor marcó "
+        "cada movimiento **abriendo y cerrando la tapa del piano** y midiendo "
+        "el tiempo con un cronómetro.",
+
+        "## Qué es (y qué no es)",
+        "**No** es una broma ni «silencio». Cage sostenía que el **silencio "
+        "absoluto no existe**: lo comprobó en una **cámara anecoica** de "
+        "Harvard, donde esperaba no oír nada y oyó **dos sonidos**, uno agudo "
+        "(su sistema nervioso) y uno grave (la sangre circulando). La «música» "
+        "de la obra es **todo lo que ocurre en la sala durante esos 4 "
+        "minutos y 33 segundos**: toses, sillas, el aire acondicionado, la "
+        "lluvia en el tejado, la incomodidad del público. La pieza **redirige "
+        "la escucha** hacia el entorno.",
+
+        "## De dónde viene y a dónde lleva",
+        "Cage venía del estudio del **zen** y del **I Ching**, y de las "
+        "pinturas **enteramente blancas** de su amigo **Robert Rauschenberg** "
+        "(«si no hay nada que ver, mira lo que la luz y el polvo hacen "
+        "sobre el lienzo»). «4′33″» abrió la puerta al **arte conceptual**, "
+        "a la **música ambiental** (Brian Eno la cita como origen), a la "
+        "**escucha profunda** (Pauline Oliveros) y a repensar **qué cuenta "
+        "como componer**: aquí el compositor **enmarca** un tiempo y un "
+        "lugar, no escribe notas.",
+    ],
+    verTambien=["wiki-historia-siglo-xx", "wiki-cur-obras-imposibles", "wiki-cur-longplayer",
+                "wiki-teoria-textura"],
+    fuentes=[W("Wikipedia (ES) — 4′33″",
+               "https://es.wikipedia.org/wiki/4%E2%80%B233%E2%80%B3"),
+             W("Wikipedia (EN) — 4′33″",
+               "https://en.wikipedia.org/wiki/4%E2%80%B233%E2%80%B3")],
+),
+
+"wiki-cur-amen-break": dict(
+    resumen="Siete segundos de batería grabados en 1969 que sostienen géneros "
+            "enteros, y cuyo autor murió sin cobrar un céntimo por ellos.",
+    cuerpo=[
+        "En **1969**, el grupo de soul y góspel **The Winstons** publicó "
+        "«**Amen, Brother**» —una versión instrumental y acelerada del "
+        "espiritual «Amen»— como **cara B** de su single «Color Him "
+        "Father» (que ganó un Grammy).",
+
+        "## El break",
+        "Hacia el minuto 1:26, los demás instrumentos callan y el batería "
+        "**Gregory Coleman** toca un **solo de cuatro compases**, de unos "
+        "**seis segundos**: un patrón sincopado con un redoble y un platillo "
+        "*crash* desplazado. Ese fragmento es el **«Amen break»**.",
+
+        "## Cómo se volvió omnipresente",
+        "En los años 80 apareció en discos recopilatorios de *breaks* para "
+        "DJ. Al ser **fácil de trocear y de acelerar**, se convirtió en la "
+        "**base rítmica** del **hip-hop** primitivo, y luego —subido a "
+        "160-180 BPM y despiezado— del **jungle**, el **drum and bass**, el "
+        "**breakcore** y el **big beat**. Aparece en miles de temas (NWA, "
+        "The Prodigy, Oasis, sintonías de televisión, anuncios). Es, con "
+        "casi total seguridad, el **sample más usado de la historia**.",
+
+        "## La injusticia",
+        "Ni Coleman ni el líder del grupo, **Richard Lewis Spencer**, "
+        "**cobraron nunca derechos** por ese uso masivo (el sampling no "
+        "autorizado era imposible de rastrear y de litigar). **Coleman murió "
+        "sin hogar en 2006**. En **2015**, una campaña de micromecenazgo en "
+        "el Reino Unido recaudó unas **24 000 libras** para Spencer como "
+        "**reconocimiento tardío**, sin valor legal pero simbólico.",
+    ],
+    verTambien=["wiki-prod-sampleo", "wiki-danza-urbana", "wiki-historia-popular",
+                "wiki-cur-plagio"],
+    fuentes=[W("Wikipedia (ES) — Amen break",
+               "https://es.wikipedia.org/wiki/Amen_break"),
+             W("Wikipedia (EN) — Amen break",
+               "https://en.wikipedia.org/wiki/Amen_break")],
+),
+
+"wiki-cur-wilhelm": dict(
+    resumen="Un efecto de sonido grabado en 1951 que, como broma interna de "
+            "la industria, sigue apareciendo en cientos de películas y "
+            "videojuegos.",
+    cuerpo=[
+        "El «**grito Wilhelm**» es un **alarido** de archivo grabado en "
+        "**1951** para la película *Distant Drums* (el efecto de un hombre "
+        "al que muerde un caimán). Se atribuye a la voz del actor y cantante "
+        "**Sheb Wooley**.",
+
+        "## El nombre",
+        "Viene del **soldado Wilhelm**, un personaje al que **le clavan una "
+        "flecha** y que emite ese grito en *The Charge at Feather River* "
+        "(1953). Los técnicos de sonido empezaron a llamar así al efecto "
+        "cuando lo reutilizaban.",
+
+        "## Cómo se volvió leyenda",
+        "El diseñador de sonido **Ben Burtt** lo encontró en los archivos "
+        "de la Warner y lo metió en «**Star Wars**» (1977, cuando un "
+        "*stormtrooper* cae por un hueco). Desde entonces lo ha colado, "
+        "**como guiño**, en toda la saga y en «Indiana Jones», y otros "
+        "montadores lo han imitado: aparece en «Toy Story», «El Señor de los "
+        "Anillos», «Kill Bill», Disney, Pixar, Tarantino, y en **cientos de "
+        "videojuegos**. Regla práctica: **casi siempre que alguien cae por un "
+        "precipicio o sale despedido**, se oye el mismo grito.",
+
+        "## Qué ilustra",
+        "Es un ejemplo perfecto de cómo un **mismo sonido de biblioteca** "
+        "puede atravesar **siete décadas** de cine, y de cómo la industria "
+        "del sonido cultiva sus **chistes internos**. (Como reacción, "
+        "algunos montadores modernos lo evitan a propósito o usan un "
+        "sustituto, el «grito Howie».)",
+    ],
+    verTambien=["wiki-cur-amen-break", "wiki-historia-grabacion", "wiki-tm-cine-musical"],
+    fuentes=[W("Wikipedia (ES) — Grito Wilhelm",
+               "https://es.wikipedia.org/wiki/Grito_Wilhelm"),
+             W("Wikipedia (EN) — Wilhelm scream",
+               "https://en.wikipedia.org/wiki/Wilhelm_scream")],
+),
+
+"wiki-cur-payola": dict(
+    resumen="Pagar en secreto para que una canción suene en la radio: cómo "
+            "impulsó el rock and roll, el escándalo del Congreso y su versión "
+            "actual en el streaming.",
+    cuerpo=[
+        "La **payola** (de *pay* + *Victrola*, una marca de tocadiscos) es "
+        "el **pago encubierto** de las discográficas a **emisoras y "
+        "locutores** para que **pinchen una canción** sin declararlo como "
+        "publicidad, haciéndolo pasar por decisión artística.",
+
+        "## Los años 50",
+        "Fue **clave en el ascenso del rock and roll**: los sellos "
+        "independientes que grababan a artistas negros y a rockeros jóvenes "
+        "**compraban** el acceso a las ondas que las grandes compañías "
+        "controlaban de otras maneras. El *disc jockey* se convirtió en un "
+        "**hacedor de éxitos**.",
+
+        "## El escándalo",
+        "En **1959-60**, una **investigación del Congreso de Estados "
+        "Unidos** (en el clima de los amaños de los concursos de "
+        "televisión) destapó el sistema. Cayó el DJ más famoso del país, "
+        "**Alan Freed** (que había popularizado el término «rock and "
+        "roll»), acusado de aceptar pagos; **Dick Clark** salió mejor "
+        "parado. Desde entonces, la ley obliga a **declarar** cualquier "
+        "pago por emisión.",
+
+        "## No desapareció",
+        "En los años **2000**, la fiscalía de Nueva York (Eliot Spitzer) "
+        "impuso **multas millonarias** a Sony BMG, Warner y Universal por "
+        "payola disfrazada de **regalos, viajes y «consultores "
+        "independientes»**. Hoy el debate se ha trasladado a las **playlists "
+        "de streaming** —los pagos por «promoción» para entrar en una lista "
+        "influyente— y a la práctica de **Spotify** de dar más difusión a "
+        "cambio de una **menor regalía** (*Discovery Mode*).",
+    ],
+    verTambien=["wiki-historia-grabacion", "wiki-historia-popular", "wiki-cur-plagio"],
+    fuentes=[W("Wikipedia (ES) — Payola",
+               "https://es.wikipedia.org/wiki/Payola"),
+             W("Wikipedia (EN) — Payola",
+               "https://en.wikipedia.org/wiki/Payola")],
+),
+
+"wiki-cur-progresion": dict(
+    resumen="Por qué tantísimas canciones pop comparten la vuelta de acordes "
+            "I–V–vi–IV, y por qué eso no es plagio.",
+    cuerpo=[
+        "Una cantidad enorme de éxitos pop usa **la misma secuencia de "
+        "acordes** —**I – V – vi – IV** (en DO: **C – G – Am – F**)— o una "
+        "de sus rotaciones (vi–IV–I–V, IV–I–V–vi…). El grupo cómico "
+        "australiano **Axis of Awesome** se hizo viral encadenando **más de "
+        "cuarenta canciones** sobre ese bucle sin cambiarlo.",
+
+        "## Por qué funciona tan bien",
+        "Combina las **tres funciones tonales** —tónica (I), dominante (V) y "
+        "subdominante (IV)— más el **relativo menor** (vi), que aporta un "
+        "toque melancólico sin salir de la tonalidad. Y, sobre todo, "
+        "**nunca cierra del todo**: la progresión puede **repetirse "
+        "indefinidamente** bajo estrofa, estribillo y puente sin sonar "
+        "acabada. Es un **motor** más que una frase.",
+
+        "## No es plagio",
+        "Una progresión de acordes de **dominio común** —como el **blues de "
+        "12 compases**, el **anatole** (I–vi–ii–V) del jazz, la **secuencia "
+        "del Canon de Pachelbel** o el **«lament bass»** descendente— **no "
+        "se puede monopolizar**: son andamiajes, no obras. Lo que hace única "
+        "a una canción es la **melodía**, el **ritmo**, el **timbre**, la "
+        "**letra** y la **producción** que se levantan sobre esa base. Los "
+        "tribunales lo han confirmado (ver «Los grandes juicios por "
+        "plagio», y el caso «Stairway to Heaven»).",
+    ],
+    verTambien=["wiki-teoria-armonia", "wiki-teoria-formas", "wiki-cur-plagio",
+                "wiki-cur-earworms"],
+    fuentes=[W("Wikipedia (EN) — I–V–vi–IV progression",
+               "https://en.wikipedia.org/wiki/I%E2%80%93V%E2%80%93vi%E2%80%93IV_progression"),
+             W("Hooktheory — Popular chord progressions (datos de uso)",
+               "https://www.hooktheory.com/theorytab/common-chord-progressions")],
+),
+
+"wiki-cur-happy-birthday": dict(
+    resumen="La canción más cantada del mundo estuvo bajo copyright hasta "
+            "2016, y una discográfica cobró millones por ella durante "
+            "décadas.",
+    cuerpo=[
+        "«**Happy Birthday to You**» es, según el *Guinness*, la canción en "
+        "inglés **más reconocida del mundo**. Durante casi 80 años, cantarla "
+        "en una película o un programa **generaba derechos**.",
+
+        "## El origen",
+        "La **melodía** viene de «**Good Morning to All**», una canción para "
+        "saludar a los alumnos publicada en **1893** por las hermanas "
+        "**Patty y Mildred Hill**, maestras de Kentucky. La **letra** de "
+        "cumpleaños apareció después, de autor incierto, y se hizo popular a "
+        "principios del siglo XX.",
+
+        "## El negocio",
+        "En **1935**, la editorial Clayton F. Summy registró un **arreglo** "
+        "de la canción. Los derechos acabaron en **Warner/Chappell**, que "
+        "cobraba unos **dos millones de dólares al año** en licencias "
+        "(hasta 700 dólares por uso en una película). Por eso en tantas "
+        "series y películas los personajes cantan «**For He's a Jolly Good "
+        "Fellow**» u otra cosa en los cumpleaños: salía más barato.",
+
+        "## El final",
+        "En **2015**, tras una demanda colectiva de cineastas, una **jueza "
+        "federal** dictaminó que el copyright de 1935 solo cubría **un "
+        "arreglo concreto para piano**, **no la letra ni la melodía**. En "
+        "**2016**, Warner **pagó 14 millones de dólares** para cerrar el "
+        "caso y se aceptó que la canción está en **dominio público**. Es el "
+        "ejemplo más citado de cómo un **copyright dudoso** puede sostenerse "
+        "décadas simplemente porque **a nadie le compensaba** pleitear.",
+    ],
+    verTambien=["wiki-cur-payola", "wiki-cur-plagio", "wiki-historia-grabacion"],
+    fuentes=[W("Rolling Stone — Warner Music Settles «Happy Birthday» Lawsuit",
+               "https://www.rollingstone.com/music/news/warner-music-settles-happy-birthday-lawsuit-for-14-million-20160209"),
+             W("Wikipedia (EN) — Happy Birthday to You",
+               "https://en.wikipedia.org/wiki/Happy_Birthday_to_You")],
+),
+
+"wiki-cur-longplayer": dict(
+    resumen="Piezas pensadas para sonar durante cientos o miles de años: "
+            "«ORGAN²/ASLSP» en Halberstadt y «Longplayer».",
+    cuerpo=[
+        "Algunas obras exploran una escala de tiempo **mayor que una vida "
+        "humana**: se conciben como **monumentos sonoros** que sobrevivirán "
+        "a quien las compuso y a quien las escucha.",
+
+        "## «ORGAN²/ASLSP» (As Slow as Possible)",
+        "**John Cage** escribió esta pieza para piano en 1985 y la adaptó "
+        "para órgano en 1987, con la indicación «**tan lento como sea "
+        "posible**». Un grupo de músicos y filósofos decidió tomarse la "
+        "instrucción **literalmente**: en la iglesia de **San Burcardo, en "
+        "Halberstadt** (Alemania), un órgano construido a propósito la está "
+        "tocando desde el **5 de septiembre de 2001** y **terminará en "
+        "2640** —639 años, la edad del primer órgano de esa ciudad—. La "
+        "pieza empezó con **17 meses de silencio**; los fuelles se activaron "
+        "en 2003. Cada **cambio de nota** (hay una cada pocos meses o años) "
+        "es un **acontecimiento** que reúne a cientos de personas. El último "
+        "fue en 2024; el siguiente, en 2026.",
+
+        "## «Longplayer»",
+        "**Jem Finer** (del grupo The Pogues) compuso en el año **2000** una "
+        "obra generada por **ordenador** a partir de seis grabaciones de "
+        "**cuencos tibetanos**, combinadas por un algoritmo de modo que **no "
+        "se repite nunca** durante **1000 años** (2000-3000). Suena de forma "
+        "continua en un faro de Londres y por internet, y existe un plan de "
+        "custodia (la *Longplayer Trust*) para mantenerla sonando aunque "
+        "cambie la tecnología.",
+
+        "## Qué plantean",
+        "Obligan a pensar la música como algo que puede **superar la "
+        "civilización que la creó**, y a diseñar **instituciones** que "
+        "duren lo suficiente para cuidarla: un problema más de "
+        "**transmisión y de fe en el futuro** que de composición.",
+    ],
+    verTambien=["wiki-cur-433", "wiki-cur-obras-imposibles", "wiki-historia-siglo-xx"],
+    fuentes=[W("Wikipedia (EN) — As Slow as Possible",
+               "https://en.wikipedia.org/wiki/As_Slow_as_Possible"),
+             W("Wikipedia (EN) — Longplayer",
+               "https://en.wikipedia.org/wiki/Longplayer")],
+),
+
+"wiki-cur-shepard": dict(
+    resumen="Una escala que parece subir (o bajar) eternamente sin llegar a "
+            "ningún sitio: el equivalente sonoro de la escalera imposible de "
+            "Escher.",
+    cuerpo=[
+        "El **tono de Shepard** (descrito por el psicólogo **Roger Shepard** "
+        "en 1964) es una **ilusión auditiva** de altura: una escala que "
+        "**parece ascender sin fin** y, tras doce pasos, está donde "
+        "empezó.",
+
+        "## Cómo se construye",
+        "Se hace sonar la **misma nota en varias octavas a la vez** (por "
+        "ejemplo DO en cinco octavas). Al subir la escala, **todas** las "
+        "octavas suben a la par, pero con un truco de **volumen**: las "
+        "voces más **agudas se van desvaneciendo** mientras aparecen, muy "
+        "flojas, nuevas voces **graves** por debajo. El oído sigue el "
+        "movimiento ascendente pero **nunca detecta un salto de octava**, "
+        "así que percibe una subida perpetua. Es el equivalente sonoro de "
+        "la **escalera imposible de Penrose** que dibujó Escher.",
+
+        "## La versión continua",
+        "El **glissando de Shepard-Risset** (Jean-Claude Risset) hace lo "
+        "mismo **sin escalones**, con un deslizamiento suave. Existe también "
+        "un **efecto de ritmo** análogo (Risset): un tempo que parece "
+        "acelerar (o frenar) para siempre.",
+
+        "## Dónde se usa",
+        "En el **cine**, para crear **tensión creciente sin resolución**: "
+        "el *drone* ascendente de «**El caballero oscuro**» y toda la banda "
+        "sonora de «**Dunkerque**» de **Hans Zimmer** están construidas "
+        "sobre este principio. En **videojuegos** («Super Mario 64», la "
+        "escalera infinita) y como recurso de producción en pop y "
+        "electrónica (el final de «Echoes» de Pink Floyd, subidas de EDM).",
+    ],
+    verTambien=["wiki-teoria-acustica", "wiki-teoria-sonido", "wiki-cur-433"],
+    fuentes=[W("Wikipedia (ES) — Escala de Shepard",
+               "https://es.wikipedia.org/wiki/Escala_de_Shepard"),
+             W("Wikipedia (EN) — Shepard tone",
+               "https://en.wikipedia.org/wiki/Shepard_tone")],
+),
+
+"wiki-cur-earworms": dict(
+    resumen="Las canciones que se te meten en la cabeza y no se van: qué son, "
+            "por qué pasa y qué ayuda a quitárselas.",
+    cuerpo=[
+        "Un **«gusano de oído»** (*earworm*; en la literatura científica, "
+        "**imaginería musical involuntaria**) es un fragmento de música que "
+        "**se repite en la mente** sin que lo llames y cuesta apagar.",
+
+        "## Cómo son",
+        "Le ocurre a **más del 90 %** de la gente al menos una vez por "
+        "semana. Suelen ser **fragmentos cortos** —normalmente el **gancho** "
+        "o el estribillo, unos 15-30 segundos—, de canciones **recientes** o "
+        "**muy conocidas**, con melodías **relativamente simples** pero con "
+        "algún **salto o giro inesperado** en el contorno que las hace "
+        "«pegajosas» (estudios de Jakubowski *et al.*, 2017, sobre qué "
+        "rasgos melódicos predicen un earworm).",
+
+        "## Por qué aparecen",
+        "Sobre todo cuando la mente está **desocupada** (tareas monótonas, "
+        "ducha, caminar) o, al contrario, bajo **estrés**. Se **disparan** "
+        "por asociación: una palabra, un ritmo al andar, un olor, alguien "
+        "que la tararea, o el simple hecho de **haberla oído hace poco**. "
+        "Encajan con el fenómeno del **efecto Zeigarnik**: lo **inacabado** "
+        "se recuerda mejor, y una canción cortada tiende a «pedir» "
+        "completarse.",
+
+        "## Qué ayuda a quitárselos",
+        "Según los estudios: **escuchar la canción entera** (para "
+        "«cerrarla»); **distraerse con una tarea moderadamente exigente** "
+        "(un crucigrama, una conversación; ni demasiado fácil ni demasiado "
+        "difícil); **mascar chicle** (ocupa la «voz interior» que "
+        "subvocaliza la melodía); o dejarla pasar sin luchar, porque "
+        "**resistirse la refuerza**.",
+    ],
+    verTambien=["wiki-cur-progresion", "wiki-mitos-efecto-mozart", "wiki-teoria-formas"],
+    fuentes=[W("Jakubowski et al. (2017) — Dissecting an earworm",
+               "https://doi.org/10.1037/aca0000090"),
+             W("Wikipedia (EN) — Earworm",
+               "https://en.wikipedia.org/wiki/Earworm")],
+),
+
+"wiki-cur-voyager": dict(
+    resumen="El Disco de Oro de las sondas Voyager: una selección de música "
+            "de la Tierra que viaja por el espacio interestelar desde 1977.",
+    cuerpo=[
+        "Las sondas **Voyager 1** y **Voyager 2**, lanzadas por la NASA en "
+        "**1977**, llevan cada una un **disco fonográfico de cobre bañado en "
+        "oro** con **sonidos e imágenes de la Tierra**, pensado para una "
+        "hipotética civilización que lo encuentre dentro de millones de "
+        "años. Un comité dirigido por el astrónomo **Carl Sagan** eligió el "
+        "contenido; la funda lleva instrucciones **pictográficas** para "
+        "reproducirlo (con una aguja incluida) y un mapa de púlsares que "
+        "sitúa el Sol.",
+
+        "## La música",
+        "**27 piezas** de todo el mundo y de todas las épocas. **Occidente "
+        "«culto»**: **Bach** (tres obras —el más representado—: un preludio "
+        "y fuga de *El clave bien temperado*, el *Gavotte* de la Partita "
+        "para violín n.º 3 y el 1.er Concierto de Brandeburgo), **Beethoven** "
+        "(el 1.er movimiento de la 5.ª Sinfonía y la *Cavatina* del Cuarteto "
+        "op. 130), **Mozart** (aria de *La flauta mágica*), **Stravinski** "
+        "(*La consagración de la primavera*). **Música popular y del "
+        "mundo**: **Chuck Berry**, «**Johnny B. Goode**»; **Blind Willie "
+        "Johnson**, «Dark Was the Night»; **Louis Armstrong**; un **raga** "
+        "indio; **gamelán** javanés; canto de las **islas Salomón**; "
+        "**guqin** chino; música **pigmea** de la selva de Ituri; gaitas, "
+        "mariachi, canto navajo, coro búlgaro.",
+
+        "## El viaje",
+        "La **Voyager 1** es el **objeto humano más lejano**: en **2012** "
+        "cruzó la **heliopausa** y entró en el espacio interestelar. El "
+        "disco está diseñado para **durar mil millones de años**. Es, a la "
+        "vez, un mensaje al cosmos y un **autorretrato** de qué consideró la "
+        "humanidad de 1977 digno de representarla.",
+    ],
+    verTambien=["wiki-historia-mundo", "wiki-comp-bach", "wiki-historia-jazz"],
+    fuentes=[W("Wikipedia (ES) — Disco de oro de las Voyager",
+               "https://es.wikipedia.org/wiki/Disco_de_oro_de_las_Voyager"),
+             W("NASA JPL — Voyager Golden Record",
+               "https://voyager.jpl.nasa.gov/golden-record/")],
+),
+
+"wiki-cur-plagio": dict(
+    resumen="Cuándo sonar parecido se vuelve un problema legal: los casos "
+            "Harrison, «Blurred Lines» y «Stairway to Heaven».",
+    cuerpo=[
+        "El plagio musical es un terreno **resbaladizo**: casi toda la "
+        "música se construye con **materiales compartidos** (acordes, "
+        "ritmos, escalas), pero una **melodía** o un **gancho** reconocibles "
+        "sí están protegidos. Tres casos marcan la jurisprudencia.",
+
+        "## «My Sweet Lord» (Harrison, 1976)",
+        "**George Harrison** fue condenado por **«plagio "
+        "inconsciente»** («*subconscious plagiarism*»): su «My Sweet Lord» "
+        "reproducía la línea melódica y la armonía de «**He's So Fine**» de "
+        "The Chiffons (1963). El juez aceptó que **no lo hizo a propósito**, "
+        "pero lo consideró igualmente infracción. Fijó la idea de que "
+        "**recordar sin saberlo** también cuenta.",
+
+        "## «Blurred Lines» (2015)",
+        "Los herederos de **Marvin Gaye** ganaron contra **Robin Thicke** y "
+        "**Pharrell Williams**: el jurado consideró que «Blurred Lines» "
+        "copiaba «Got to Give It Up» **no en una melodía o un acorde "
+        "concretos**, sino en el **«ambiente», el «feel» y la "
+        "instrumentación**. La sentencia (8 millones de dólares) **alarmó a "
+        "la industria** por ampliar lo protegible a algo tan difuso como el "
+        "estilo.",
+
+        "## «Stairway to Heaven» (2020)",
+        "**Led Zeppelin** **ganó** el pleito que alegaba que el arpegio "
+        "inicial copiaba «Taurus» de Spirit: el tribunal de apelación "
+        "consideró que una **progresión de acordes descendente** por "
+        "cromatismo es **de dominio común** y no se puede monopolizar. "
+        "Corrigió parte del susto de «Blurred Lines».",
+
+        "## La frontera",
+        "**No** se pueden registrar acordes, ritmos, afinaciones ni "
+        "progresiones habituales. **Sí** una melodía o un *hook* singular y "
+        "reconocible. Entre medias hay una zona gris que se decide **caso "
+        "por caso**, a menudo ante un jurado sin formación musical, lo que "
+        "hace los resultados imprevisibles.",
+    ],
+    verTambien=["wiki-cur-happy-birthday", "wiki-cur-progresion", "wiki-prod-sampleo",
+                "wiki-cur-payola"],
+    fuentes=[W("Wikipedia (EN) — Blurred Lines (legal issues)",
+               "https://en.wikipedia.org/wiki/Blurred_Lines#Copyright_infringement_lawsuit"),
+             W("Wikipedia (EN) — Bright Tunes Music v. Harrisongs Music",
+               "https://en.wikipedia.org/wiki/Bright_Tunes_Music_v._Harrisongs_Music")],
+),
+
+"wiki-cur-obras-imposibles": dict(
+    resumen="Partituras escritas más allá de lo que unas manos humanas pueden "
+            "ejecutar, y obras que son un reto conceptual más que técnico.",
+    cuerpo=[
+        "Hay compositores que han escrito **contra los límites del "
+        "intérprete** —o directamente **saltándoselo**— y otros que han "
+        "planteado retos que no son de dedos, sino de **concepto y "
+        "resistencia**.",
+
+        "## Más allá de las manos",
+        "**Conlon Nancarrow**, aislado en México y harto de las "
+        "limitaciones de los pianistas, compuso sus **Estudios para pianola** "
+        "**perforando directamente los rollos**: cánones a varias "
+        "velocidades simultáneas, aceleraciones continuas, densidades "
+        "rítmicas que **ninguna mano podría tocar**. El «**Opus "
+        "clavicembalisticum**» de **Kaikhosru Sorabji** dura **más de "
+        "cuatro horas**, con pasajes escritos en **tres y cuatro "
+        "pentagramas** a la vez. **Godowsky** reescribió los Estudios de "
+        "Chopin **haciéndolos más difíciles** (algunos, solo para la mano "
+        "izquierda). Ferneyhough y la **«Nueva Complejidad»** notan ritmos "
+        "que el intérprete solo puede **aproximar**.",
+
+        "## Retos de concepto y de aguante",
+        "«**4′33″**» de Cage (no tocar nada de forma intencionada). "
+        "«**Vexations**» de **Erik Satie**: un fragmento breve que una nota "
+        "al margen sugiere repetir **840 veces** —unas 18-20 horas, se suele "
+        "hacer por relevos—. Las **piezas-siglo** («ASLSP» en Halberstadt, "
+        "«Longplayer»). Y las **partituras verbales** de Fluxus (La Monte "
+        "Young: «*Dibuja una línea recta y síguela*»), imposibles no de "
+        "tocar, sino de **agotar**.",
+
+        "## Para qué",
+        "Estas obras **empujan la definición** de lo que es tocar, componer "
+        "y escuchar, y a menudo la tecnología acaba **alcanzándolas** "
+        "(hoy un ordenador toca a Nancarrow, o un pianista con años de "
+        "trabajo estrena a Sorabji).",
+    ],
+    verTambien=["wiki-cur-433", "wiki-cur-longplayer", "wiki-historia-siglo-xx",
+                "wiki-inst-piano"],
+    fuentes=[W("Wikipedia (EN) — Conlon Nancarrow",
+               "https://en.wikipedia.org/wiki/Conlon_Nancarrow"),
+             W("Wikipedia (EN) — Vexations",
+               "https://en.wikipedia.org/wiki/Vexations")],
+),
+
+"wiki-cur-tritono-metal": dict(
+    resumen="El intervalo de fama diabólica, usado a propósito como marca de "
+            "estilo desde el primer riff de Black Sabbath.",
+    cuerpo=[
+        "El **tritono** (la 4ª aumentada / 5ª disminuida, tres tonos "
+        "enteros) arrastra desde el Barroco el apodo ***diabolus in "
+        "musica***. El **heavy metal** lo adoptó **deliberadamente** por esa "
+        "misma leyenda.",
+
+        "## El riff fundacional",
+        "**Black Sabbath** abre su **primera canción** —«Black Sabbath», del "
+        "álbum homónimo de **1970**— con un riff lento construido sobre "
+        "**tónica – octava – tritono** (SOL – SOL – RE♭), sobre un fondo de "
+        "lluvia y campanas. **Tony Iommi** buscaba, con Geezer Butler, "
+        "«música de miedo» equivalente a las películas de terror que veían "
+        "enfrente del local de ensayo. Ese gesto se considera uno de los "
+        "**momentos fundacionales** del género.",
+
+        "## Un recurso de estilo",
+        "Desde entonces, el tritono —y las **escalas que lo contienen de "
+        "forma prominente**: el **modo locrio**, la **escala disminuida**, "
+        "la **frigia dominante**, la **frigia**— son herramientas habituales "
+        "del metal (Metallica, Slayer, Meshuggah) y del cine de terror para "
+        "sonar **inestable y amenazante**. Su **inestabilidad acústica** "
+        "real (no resuelve, divide la octava justo por la mitad) hace el "
+        "trabajo; la **leyenda diabólica** le pone el marketing.",
+
+        "## El guiño histórico",
+        "Es un caso curioso de **profecía cumplida a la inversa**: una "
+        "**regla de solfeo medieval** para *evitar* ese salto (ver «¿La "
+        "Iglesia prohibió el tritono?») se convirtió, siglos después y "
+        "gracias a la propia leyenda, en la **marca sonora** de todo un "
+        "género que quería sonar prohibido.",
+    ],
+    verTambien=["wiki-mitos-tritono", "wiki-teoria-intervalos", "wiki-teoria-modos",
+                "wiki-mitos-metal-satanico"],
+    fuentes=[W("Wikipedia (EN) — Tritone (Heavy metal)",
+               "https://en.wikipedia.org/wiki/Tritone"),
+             W("Wikipedia (EN) — Black Sabbath (song)",
+               "https://en.wikipedia.org/wiki/Black_Sabbath_(song)")],
+),
+
+}  # fin CURIOSIDADES
+
+NUEVOS.update(CURIOSIDADES)
+
+
+# =========================================================================
+#  Diagramas animados embebidos en artículos (lib/diagramas.dart).
+#  Formato de línea en 'cuerpo':  "@@DIAGRAMA nombre | pie"
+#  Se añaden al final del cuerpo si aún no están.
+# =========================================================================
+DIAGRAMAS_WIKI = {
+    "wiki-teoria-tonalidad": [
+        "@@DIAGRAMA circulo_quintas | El círculo de quintas: cada paso añade "
+        "una alteración, y las tonalidades vecinas se parecen mucho.",
+    ],
+    "wiki-teoria-armonia": [
+        "@@DIAGRAMA funciones_tonales | Las tres funciones y el empuje hacia "
+        "la tónica: el discurso típico va T → S → D → T.",
+        "@@DIAGRAMA cadencias | Las tres cadencias básicas del sistema tonal.",
+    ],
+    "wiki-teoria-formas": [
+        "@@DIAGRAMA jerarquia_frase | Del motivo a la sección: cada nivel "
+        "agrupa varios del anterior.",
+        "@@DIAGRAMA formas_pequenas | Cuatro maneras de ordenar unas pocas "
+        "secciones (A = idea principal; B, C = contrastes).",
+        "@@DIAGRAMA forma_sonata | La forma sonata: plantea una tensión de "
+        "tonalidades, la desarrolla y la resuelve trayendo todo a la tónica.",
+    ],
+    "wiki-teoria-modos": [
+        "@@DIAGRAMA modos_brillo | Los siete modos ordenados de más brillante "
+        "(lidio) a más oscuro (locrio), con su nota característica.",
+    ],
+    "wiki-teoria-acustica": [
+        "@@DIAGRAMA serie_armonicos | Los primeros armónicos de un DO grave: "
+        "la naturaleza «regala» la octava, la quinta y la 3ª mayor.",
+    ],
+}
+
+
+# =========================================================================
+def main():
+    with open(RUTA, "r", encoding="utf-8") as f:
+        data = json.load(f)
+    arts = data["articulos"] if isinstance(data, dict) else data
+    idx = {a["id"]: a for a in arts}
+
+    faltan = [k for k in NUEVOS if k not in idx]
+    if faltan:
+        print("AVISO: estos ids no existen en wiki.json:", faltan)
+
+    n = 0
+    for aid, campos in NUEVOS.items():
+        if aid not in idx:
+            continue
+        art = idx[aid]
+        for k, v in campos.items():
+            art[k] = v
+        n += 1
+
+    # Diagramas embebidos (idempotente).
+    d = 0
+    for aid, lineas in DIAGRAMAS_WIKI.items():
+        art = idx.get(aid)
+        if not art:
+            continue
+        cuerpo = art.setdefault("cuerpo", [])
+        for ln in lineas:
+            if ln not in cuerpo:
+                cuerpo.append(ln)
+                d += 1
+
+    with open(RUTA, "w", encoding="utf-8") as f:
+        json.dump(data, f, ensure_ascii=False, indent=2)
+
+    total_chars = sum(
+        sum(len(p) for p in a["cuerpo"] if not p.startswith("@@")) for a in arts)
+    print(f"Actualizados {n} articulos; {d} lineas de diagrama añadidas.")
+    print(f"wiki.json: {len(arts)} articulos, {total_chars} caracteres de cuerpo "
+          f"(antes ~106000).")
+
+
+if __name__ == "__main__":
+    sys.exit(main())

@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Fondo de marca: parte alta del degradado del splash (pizarra). -->
+    <color name="brand_slate">#3B3E53</color>
+</resources>

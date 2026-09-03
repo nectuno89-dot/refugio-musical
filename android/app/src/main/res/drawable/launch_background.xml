@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Fondo de arranque: color de marca (pizarra) para que no haya destello
+     blanco antes de que Flutter dibuje el splash con el logo. -->
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:drawable="@color/brand_slate" />
+</layer-list>

@@ -1,0 +1,12 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "clave-web",
+      "runtimeExecutable": "C:\dev\flutter\bin\flutter.bat",
+      "runtimeArgs": ["run", "-d", "chrome", "--web-port=8899"],
+      "port": 8899,
+      "url": "http://localhost:8899"
+    }
+  ]
+}

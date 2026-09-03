@@ -1,0 +1,201 @@
+{
+  "_schema": {
+    "descripcion": "Formato de una lección para el motor de lección y para el diseño de la pantalla de lección. Tres lecciones completas de ejemplo (una de gramática, una de escalas, una de historia). El resto de lecciones referenciadas en curriculum.json seguirán este mismo formato.",
+    "estructura_leccion": {
+      "id": "coincide con un id de curriculum.json > habilidad.lecciones[]",
+      "habilidadRef": "id de habilidad",
+      "corona": "nivel de dominio al que pertenece (1 = primera vez)",
+      "titulo": "título breve",
+      "objetivo": "qué sabrá hacer el usuario al terminar (1 frase)",
+      "duracionEstimadaMin": "número",
+      "intro": "tarjeta(s) de teoría breve ANTES de los ejercicios; bloques: texto | notacion | teclado | audio | imagen | tip",
+      "ejercicios": "lista; cada uno con la misma forma que quizzes.json + 'pista' opcional. El pie SIEMPRE muestra explicacion tras responder.",
+      "cierre": "resumen de 1-2 frases + gancho a lo siguiente"
+    },
+    "notas_diseno": "La intro debe caber en una tarjeta sin scroll. Cada ejercicio es una pantalla completa. Barra de progreso arriba = nº de ejercicios. 1 fallo = -1 vida (salvo modo 'sin presión' en Práctica)."
+  },
+  "lecciones": [
+    {
+      "id": "l-pentagrama-1",
+      "habilidadRef": "h-pentagrama",
+      "corona": 1,
+      "titulo": "El pentagrama",
+      "objetivo": "Reconocer las líneas y espacios del pentagrama y saber que la altura sube al subir la nota.",
+      "duracionEstimadaMin": 4,
+      "intro": {
+        "tipo": "tarjeta",
+        "bloques": [
+          { "tipo": "texto", "contenido": "La música se escribe sobre el **pentagrama**: cinco líneas y cuatro espacios. Se cuentan de **abajo hacia arriba**." },
+          { "tipo": "notacion", "contenido": "pentagrama vacío con las 5 líneas numeradas 1–5 de abajo arriba" },
+          { "tipo": "texto", "contenido": "Cuanto **más arriba** colocamos una nota, **más aguda** suena. Cuanto más abajo, más grave." },
+          { "tipo": "tip", "contenido": "Si una nota no cabe en las cinco líneas, se le añaden pequeñas **líneas adicionales** por encima o por debajo." }
+        ]
+      },
+      "ejercicios": [
+        {
+          "id": "l-pentagrama-1-e1", "tipo": "opcion_multiple", "dificultad": 1, "xp": 5,
+          "enunciado": "¿Cuántas líneas tiene un pentagrama?",
+          "opciones": ["Cuatro", "Cinco", "Seis", "Siete"], "correcta": 1,
+          "explicacion": "Penta = cinco. Cinco líneas y cuatro espacios entre ellas."
+        },
+        {
+          "id": "l-pentagrama-1-e2", "tipo": "opcion_multiple", "dificultad": 1, "xp": 5,
+          "enunciado": "Dos notas en el pentagrama: una en la línea 1 (abajo) y otra en la línea 5 (arriba). ¿Cuál suena más aguda?",
+          "opciones": ["La de la línea 1", "La de la línea 5", "Suenan igual", "Depende de la clave"], "correcta": 1,
+          "pista": "Arriba = agudo.",
+          "explicacion": "La altura sube al subir en el pentagrama. La nota de la línea 5 es más aguda."
+        },
+        {
+          "id": "l-pentagrama-1-e3", "tipo": "verdadero_falso", "dificultad": 1, "xp": 5,
+          "enunciado": "El pentagrama se lee de arriba hacia abajo.",
+          "correcta": false,
+          "explicacion": "Se lee y se numera de abajo hacia arriba: la línea 1 es la de más abajo."
+        },
+        {
+          "id": "l-pentagrama-1-e4", "tipo": "opcion_multiple", "dificultad": 2, "xp": 5,
+          "enunciado": "¿Para qué sirven las líneas adicionales?",
+          "opciones": ["Para marcar el compás", "Para escribir notas que no caben en las cinco líneas", "Para indicar el tempo", "Para separar instrumentos"], "correcta": 1,
+          "explicacion": "Son extensiones puntuales del pentagrama, por encima o por debajo, para notas muy agudas o muy graves."
+        },
+        {
+          "id": "l-pentagrama-1-e5", "tipo": "escribir_nota", "dificultad": 2, "xp": 10,
+          "enunciado": "Coloca una nota en el TERCER espacio del pentagrama.",
+          "clave": "sol", "respuesta": "C5",
+          "explicacion": "En clave de sol, los espacios de abajo arriba deletrean FA-LA-DO-MI. El tercer espacio es DO (DO5)."
+        }
+      ],
+      "cierre": {
+        "resumen": "Ya sabes que el pentagrama tiene 5 líneas, se lee de abajo arriba y la altura sube contigo.",
+        "siguiente": "Ahora toca poner una **clave** al principio para darles nombre a esas líneas."
+      }
+    },
+    {
+      "id": "l-escala-mayor-1",
+      "habilidadRef": "h-escala-mayor",
+      "corona": 1,
+      "titulo": "La escala mayor",
+      "objetivo": "Memorizar la fórmula T-T-ST-T-T-T-ST y construir la escala de DO mayor.",
+      "duracionEstimadaMin": 5,
+      "intro": {
+        "tipo": "tarjeta",
+        "bloques": [
+          { "tipo": "texto", "contenido": "Una **escala** es una fila de notas ordenadas por un patrón fijo de **tonos (T)** y **semitonos (ST)**." },
+          { "tipo": "texto", "contenido": "La **escala mayor** usa este patrón:\n**T · T · ST · T · T · T · ST**" },
+          { "tipo": "teclado", "contenido": "octava DO–DO con las teclas C D E F G A B resaltadas; marcar los semitonos E–F y B–C" },
+          { "tipo": "tip", "contenido": "Empieza y termina en la misma nota (la **tónica**). Sobre DO, la escala mayor son justo las **teclas blancas**." },
+          { "tipo": "audio", "contenido": "reproducir C D E F G A B C ascendente y descendente" }
+        ]
+      },
+      "ejercicios": [
+        {
+          "id": "l-escala-mayor-1-e1", "tipo": "completar", "dificultad": 1, "xp": 5,
+          "enunciado": "Completa la fórmula de la escala mayor.",
+          "texto": "T · T · ___ · T · T · T · ___",
+          "respuestas": ["ST", "ST"],
+          "explicacion": "Los dos semitonos de la escala mayor caen entre los grados 3–4 y 7–8."
+        },
+        {
+          "id": "l-escala-mayor-1-e2", "tipo": "opcion_multiple", "dificultad": 1, "xp": 5,
+          "enunciado": "¿Entre qué grados de la escala mayor están los semitonos?",
+          "opciones": ["1–2 y 5–6", "3–4 y 7–8", "2–3 y 6–7", "4–5 y 7–8"], "correcta": 1,
+          "explicacion": "Entre 3 y 4, y entre 7 y 8 (la sensible y la tónica). El resto son tonos."
+        },
+        {
+          "id": "l-escala-mayor-1-e3", "tipo": "construir_escala", "dificultad": 2, "xp": 10,
+          "enunciado": "Construye la escala de DO mayor.",
+          "nombre": "DO mayor", "tonica": "C",
+          "notas": ["C", "D", "E", "F", "G", "A", "B"],
+          "pista": "Solo teclas blancas.",
+          "explicacion": "DO mayor no tiene alteraciones: C-D-E-F-G-A-B. Es la única escala mayor con teclas blancas puras."
+        },
+        {
+          "id": "l-escala-mayor-1-e4", "tipo": "opcion_multiple", "dificultad": 2, "xp": 5,
+          "enunciado": "¿Cómo se llama el primer grado de una escala, la nota de reposo?",
+          "opciones": ["Dominante", "Sensible", "Tónica", "Mediante"], "correcta": 2,
+          "explicacion": "La tónica (I) es el centro de gravedad: la escala empieza y descansa en ella."
+        },
+        {
+          "id": "l-escala-mayor-1-e5", "tipo": "oido_intervalo", "dificultad": 2, "xp": 10,
+          "enunciado": "Escucha. ¿Es una escala mayor o algo distinto?",
+          "audio": { "tipo": "escala", "contenido": ["C", "D", "E", "F", "G", "A", "B", "C"], "direccion": "ascendente" },
+          "opciones": ["Escala mayor", "Escala menor natural"], "correcta": 0,
+          "explicacion": "El 3er grado 'brillante' (3ª mayor sobre la tónica) es la pista más rápida para oír que es mayor y no menor."
+        },
+        {
+          "id": "l-escala-mayor-1-e6", "tipo": "construir_escala", "dificultad": 3, "xp": 15,
+          "enunciado": "Aplica la fórmula desde SOL: construye SOL mayor.",
+          "nombre": "SOL mayor", "tonica": "G",
+          "notas": ["G", "A", "B", "C", "D", "E", "F#"],
+          "pista": "Al llegar al 7º grado necesitarás una tecla negra para que haya semitono hasta la tónica.",
+          "explicacion": "T-T-ST-T-T-T-ST desde SOL obliga a FA#: SOL mayor tiene un sostenido."
+        }
+      ],
+      "cierre": {
+        "resumen": "La escala mayor es siempre T-T-ST-T-T-T-ST, empieces donde empieces.",
+        "siguiente": "Con la misma fórmula pero otras tónicas aparecen los **sostenidos** y los **bemoles**: eso es el círculo de quintas."
+      }
+    },
+    {
+      "id": "l-his-barroco-1",
+      "habilidadRef": "h-barroco",
+      "corona": 1,
+      "titulo": "El Barroco: bajo continuo y tonalidad",
+      "objetivo": "Situar el Barroco (1600–1750) y reconocer el bajo continuo y el nacimiento de la ópera.",
+      "duracionEstimadaMin": 5,
+      "intro": {
+        "tipo": "tarjeta",
+        "bloques": [
+          { "tipo": "texto", "contenido": "**Barroco: ≈ 1600–1750.** Termina con la muerte de **J. S. Bach** en 1750." },
+          { "tipo": "texto", "contenido": "Novedad clave: el **bajo continuo**. Se escribe solo la línea del bajo con números; el clave u órgano **improvisa los acordes** encima. Es el abuelo del cifrado que usamos hoy." },
+          { "tipo": "texto", "contenido": "En este periodo cristaliza la **tonalidad mayor-menor** (I–IV–V) y nace la **ópera** (Florencia, hacia 1600; Monteverdi)." },
+          { "tipo": "audio", "contenido": "fragmento de concierto grosso con bajo continuo audible" },
+          { "tipo": "tip", "contenido": "Otras formas barrocas: concierto, suite, **fuga**, oratorio, cantata." }
+        ]
+      },
+      "ejercicios": [
+        {
+          "id": "l-his-barroco-1-e1", "tipo": "opcion_multiple", "dificultad": 1, "xp": 5,
+          "enunciado": "¿Qué acontecimiento se usa para marcar el final del Barroco?",
+          "opciones": ["La muerte de Beethoven (1827)", "La muerte de J. S. Bach (1750)", "El estreno de L'Orfeo (1607)", "La Revolución Francesa (1789)"], "correcta": 1,
+          "explicacion": "1750, muerte de Bach. El Barroco abarca aproximadamente 1600–1750."
+        },
+        {
+          "id": "l-his-barroco-1-e2", "tipo": "verdadero_falso", "dificultad": 1, "xp": 5,
+          "enunciado": "En el bajo continuo, el teclista improvisa los acordes a partir de un bajo con números.",
+          "correcta": true,
+          "explicacion": "Sí: se anota la línea grave y unas cifras, y el intérprete 'realiza' la armonía. De ahí viene el cifrado moderno."
+        },
+        {
+          "id": "l-his-barroco-1-e3", "tipo": "emparejar", "dificultad": 2, "xp": 10,
+          "enunciado": "Une cada compositor barroco con una obra suya.",
+          "pares": [["J. S. Bach", "El clave bien temperado"], ["A. Vivaldi", "Las cuatro estaciones"], ["G. F. Haendel", "El Mesías"], ["C. Monteverdi", "L'Orfeo"]],
+          "explicacion": "Monteverdi hace de puente del Renacimiento al Barroco con L'Orfeo (1607); Bach y Haendel (ambos de 1685) cierran el periodo."
+        },
+        {
+          "id": "l-his-barroco-1-e4", "tipo": "opcion_multiple", "dificultad": 2, "xp": 10,
+          "enunciado": "¿Cuál de estas formas es típicamente barroca?",
+          "opciones": ["La fuga", "El lied", "El poema sinfónico", "La forma sonata clásica"], "correcta": 0,
+          "explicacion": "La fuga (polifonía por imitación de un sujeto) es emblema del Barroco. El lied y el poema sinfónico son románticos; la forma sonata, clásica."
+        },
+        {
+          "id": "l-his-barroco-1-e5", "tipo": "ordenar", "dificultad": 3, "xp": 15,
+          "enunciado": "Ordena cronológicamente.",
+          "secuencia": ["Polifonía del Renacimiento", "L'Orfeo de Monteverdi (1607)", "El clave bien temperado, libro I (1722)", "Sinfonías de Haydn"],
+          "criterio": "de más antiguo a más reciente",
+          "explicacion": "Renacimiento → inicio del Barroco (1607) → Barroco pleno (1722) → Clasicismo (Haydn, segunda mitad del s. XVIII)."
+        },
+        {
+          "id": "l-his-barroco-1-e6", "tipo": "escucha_historica", "dificultad": 3, "xp": 15,
+          "enunciado": "Escuchas un conjunto pequeño: violines con una melodía muy ornamentada sobre un clave que rellena acordes y un violonchelo marcando el bajo. Ritmo motórico y constante. ¿Qué periodo es?",
+          "descripcion": "textura de trío sonata / concierto grosso con continuo",
+          "opciones": ["Barroco", "Clasicismo", "Romanticismo", "Siglo XX"], "correcta": 0,
+          "explicacion": "El clave 'rellenando' + bajo continuo + ritmo incansable + ornamentación son marcas del Barroco."
+        }
+      ],
+      "cierre": {
+        "resumen": "Barroco (1600–1750): bajo continuo, tonalidad funcional, ópera y fuga; se cierra con Bach.",
+        "siguiente": "La siguiente generación buscará más **claridad y simetría**: llega el Clasicismo de Haydn y Mozart."
+      }
+    }
+  ]
+}

@@ -1,0 +1,1300 @@
+{
+ "_schema": "Banco de ejercicios de SOLFEO (lectura, ritmo, compás, alteraciones), generado por tools/gen_solfeo.py. Mismo formato que ejercicios_escalas.json, más el tipo \"leer_nota\" (midi, opciones, correcta) y un mapa \"teoria\" por nivel.",
+ "teoria": {
+  "1": [
+   "El sonido tiene cuatro propiedades: altura (agudo/grave), duración, intensidad (volumen) y timbre (color). La música organiza sonidos en melodía (sucesivos), armonía (simultáneos) y ritmo (en el tiempo).",
+   "Se escribe sobre el pentagrama: 5 líneas y 4 espacios, contados de abajo (grave) hacia arriba (agudo). La clave, al principio, fija el nombre de cada línea y espacio; la de sol es la más usada para registros agudos."
+  ],
+  "2": [
+   "En clave de sol, las líneas (de abajo arriba) son MI-SOL-SI-RE-FA, y los espacios, FA-LA-DO-MI. El DO central, muy usado como referencia, se escribe justo debajo del pentagrama, en una línea adicional.",
+   "Cuantas más líneas adicionales necesita una nota, más se aleja del registro \"cómodo\" del pentagrama, hacia el grave o hacia el agudo."
+  ],
+  "3": [
+   "Las figuras indican duración relativa: redonda = 2 blancas = 4 negras = 8 corcheas = 16 semicorcheas. Cada figura tiene su silencio equivalente. El puntillo añade la mitad del valor de la figura.",
+   "La ligadura de valor une dos notas de la misma altura y suma sus duraciones; la de expresión une notas de distinta altura para tocarlas ligadas (legato). Los valores irregulares (como el tresillo) meten un número distinto de notas en un espacio dado."
+  ],
+  "4": [
+   "La fórmula de compás tiene dos números: el de arriba dice cuántos tiempos hay por compás, y el de abajo, qué figura vale un tiempo (4=negra, 8=corchea, 2=blanca). Los compases simples dividen el pulso en dos; los compuestos, en tres.",
+   "El primer tiempo de cada compás es el más fuerte. La síncopa desplaza el acento prolongando una nota sobre el tiempo fuerte; el contratiempo ataca en la parte débil y deja en silencio la fuerte."
+  ],
+  "5": [
+   "El sostenido (♯) sube un semitono, el bemol (♭) lo baja, y el becuadro (♮) anula una alteración anterior. Las de la armadura valen para toda la obra; las accidentales, solo para ese compás; las de precaución solo recuerdan una altura.",
+   "La dinámica (de pp a ff) y la articulación (staccato, legato, acento) dan carácter a la música, junto con el tempo (de Largo a Presto) y signos como el calderón, que prolonga una nota a voluntad."
+  ]
+ },
+ "ejercicios": [
+  {
+   "id": "sol-gen-0001",
+   "nivel": 1,
+   "tipo": "opcion_multiple",
+   "enunciado": "¿Cuál de estas NO es una propiedad del sonido?",
+   "explicacion": "Altura, duración, intensidad y timbre: esas son las cuatro.",
+   "opciones": [
+    "el timbre",
+    "el precio",
+    "la duración",
+    "la altura"
+   ],
+   "correcta": 1
+  },
+  {
+   "id": "sol-gen-0002",
+   "nivel": 1,
+   "tipo": "opcion_multiple",
+   "enunciado": "Si un sonido es agudo o grave, hablamos de su...",
+   "explicacion": "La altura depende de la frecuencia de la vibración.",
+   "opciones": [
+    "altura",
+    "duración",
+    "timbre",
+    "intensidad"
+   ],
+   "correcta": 0
+  },
+  {
+   "id": "sol-gen-0003",
+   "nivel": 1,
+   "tipo": "opcion_multiple",
+   "enunciado": "El \"color\" que distingue una guitarra de un piano tocando la misma nota es el...",
+   "explicacion": "El timbre es la propiedad que identifica la fuente del sonido.",
+   "opciones": [
+    "tono",
+    "silencio",
+    "compás",
+    "timbre"
+   ],
+   "correcta": 3
+  },
+  {
+   "id": "sol-gen-0004",
+   "nivel": 1,
+   "tipo": "verdadero_falso",
+   "enunciado": "El sonido se transmite en el vacío.",
+   "explicacion": "Necesita un medio material: aire, agua o un sólido.",
+   "correcta": false
+  },
+  {
+   "id": "sol-gen-0005",
+   "nivel": 1,
+   "tipo": "opcion_multiple",
+   "enunciado": "Los tres elementos fundamentales de la música son melodía, armonía y...",
+   "explicacion": "Ritmo = organización de los sonidos en el tiempo.",
+   "opciones": [
+    "compás",
+    "ritmo",
+    "timbre",
+    "clave"
+   ],
+   "correcta": 1
+  },
+  {
+   "id": "sol-gen-0006",
+   "nivel": 1,
+   "tipo": "opcion_multiple",
+   "enunciado": "Cuando cantamos o tarareamos una canción, notas una detrás de otra, eso es...",
+   "explicacion": "Sonidos sucesivos = melodía. Simultáneos = armonía.",
+   "opciones": [
+    "melodía",
+    "silencio",
+    "timbre",
+    "armonía"
+   ],
+   "correcta": 0
+  },
+  {
+   "id": "sol-gen-0007",
+   "nivel": 1,
+   "tipo": "opcion_multiple",
+   "enunciado": "¿Cuántas líneas tiene un pentagrama?",
+   "explicacion": "Penta = cinco.",
+   "opciones": [
+    "Seis",
+    "Cinco",
+    "Cuatro",
+    "Siete"
+   ],
+   "correcta": 1
+  },
+  {
+   "id": "sol-gen-0008",
+   "nivel": 1,
+   "tipo": "opcion_multiple",
+   "enunciado": "¿Cuántos espacios tiene un pentagrama (entre sus líneas)?",
+   "explicacion": "Cinco líneas dejan cuatro espacios entre ellas.",
+   "opciones": [
+    "Seis",
+    "Cuatro",
+    "Cinco",
+    "Tres"
+   ],
+   "correcta": 1
+  },
+  {
+   "id": "sol-gen-0009",
+   "nivel": 1,
+   "tipo": "opcion_multiple",
+   "enunciado": "El pentagrama se numera y se lee...",
+   "explicacion": "La línea 1 es siempre la de más abajo.",
+   "opciones": [
+    "de arriba hacia abajo",
+    "de abajo hacia arriba",
+    "de izquierda a derecha únicamente",
+    "no se numera"
+   ],
+   "correcta": 1
+  },
+  {
+   "id": "sol-gen-0010",
+   "nivel": 1,
+   "tipo": "opcion_multiple",
+   "enunciado": "Si una nota está más arriba en el pentagrama, suena...",
+   "explicacion": "La altura sube al subir en el pentagrama.",
+   "opciones": [
+    "más grave",
+    "más larga",
+    "más fuerte",
+    "más aguda"
+   ],
+   "correcta": 3
+  },
+  {
+   "id": "sol-gen-0011",
+   "nivel": 1,
+   "tipo": "opcion_multiple",
+   "enunciado": "¿Para qué sirven las líneas adicionales?",
+   "explicacion": "Son pequeñas extensiones del pentagrama, arriba o abajo.",
+   "opciones": [
+    "para separar instrumentos",
+    "para marcar el compás",
+    "para notas que no caben en el pentagrama",
+    "para indicar el tempo"
+   ],
+   "correcta": 2
+  },
+  {
+   "id": "sol-gen-0012",
+   "nivel": 1,
+   "tipo": "opcion_multiple",
+   "enunciado": "La clave, al principio del pentagrama, indica...",
+   "explicacion": "Fija qué nota corresponde a cada línea y espacio.",
+   "opciones": [
+    "el nombre de las notas",
+    "el tempo",
+    "la dinámica",
+    "el compás"
+   ],
+   "correcta": 0
+  },
+  {
+   "id": "sol-gen-0013",
+   "nivel": 1,
+   "tipo": "opcion_multiple",
+   "enunciado": "La clave de sol se usa sobre todo para...",
+   "explicacion": "La clave de fa es la que cubre los registros graves.",
+   "opciones": [
+    "registros agudos",
+    "solo percusión",
+    "registros graves",
+    "solo el bajo"
+   ],
+   "correcta": 0
+  },
+  {
+   "id": "sol-gen-0014",
+   "nivel": 1,
+   "tipo": "opcion_multiple",
+   "enunciado": "¿Cuántas notas naturales hay?",
+   "explicacion": "DO RE MI FA SOL LA SI: siete nombres, que se repiten en cada octava.",
+   "opciones": [
+    "Seis",
+    "Siete",
+    "Doce",
+    "Cinco"
+   ],
+   "correcta": 1
+  },
+  {
+   "id": "sol-gen-0015",
+   "nivel": 1,
+   "tipo": "completar",
+   "enunciado": "Completa el nombre de las notas en orden: DO, RE, MI, ___, SOL, LA, ___",
+   "explicacion": "La secuencia completa es DO RE MI FA SOL LA SI.",
+   "texto": "DO, RE, MI, ___, SOL, LA, ___",
+   "respuestas": [
+    "FA",
+    "SI"
+   ]
+  },
+  {
+   "id": "sol-gen-0016",
+   "nivel": 1,
+   "tipo": "leer_nota",
+   "enunciado": "¿Qué nota está escrita en el pentagrama?",
+   "explicacion": "Es SOL. Está en la 2ª línea del pentagrama: la más usada como referencia.",
+   "midi": 67,
+   "opciones": [
+    "SOL",
+    "LA",
+    "SI",
+    "MI"
+   ],
+   "correcta": 0,
+   "pista": "Fíjate: esta nota está sobre una LÍNEA del pentagrama (o sobre una línea adicional). Líneas (abajo→arriba): MI SOL SI RE FA. Espacios: FA LA DO MI."
+  },
+  {
+   "id": "sol-gen-0017",
+   "nivel": 1,
+   "tipo": "leer_nota",
+   "enunciado": "¿Qué nota está escrita en el pentagrama?",
+   "explicacion": "Es MI. Está en la línea de más abajo del pentagrama.",
+   "midi": 64,
+   "opciones": [
+    "MI",
+    "SOL",
+    "SI",
+    "FA"
+   ],
+   "correcta": 0,
+   "pista": "Fíjate: esta nota está sobre una LÍNEA del pentagrama (o sobre una línea adicional). Líneas (abajo→arriba): MI SOL SI RE FA. Espacios: FA LA DO MI."
+  },
+  {
+   "id": "sol-gen-0018",
+   "nivel": 1,
+   "tipo": "leer_nota",
+   "enunciado": "¿Qué nota está escrita en el pentagrama?",
+   "explicacion": "Es DO. Es el DO central, en una línea adicional debajo del pentagrama.",
+   "midi": 60,
+   "opciones": [
+    "SOL",
+    "DO",
+    "SI",
+    "FA"
+   ],
+   "correcta": 1,
+   "pista": "Fíjate: esta nota está sobre una LÍNEA del pentagrama (o sobre una línea adicional). Líneas (abajo→arriba): MI SOL SI RE FA. Espacios: FA LA DO MI."
+  },
+  {
+   "id": "sol-gen-0019",
+   "nivel": 1,
+   "tipo": "verdadero_falso",
+   "enunciado": "La clave de sol dibuja una espiral que rodea la 2ª línea, donde va la nota SOL.",
+   "explicacion": "De ahí su nombre: fija esa línea como SOL.",
+   "correcta": true
+  },
+  {
+   "id": "sol-gen-0020",
+   "nivel": 1,
+   "tipo": "verdadero_falso",
+   "enunciado": "Todas las claves sitúan las notas exactamente en el mismo lugar.",
+   "explicacion": "Cada clave (sol, fa, do) desplaza las notas a un registro distinto.",
+   "correcta": false
+  },
+  {
+   "id": "sol-gen-0021",
+   "nivel": 2,
+   "tipo": "leer_nota",
+   "enunciado": "¿Qué nota está escrita en el pentagrama?",
+   "explicacion": "Es MI.",
+   "midi": 64,
+   "opciones": [
+    "SI",
+    "MI",
+    "RE",
+    "DO"
+   ],
+   "correcta": 1,
+   "pista": "Fíjate: esta nota está sobre una LÍNEA del pentagrama (o sobre una línea adicional). Líneas (abajo→arriba): MI SOL SI RE FA. Espacios: FA LA DO MI."
+  },
+  {
+   "id": "sol-gen-0022",
+   "nivel": 2,
+   "tipo": "leer_nota",
+   "enunciado": "¿Qué nota está escrita en el pentagrama?",
+   "explicacion": "Es SOL.",
+   "midi": 67,
+   "opciones": [
+    "DO",
+    "RE",
+    "SOL",
+    "LA"
+   ],
+   "correcta": 2,
+   "pista": "Fíjate: esta nota está sobre una LÍNEA del pentagrama (o sobre una línea adicional). Líneas (abajo→arriba): MI SOL SI RE FA. Espacios: FA LA DO MI."
+  },
+  {
+   "id": "sol-gen-0023",
+   "nivel": 2,
+   "tipo": "leer_nota",
+   "enunciado": "¿Qué nota está escrita en el pentagrama?",
+   "explicacion": "Es SI.",
+   "midi": 71,
+   "opciones": [
+    "MI",
+    "FA",
+    "SI",
+    "SOL"
+   ],
+   "correcta": 2,
+   "pista": "Fíjate: esta nota está sobre una LÍNEA del pentagrama (o sobre una línea adicional). Líneas (abajo→arriba): MI SOL SI RE FA. Espacios: FA LA DO MI."
+  },
+  {
+   "id": "sol-gen-0024",
+   "nivel": 2,
+   "tipo": "leer_nota",
+   "enunciado": "¿Qué nota está escrita en el pentagrama?",
+   "explicacion": "Es RE.",
+   "midi": 74,
+   "opciones": [
+    "MI",
+    "RE",
+    "LA",
+    "SI"
+   ],
+   "correcta": 1,
+   "pista": "Fíjate: esta nota está sobre una LÍNEA del pentagrama (o sobre una línea adicional). Líneas (abajo→arriba): MI SOL SI RE FA. Espacios: FA LA DO MI."
+  },
+  {
+   "id": "sol-gen-0025",
+   "nivel": 2,
+   "tipo": "leer_nota",
+   "enunciado": "¿Qué nota está escrita en el pentagrama?",
+   "explicacion": "Es FA.",
+   "midi": 77,
+   "opciones": [
+    "FA",
+    "MI",
+    "DO",
+    "SOL"
+   ],
+   "correcta": 0,
+   "pista": "Fíjate: esta nota está sobre una LÍNEA del pentagrama (o sobre una línea adicional). Líneas (abajo→arriba): MI SOL SI RE FA. Espacios: FA LA DO MI."
+  },
+  {
+   "id": "sol-gen-0026",
+   "nivel": 2,
+   "tipo": "leer_nota",
+   "enunciado": "¿Qué nota está escrita en el pentagrama?",
+   "explicacion": "Es FA.",
+   "midi": 65,
+   "opciones": [
+    "RE",
+    "LA",
+    "DO",
+    "FA"
+   ],
+   "correcta": 3,
+   "pista": "Fíjate: esta nota está en un ESPACIO del pentagrama. Líneas (abajo→arriba): MI SOL SI RE FA. Espacios: FA LA DO MI."
+  },
+  {
+   "id": "sol-gen-0027",
+   "nivel": 2,
+   "tipo": "leer_nota",
+   "enunciado": "¿Qué nota está escrita en el pentagrama?",
+   "explicacion": "Es LA.",
+   "midi": 69,
+   "opciones": [
+    "LA",
+    "SOL",
+    "DO",
+    "MI"
+   ],
+   "correcta": 0,
+   "pista": "Fíjate: esta nota está en un ESPACIO del pentagrama. Líneas (abajo→arriba): MI SOL SI RE FA. Espacios: FA LA DO MI."
+  },
+  {
+   "id": "sol-gen-0028",
+   "nivel": 2,
+   "tipo": "leer_nota",
+   "enunciado": "¿Qué nota está escrita en el pentagrama?",
+   "explicacion": "Es DO.",
+   "midi": 72,
+   "opciones": [
+    "LA",
+    "RE",
+    "FA",
+    "DO"
+   ],
+   "correcta": 3,
+   "pista": "Fíjate: esta nota está en un ESPACIO del pentagrama. Líneas (abajo→arriba): MI SOL SI RE FA. Espacios: FA LA DO MI."
+  },
+  {
+   "id": "sol-gen-0029",
+   "nivel": 2,
+   "tipo": "leer_nota",
+   "enunciado": "¿Qué nota está escrita en el pentagrama?",
+   "explicacion": "Es MI.",
+   "midi": 76,
+   "opciones": [
+    "MI",
+    "RE",
+    "SI",
+    "FA"
+   ],
+   "correcta": 0,
+   "pista": "Fíjate: esta nota está en un ESPACIO del pentagrama. Líneas (abajo→arriba): MI SOL SI RE FA. Espacios: FA LA DO MI."
+  },
+  {
+   "id": "sol-gen-0030",
+   "nivel": 2,
+   "tipo": "leer_nota",
+   "enunciado": "¿Qué nota está escrita en el pentagrama?",
+   "explicacion": "Es DO. DO central: 1ª línea adicional por debajo del pentagrama.",
+   "midi": 60,
+   "opciones": [
+    "MI",
+    "DO",
+    "SOL",
+    "FA"
+   ],
+   "correcta": 1,
+   "pista": "Fíjate: esta nota está sobre una LÍNEA del pentagrama (o sobre una línea adicional). Líneas (abajo→arriba): MI SOL SI RE FA. Espacios: FA LA DO MI."
+  },
+  {
+   "id": "sol-gen-0031",
+   "nivel": 2,
+   "tipo": "leer_nota",
+   "enunciado": "¿Qué nota está escrita en el pentagrama?",
+   "explicacion": "Es LA. LA agudo: 1ª línea adicional por encima del pentagrama.",
+   "midi": 81,
+   "opciones": [
+    "LA",
+    "SI",
+    "SOL",
+    "FA"
+   ],
+   "correcta": 0,
+   "pista": "Fíjate: esta nota está sobre una LÍNEA del pentagrama (o sobre una línea adicional). Líneas (abajo→arriba): MI SOL SI RE FA. Espacios: FA LA DO MI."
+  },
+  {
+   "id": "sol-gen-0032",
+   "nivel": 2,
+   "tipo": "opcion_multiple",
+   "enunciado": "Las notas en las LÍNEAS del pentagrama (clave de sol), de abajo arriba, son...",
+   "explicacion": "Un truco de memoria: \"Mi Sol Si Re Fa\" (frases mnemotécnicas ayudan a recordarlo).",
+   "opciones": [
+    "SOL SI RE FA LA",
+    "FA LA DO MI",
+    "DO MI SOL SI RE",
+    "MI SOL SI RE FA"
+   ],
+   "correcta": 3
+  },
+  {
+   "id": "sol-gen-0033",
+   "nivel": 2,
+   "tipo": "opcion_multiple",
+   "enunciado": "Las notas en los ESPACIOS del pentagrama (clave de sol), de abajo arriba, son...",
+   "explicacion": "Se puede recordar como la palabra \"FA-LA-DO-MI\".",
+   "opciones": [
+    "DO MI SOL SI",
+    "SOL SI RE FA",
+    "MI SOL SI RE",
+    "FA LA DO MI"
+   ],
+   "correcta": 3
+  },
+  {
+   "id": "sol-gen-0034",
+   "nivel": 2,
+   "tipo": "opcion_multiple",
+   "enunciado": "El DO central (DO4) se escribe...",
+   "explicacion": "Es un DO tan grave (para la clave de sol) que necesita salir del pentagrama hacia abajo.",
+   "opciones": [
+    "en la 1ª línea",
+    "en la 3ª línea",
+    "en el espacio central",
+    "en una línea adicional debajo del pentagrama"
+   ],
+   "correcta": 3
+  },
+  {
+   "id": "sol-gen-0035",
+   "nivel": 2,
+   "tipo": "verdadero_falso",
+   "enunciado": "Cuanto más lejos del pentagrama esté una nota (más líneas adicionales), más extrema es su altura.",
+   "explicacion": "Más líneas adicionales = más aguda o más grave.",
+   "correcta": true
+  },
+  {
+   "id": "sol-gen-0036",
+   "nivel": 3,
+   "tipo": "opcion_multiple",
+   "enunciado": "¿Cuál es la figura de mayor duración?",
+   "explicacion": "Redonda = 2 blancas = 4 negras = 8 corcheas = 16 semicorcheas.",
+   "opciones": [
+    "la redonda",
+    "la negra",
+    "la blanca",
+    "la corchea"
+   ],
+   "correcta": 0
+  },
+  {
+   "id": "sol-gen-0037",
+   "nivel": 3,
+   "tipo": "opcion_multiple",
+   "enunciado": "Una blanca equivale a...",
+   "explicacion": "",
+   "opciones": [
+    "2 negras",
+    "3 negras",
+    "1 negra",
+    "4 negras"
+   ],
+   "correcta": 0
+  },
+  {
+   "id": "sol-gen-0038",
+   "nivel": 3,
+   "tipo": "opcion_multiple",
+   "enunciado": "Una negra equivale a...",
+   "explicacion": "",
+   "opciones": [
+    "3 corcheas",
+    "1 corchea",
+    "4 corcheas",
+    "2 corcheas"
+   ],
+   "correcta": 3
+  },
+  {
+   "id": "sol-gen-0039",
+   "nivel": 3,
+   "tipo": "opcion_multiple",
+   "enunciado": "Una corchea equivale a...",
+   "explicacion": "",
+   "opciones": [
+    "1 semicorchea",
+    "4 semicorcheas",
+    "3 semicorcheas",
+    "2 semicorcheas"
+   ],
+   "correcta": 3
+  },
+  {
+   "id": "sol-gen-0040",
+   "nivel": 3,
+   "tipo": "completar",
+   "enunciado": "Una redonda equivale a ___ negras.",
+   "explicacion": "",
+   "texto": "Una redonda equivale a ___ negras.",
+   "respuestas": [
+    "4"
+   ]
+  },
+  {
+   "id": "sol-gen-0041",
+   "nivel": 3,
+   "tipo": "completar",
+   "enunciado": "Una redonda equivale a ___ corcheas.",
+   "explicacion": "",
+   "texto": "Una redonda equivale a ___ corcheas.",
+   "respuestas": [
+    "8"
+   ]
+  },
+  {
+   "id": "sol-gen-0042",
+   "nivel": 3,
+   "tipo": "opcion_multiple",
+   "enunciado": "El silencio equivalente a una negra se llama...",
+   "explicacion": "Cada figura tiene su silencio con la misma duración.",
+   "opciones": [
+    "silencio de negra",
+    "silencio de corchea",
+    "silencio de blanca",
+    "no existe"
+   ],
+   "correcta": 0
+  },
+  {
+   "id": "sol-gen-0043",
+   "nivel": 3,
+   "tipo": "verdadero_falso",
+   "enunciado": "Cada figura tiene un silencio equivalente con su misma duración.",
+   "explicacion": "",
+   "correcta": true
+  },
+  {
+   "id": "sol-gen-0044",
+   "nivel": 3,
+   "tipo": "opcion_multiple",
+   "enunciado": "El puntillo, a la derecha de una nota, añade...",
+   "explicacion": "",
+   "opciones": [
+    "un tercio del valor",
+    "la mitad del valor de la figura",
+    "un cuarto del valor",
+    "el doble del valor"
+   ],
+   "correcta": 1
+  },
+  {
+   "id": "sol-gen-0045",
+   "nivel": 3,
+   "tipo": "opcion_multiple",
+   "enunciado": "En 4/4, ¿cuánto dura una negra con puntillo?",
+   "explicacion": "Negra (1 tiempo) + la mitad de su valor (0,5) = 1,5 tiempos.",
+   "opciones": [
+    "1,5 tiempos",
+    "0,5 tiempos",
+    "1 tiempo",
+    "2 tiempos"
+   ],
+   "correcta": 0
+  },
+  {
+   "id": "sol-gen-0046",
+   "nivel": 3,
+   "tipo": "opcion_multiple",
+   "enunciado": "La ligadura que une dos notas de la MISMA altura...",
+   "explicacion": "Es la ligadura de valor (o de prolongación).",
+   "opciones": [
+    "no afecta al ritmo",
+    "suma sus duraciones en un solo sonido",
+    "las toca staccato",
+    "las repite"
+   ],
+   "correcta": 1
+  },
+  {
+   "id": "sol-gen-0047",
+   "nivel": 3,
+   "tipo": "verdadero_falso",
+   "enunciado": "La ligadura de expresión une notas de distinta altura para tocarlas unidas (legato).",
+   "explicacion": "",
+   "correcta": true
+  },
+  {
+   "id": "sol-gen-0048",
+   "nivel": 3,
+   "tipo": "opcion_multiple",
+   "enunciado": "Un tresillo mete 3 notas en el espacio de...",
+   "explicacion": "Por eso es un valor \"irregular\": rompe la división normal.",
+   "opciones": [
+    "4 notas iguales",
+    "5 notas",
+    "1 nota",
+    "2 notas iguales"
+   ],
+   "correcta": 3
+  },
+  {
+   "id": "sol-gen-0049",
+   "nivel": 3,
+   "tipo": "completar",
+   "enunciado": "Completa el orden de las figuras, de mayor a menor duración.",
+   "explicacion": "De mayor a menor: redonda, blanca, negra, corchea, semicorchea.",
+   "texto": "___, blanca, negra, ___",
+   "respuestas": [
+    "redonda",
+    "corchea"
+   ]
+  },
+  {
+   "id": "sol-gen-0050",
+   "nivel": 3,
+   "tipo": "opcion_multiple",
+   "enunciado": "¿Cuántos tiempos dura, en 4/4, una negra + una corchea + una corchea?",
+   "explicacion": "1 (negra) + 0,5 + 0,5 (dos corcheas) = 2.",
+   "opciones": [
+    "1 tiempo",
+    "2 tiempos",
+    "4 tiempos",
+    "3 tiempos"
+   ],
+   "correcta": 1
+  },
+  {
+   "id": "sol-gen-0051",
+   "nivel": 3,
+   "tipo": "opcion_multiple",
+   "enunciado": "¿Cuántos tiempos dura, en 4/4, una blanca + una negra?",
+   "explicacion": "2 (blanca) + 1 (negra) = 3.",
+   "opciones": [
+    "1 tiempo",
+    "2 tiempos",
+    "3 tiempos",
+    "4 tiempos"
+   ],
+   "correcta": 2
+  },
+  {
+   "id": "sol-gen-0052",
+   "nivel": 3,
+   "tipo": "verdadero_falso",
+   "enunciado": "La semicorchea dura la mitad que la corchea.",
+   "explicacion": "",
+   "correcta": true
+  },
+  {
+   "id": "sol-gen-0053",
+   "nivel": 3,
+   "tipo": "verdadero_falso",
+   "enunciado": "La blanca dura menos que la negra.",
+   "explicacion": "La blanca dura el doble que la negra.",
+   "correcta": false
+  },
+  {
+   "id": "sol-gen-0054",
+   "nivel": 3,
+   "tipo": "opcion_multiple",
+   "enunciado": "Un doble puntillo añade...",
+   "explicacion": "Cada puntillo añade la mitad del valor anterior (el de la figura, luego el del primer puntillo).",
+   "opciones": [
+    "la mitad del primer puntillo, además del puntillo simple",
+    "solo se usa en compases compuestos",
+    "nada extra",
+    "el doble del valor original"
+   ],
+   "correcta": 0
+  },
+  {
+   "id": "sol-gen-0055",
+   "nivel": 4,
+   "tipo": "opcion_multiple",
+   "enunciado": "En una fórmula de compás como 3/4, el número de ABAJO indica...",
+   "explicacion": "4 = negra, 8 = corchea, 2 = blanca vale un tiempo.",
+   "opciones": [
+    "el tempo exacto",
+    "cuántos compases hay",
+    "la tonalidad",
+    "qué figura vale un tiempo"
+   ],
+   "correcta": 3
+  },
+  {
+   "id": "sol-gen-0056",
+   "nivel": 4,
+   "tipo": "opcion_multiple",
+   "enunciado": "En una fórmula de compás como 3/4, el número de ARRIBA indica...",
+   "explicacion": "",
+   "opciones": [
+    "qué figura vale un tiempo",
+    "cuántos tiempos hay por compás",
+    "la dinámica",
+    "el tempo"
+   ],
+   "correcta": 1
+  },
+  {
+   "id": "sol-gen-0057",
+   "nivel": 4,
+   "tipo": "opcion_multiple",
+   "enunciado": "Un compás simple es aquel cuyo pulso se divide de forma natural en...",
+   "explicacion": "2/4, 3/4 y 4/4 son compases simples.",
+   "opciones": [
+    "tres partes",
+    "cuatro partes",
+    "dos partes",
+    "cinco partes"
+   ],
+   "correcta": 2
+  },
+  {
+   "id": "sol-gen-0058",
+   "nivel": 4,
+   "tipo": "opcion_multiple",
+   "enunciado": "Un compás compuesto es aquel cuyo pulso se divide de forma natural en...",
+   "explicacion": "6/8, 9/8 y 12/8 son compuestos.",
+   "opciones": [
+    "dos partes",
+    "tres partes",
+    "una parte",
+    "cuatro partes"
+   ],
+   "correcta": 1
+  },
+  {
+   "id": "sol-gen-0059",
+   "nivel": 4,
+   "tipo": "opcion_multiple",
+   "enunciado": "En 6/8, ¿cuántos pulsos (tiempos) hay por compás?",
+   "explicacion": "Cada pulso es una negra con puntillo (3 corcheas); 6 corcheas = 2 pulsos.",
+   "opciones": [
+    "6",
+    "2",
+    "3",
+    "4"
+   ],
+   "correcta": 1
+  },
+  {
+   "id": "sol-gen-0060",
+   "nivel": 4,
+   "tipo": "opcion_multiple",
+   "enunciado": "En 3/4, ¿cuál es el tiempo más acentuado (fuerte)?",
+   "explicacion": "El primer tiempo de cada compás es siempre el más fuerte.",
+   "opciones": [
+    "el segundo",
+    "el tercero",
+    "ninguno",
+    "el primero"
+   ],
+   "correcta": 3
+  },
+  {
+   "id": "sol-gen-0061",
+   "nivel": 4,
+   "tipo": "verdadero_falso",
+   "enunciado": "En 4/4, el 3er tiempo se considera semifuerte.",
+   "explicacion": "",
+   "correcta": true
+  },
+  {
+   "id": "sol-gen-0062",
+   "nivel": 4,
+   "tipo": "opcion_multiple",
+   "enunciado": "La síncopa ocurre cuando una nota...",
+   "explicacion": "",
+   "opciones": [
+    "empieza y termina en el tiempo fuerte",
+    "empieza en tiempo débil y se prolonga sobre el fuerte",
+    "no tiene ritmo definido",
+    "es siempre muy larga"
+   ],
+   "correcta": 1
+  },
+  {
+   "id": "sol-gen-0063",
+   "nivel": 4,
+   "tipo": "opcion_multiple",
+   "enunciado": "El contratiempo es un ataque en la parte débil seguido de...",
+   "explicacion": "A diferencia de la síncopa, no se prolonga sobre el tiempo fuerte: éste queda en silencio.",
+   "opciones": [
+    "un calderón",
+    "silencio en la parte fuerte",
+    "otro ataque más fuerte",
+    "una ligadura"
+   ],
+   "correcta": 1
+  },
+  {
+   "id": "sol-gen-0064",
+   "nivel": 4,
+   "tipo": "verdadero_falso",
+   "enunciado": "La síncopa y el contratiempo son exactamente lo mismo.",
+   "explicacion": "La síncopa prolonga el sonido sobre el tiempo fuerte; el contratiempo deja ese tiempo en silencio.",
+   "correcta": false
+  },
+  {
+   "id": "sol-gen-0065",
+   "nivel": 4,
+   "tipo": "opcion_multiple",
+   "enunciado": "Un tresillo de corcheas mete 3 corcheas en el tiempo de...",
+   "explicacion": "",
+   "opciones": [
+    "4 corcheas",
+    "2 corcheas (una negra)",
+    "6 corcheas",
+    "1 corchea"
+   ],
+   "correcta": 1
+  },
+  {
+   "id": "sol-gen-0066",
+   "nivel": 4,
+   "tipo": "opcion_multiple",
+   "enunciado": "Un compás de amalgama (como 5/8 o 7/8) combina...",
+   "explicacion": "5/8 puede agruparse 2+3 o 3+2; 7/8, por ejemplo 2+2+3.",
+   "opciones": [
+    "grupos simples y compuestos desiguales",
+    "solo grupos compuestos",
+    "solo grupos simples",
+    "ningún grupo, es libre"
+   ],
+   "correcta": 0
+  },
+  {
+   "id": "sol-gen-0067",
+   "nivel": 4,
+   "tipo": "completar",
+   "enunciado": "En 6/8, cada pulso equivale a una negra con ___.",
+   "explicacion": "",
+   "texto": "una negra con ___",
+   "respuestas": [
+    "puntillo"
+   ]
+  },
+  {
+   "id": "sol-gen-0068",
+   "nivel": 4,
+   "tipo": "opcion_multiple",
+   "enunciado": "¿Cuál de estos es un compás compuesto?",
+   "explicacion": "",
+   "opciones": [
+    "9/8",
+    "2/4",
+    "3/4",
+    "4/4"
+   ],
+   "correcta": 0
+  },
+  {
+   "id": "sol-gen-0069",
+   "nivel": 4,
+   "tipo": "opcion_multiple",
+   "enunciado": "¿Cuál de estos es un compás simple?",
+   "explicacion": "",
+   "opciones": [
+    "2/4",
+    "12/8",
+    "6/8",
+    "9/8"
+   ],
+   "correcta": 0
+  },
+  {
+   "id": "sol-gen-0070",
+   "nivel": 4,
+   "tipo": "verdadero_falso",
+   "enunciado": "En un compás simple, el pulso se subdivide naturalmente en tres.",
+   "explicacion": "Eso es lo propio del compás compuesto; el simple se subdivide en dos.",
+   "correcta": false
+  },
+  {
+   "id": "sol-gen-0071",
+   "nivel": 4,
+   "tipo": "opcion_multiple",
+   "enunciado": "El primer tiempo de cualquier compás se llama...",
+   "explicacion": "",
+   "opciones": [
+    "anacrusa",
+    "coda",
+    "tiempo débil",
+    "tiempo fuerte (o tético)"
+   ],
+   "correcta": 3
+  },
+  {
+   "id": "sol-gen-0072",
+   "nivel": 4,
+   "tipo": "opcion_multiple",
+   "enunciado": "Una anacrusa es...",
+   "explicacion": "Muchas melodías empiezan \"en el aire\", antes del primer compás completo.",
+   "opciones": [
+    "un silencio largo",
+    "un cambio de tonalidad",
+    "una nota o notas antes del primer tiempo fuerte",
+    "el final de la obra"
+   ],
+   "correcta": 2
+  },
+  {
+   "id": "sol-gen-0073",
+   "nivel": 5,
+   "tipo": "opcion_multiple",
+   "enunciado": "El sostenido (♯) hace que una nota suba...",
+   "explicacion": "",
+   "opciones": [
+    "un tono",
+    "un semitono",
+    "una tercera",
+    "una octava"
+   ],
+   "correcta": 1
+  },
+  {
+   "id": "sol-gen-0074",
+   "nivel": 5,
+   "tipo": "opcion_multiple",
+   "enunciado": "El bemol (♭) hace que una nota baje...",
+   "explicacion": "",
+   "opciones": [
+    "una octava",
+    "un tono",
+    "una quinta",
+    "un semitono"
+   ],
+   "correcta": 3
+  },
+  {
+   "id": "sol-gen-0075",
+   "nivel": 5,
+   "tipo": "opcion_multiple",
+   "enunciado": "El becuadro (♮) sirve para...",
+   "explicacion": "",
+   "opciones": [
+    "anular una alteración anterior",
+    "subir dos semitonos",
+    "repetir la nota",
+    "bajar dos semitonos"
+   ],
+   "correcta": 0
+  },
+  {
+   "id": "sol-gen-0076",
+   "nivel": 5,
+   "tipo": "verdadero_falso",
+   "enunciado": "Dos notas enarmónicas suenan igual pero se escriben distinto.",
+   "explicacion": "Ej.: DO♯ y RE♭.",
+   "correcta": true
+  },
+  {
+   "id": "sol-gen-0077",
+   "nivel": 5,
+   "tipo": "opcion_multiple",
+   "enunciado": "Las alteraciones de la ARMADURA (junto a la clave) valen para...",
+   "explicacion": "",
+   "opciones": [
+    "solo esa octava",
+    "nada, son decorativas",
+    "toda la obra",
+    "solo el primer compás"
+   ],
+   "correcta": 2
+  },
+  {
+   "id": "sol-gen-0078",
+   "nivel": 5,
+   "tipo": "opcion_multiple",
+   "enunciado": "Una alteración ACCIDENTAL (dentro de la obra) vale para...",
+   "explicacion": "",
+   "opciones": [
+    "toda la obra",
+    "toda la página",
+    "nunca vale, hay que repetirla siempre",
+    "ese compás"
+   ],
+   "correcta": 3
+  },
+  {
+   "id": "sol-gen-0079",
+   "nivel": 5,
+   "tipo": "opcion_multiple",
+   "enunciado": "Una alteración \"de precaución\" (o de cortesía) se usa para...",
+   "explicacion": "",
+   "opciones": [
+    "cambiar la tonalidad",
+    "indicar dinámica",
+    "marcar el tempo",
+    "recordar la altura y evitar confusión"
+   ],
+   "correcta": 3
+  },
+  {
+   "id": "sol-gen-0080",
+   "nivel": 5,
+   "tipo": "opcion_multiple",
+   "enunciado": "¿En qué orden entran los sostenidos en la armadura?",
+   "explicacion": "",
+   "opciones": [
+    "SI MI LA RE SOL DO FA",
+    "FA DO SOL RE LA MI SI",
+    "DO RE MI FA SOL LA SI",
+    "FA SOL LA SI DO RE MI"
+   ],
+   "correcta": 1
+  },
+  {
+   "id": "sol-gen-0081",
+   "nivel": 5,
+   "tipo": "opcion_multiple",
+   "enunciado": "¿En qué orden entran los bemoles en la armadura?",
+   "explicacion": "Es el orden inverso al de los sostenidos.",
+   "opciones": [
+    "DO SI LA SOL FA MI RE",
+    "MI LA RE SOL DO FA SI",
+    "FA DO SOL RE LA MI SI",
+    "SI MI LA RE SOL DO FA"
+   ],
+   "correcta": 3
+  },
+  {
+   "id": "sol-gen-0082",
+   "nivel": 5,
+   "tipo": "opcion_multiple",
+   "enunciado": "Las barras de repetición (::) indican...",
+   "explicacion": "",
+   "opciones": [
+    "repetir el fragmento entre ellas",
+    "el final de la obra",
+    "una alteración",
+    "un cambio de compás"
+   ],
+   "correcta": 0
+  },
+  {
+   "id": "sol-gen-0083",
+   "nivel": 5,
+   "tipo": "opcion_multiple",
+   "enunciado": "\"Da Capo\" (D.C.) significa...",
+   "explicacion": "",
+   "opciones": [
+    "repetir solo un compás",
+    "volver al principio de la obra",
+    "saltar a la coda",
+    "volver al signo"
+   ],
+   "correcta": 1
+  },
+  {
+   "id": "sol-gen-0084",
+   "nivel": 5,
+   "tipo": "opcion_multiple",
+   "enunciado": "\"Dal Segno\" (D.S.) significa...",
+   "explicacion": "",
+   "opciones": [
+    "volver al principio",
+    "saltar a la coda directamente",
+    "volver al signo (𝄋)",
+    "repetir dos veces"
+   ],
+   "correcta": 2
+  },
+  {
+   "id": "sol-gen-0085",
+   "nivel": 5,
+   "tipo": "opcion_multiple",
+   "enunciado": "De más suave a más fuerte, el orden correcto es...",
+   "explicacion": "",
+   "opciones": [
+    "mf, p, f, pp, ff",
+    "ff, f, mf, p, pp",
+    "pp, p, mf, f, ff",
+    "p, pp, f, ff, mf"
+   ],
+   "correcta": 2
+  },
+  {
+   "id": "sol-gen-0086",
+   "nivel": 5,
+   "tipo": "opcion_multiple",
+   "enunciado": "Un crescendo indica...",
+   "explicacion": "",
+   "opciones": [
+    "acelerar el tempo",
+    "bajar poco a poco",
+    "aumentar poco a poco la intensidad",
+    "cambiar de tonalidad"
+   ],
+   "correcta": 2
+  },
+  {
+   "id": "sol-gen-0087",
+   "nivel": 5,
+   "tipo": "opcion_multiple",
+   "enunciado": "El staccato indica que la nota se toca...",
+   "explicacion": "",
+   "opciones": [
+    "muy larga",
+    "muy fuerte",
+    "breve y separada",
+    "unida a la siguiente"
+   ],
+   "correcta": 2
+  },
+  {
+   "id": "sol-gen-0088",
+   "nivel": 5,
+   "tipo": "opcion_multiple",
+   "enunciado": "El legato indica que las notas se tocan...",
+   "explicacion": "",
+   "opciones": [
+    "separadas",
+    "con acento",
+    "en silencio",
+    "unidas, sin cortes"
+   ],
+   "correcta": 3
+  },
+  {
+   "id": "sol-gen-0089",
+   "nivel": 5,
+   "tipo": "opcion_multiple",
+   "enunciado": "Un calderón (fermata) sobre una nota indica...",
+   "explicacion": "",
+   "opciones": [
+    "tocarla más corta",
+    "bajarla un semitono",
+    "prolongar su duración a voluntad",
+    "repetirla"
+   ],
+   "correcta": 2
+  },
+  {
+   "id": "sol-gen-0090",
+   "nivel": 5,
+   "tipo": "opcion_multiple",
+   "enunciado": "De más lento a más rápido, ¿cuál es el orden correcto?",
+   "explicacion": "",
+   "opciones": [
+    "Largo, Andante, Allegro",
+    "Allegro, Andante, Largo",
+    "Andante, Largo, Allegro",
+    "Allegro, Largo, Andante"
+   ],
+   "correcta": 0
+  },
+  {
+   "id": "sol-gen-0091",
+   "nivel": 5,
+   "tipo": "verdadero_falso",
+   "enunciado": "Un ritardando indica acelerar el tempo.",
+   "explicacion": "Ritardando = frenar; accelerando = acelerar.",
+   "correcta": false
+  },
+  {
+   "id": "sol-gen-0092",
+   "nivel": 5,
+   "tipo": "opcion_multiple",
+   "enunciado": "El trino es un adorno que consiste en...",
+   "explicacion": "",
+   "opciones": [
+    "un silencio breve",
+    "repetir la nota tres veces",
+    "bajar un semitono",
+    "alternar rápido con la nota superior"
+   ],
+   "correcta": 3
+  },
+  {
+   "id": "sol-gen-0093",
+   "nivel": 5,
+   "tipo": "leer_nota",
+   "enunciado": "¿Qué nota está escrita en el pentagrama?",
+   "explicacion": "Es SOL. Repaso: combina lectura con lo aprendido sobre matices y alteraciones.",
+   "midi": 67,
+   "opciones": [
+    "SI",
+    "FA",
+    "RE",
+    "SOL"
+   ],
+   "correcta": 3,
+   "pista": "Fíjate: esta nota está sobre una LÍNEA del pentagrama (o sobre una línea adicional). Líneas (abajo→arriba): MI SOL SI RE FA. Espacios: FA LA DO MI."
+  },
+  {
+   "id": "sol-gen-0094",
+   "nivel": 5,
+   "tipo": "leer_nota",
+   "enunciado": "¿Qué nota está escrita en el pentagrama?",
+   "explicacion": "Es SI. Repaso: combina lectura con lo aprendido sobre matices y alteraciones.",
+   "midi": 71,
+   "opciones": [
+    "MI",
+    "SOL",
+    "LA",
+    "SI"
+   ],
+   "correcta": 3,
+   "pista": "Fíjate: esta nota está sobre una LÍNEA del pentagrama (o sobre una línea adicional). Líneas (abajo→arriba): MI SOL SI RE FA. Espacios: FA LA DO MI."
+  },
+  {
+   "id": "sol-gen-0095",
+   "nivel": 5,
+   "tipo": "leer_nota",
+   "enunciado": "¿Qué nota está escrita en el pentagrama?",
+   "explicacion": "Es FA. Repaso: combina lectura con lo aprendido sobre matices y alteraciones.",
+   "midi": 65,
+   "opciones": [
+    "SOL",
+    "MI",
+    "SI",
+    "FA"
+   ],
+   "correcta": 3,
+   "pista": "Fíjate: esta nota está en un ESPACIO del pentagrama. Líneas (abajo→arriba): MI SOL SI RE FA. Espacios: FA LA DO MI."
+  }
+ ]
+}

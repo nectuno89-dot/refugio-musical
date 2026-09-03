@@ -1,0 +1,2378 @@
+{
+ "_schema": "Banco de ejercicios de escalas, generado por tools/gen_ejercicios.py. Campos: id, nivel (1..5), tipo, enunciado, explicacion, pista (opcional), y según tipo: opciones+correcta / correcta / texto+respuestas. Incluye \"teoria\" por nivel.",
+ "teoria": {
+  "1": [
+   "Una escala es una fila de notas seguidas (sin saltos) con un patrón fijo de tonos (T) y semitonos (ST). La escala mayor es T-T-ST-T-T-T-ST; la menor natural, T-ST-T-T-ST-T-T.",
+   "Cada grado tiene nombre: I tónica, IV subdominante, V dominante, VII sensible. Los semitonos de la escala mayor caen entre los grados 3-4 y 7-8."
+  ],
+  "2": [
+   "La armadura son las alteraciones junto a la clave. Los sostenidos entran FA-DO-SOL-RE-LA-MI-SI; los bemoles al revés. Cada quinta justa en el círculo añade una alteración.",
+   "Una escala mayor y su relativa menor comparten armadura y notas: la menor está en el 6º grado de la mayor (una 3ª menor por debajo)."
+  ],
+  "3": [
+   "Para construir una escala mayor: parte de la tónica y aplica T-T-ST-T-T-T-ST, una letra por grado, poniendo la alteración necesaria (nunca repitas letra).",
+   "La pentatónica mayor es la escala mayor sin la 4ª ni la 7ª. La pentatónica menor es su relativa. La escala de blues añade la 5ª bemol (\"blue note\")."
+  ],
+  "4": [
+   "La menor armónica sube el 7º grado (crea sensible); la menor melódica sube el 6º y el 7º al ascender. Los modos griegos salen de tocar la escala mayor desde cada grado.",
+   "Nota característica de cada modo: dórico 6ª mayor, frigio 2ª menor, lidio 4ª aumentada, mixolidio 7ª menor, locrio 5ª disminuida."
+  ],
+  "5": [
+   "En el campo armónico mayor cada grado tiene su modo para improvisar (I jónico, II dórico… V mixolidio). Todos usan las mismas 7 notas de la tonalidad.",
+   "Sobre un acorde de dominante (7) la base es el mixolidio; para más tensión, la escala alterada o la disminuida. Lo esencial: aplicar las escalas en frases y variaciones, no solo memorizarlas."
+  ]
+ },
+ "ejercicios": [
+  {
+   "id": "esc-gen-0001",
+   "nivel": 1,
+   "tipo": "completar",
+   "enunciado": "Completa la fórmula de la escala mayor (T = tono, ST = semitono).",
+   "explicacion": "La escala mayor es T-T-ST-T-T-T-ST. Los semitonos caen entre 3-4 y 7-8.",
+   "texto": "T - T - ___ - T - T - T - ___",
+   "respuestas": [
+    "ST",
+    "ST"
+   ]
+  },
+  {
+   "id": "esc-gen-0002",
+   "nivel": 1,
+   "tipo": "completar",
+   "enunciado": "Completa la fórmula de la escala menor natural.",
+   "explicacion": "Menor natural: T-ST-T-T-ST-T-T.",
+   "texto": "T - ___ - T - T - ___ - T - T",
+   "respuestas": [
+    "ST",
+    "ST"
+   ]
+  },
+  {
+   "id": "esc-gen-0003",
+   "nivel": 1,
+   "tipo": "opcion_multiple",
+   "enunciado": "¿Entre qué grados están los semitonos de la escala mayor?",
+   "explicacion": "Semitonos entre el 3º y 4º grado, y entre el 7º (sensible) y el 8º (tónica).",
+   "opciones": [
+    "Entre 4-5 y 7-8",
+    "Entre 1-2 y 5-6",
+    "Entre 3-4 y 7-8",
+    "Entre 2-3 y 6-7"
+   ],
+   "correcta": 2
+  },
+  {
+   "id": "esc-gen-0004",
+   "nivel": 1,
+   "tipo": "opcion_multiple",
+   "enunciado": "Entre MI y FA (teclas blancas contiguas) hay:",
+   "explicacion": "MI-FA y SI-DO son los dos semitonos naturales del teclado.",
+   "opciones": [
+    "Un tono",
+    "Un tono y medio",
+    "Dos tonos",
+    "Un semitono"
+   ],
+   "correcta": 3
+  },
+  {
+   "id": "esc-gen-0005",
+   "nivel": 1,
+   "tipo": "opcion_multiple",
+   "enunciado": "¿Cómo se llama el primer grado de la escala, la nota de reposo?",
+   "explicacion": "La tónica (I) es el centro de gravedad de la escala.",
+   "opciones": [
+    "La dominante",
+    "La tónica",
+    "La mediante",
+    "La sensible"
+   ],
+   "correcta": 1
+  },
+  {
+   "id": "esc-gen-0006",
+   "nivel": 1,
+   "tipo": "opcion_multiple",
+   "enunciado": "¿Cuántas notas distintas tiene una escala diatónica (mayor o menor)?",
+   "explicacion": "Siete notas distintas; la octava repite la tónica.",
+   "opciones": [
+    "8",
+    "6",
+    "7",
+    "5"
+   ],
+   "correcta": 2
+  },
+  {
+   "id": "esc-gen-0007",
+   "nivel": 1,
+   "tipo": "verdadero_falso",
+   "enunciado": "La escala mayor y su relativa menor comparten exactamente las mismas notas.",
+   "explicacion": "Sí: misma armadura. La relativa menor empieza en el 6º grado de la mayor.",
+   "correcta": true
+  },
+  {
+   "id": "esc-gen-0008",
+   "nivel": 1,
+   "tipo": "completar",
+   "enunciado": "La escala pentatónica mayor se obtiene quitando de la escala mayor los grados ___ y ___.",
+   "explicacion": "Se quitan la 4ª y la 7ª: así desaparecen las notas que crean más tensión.",
+   "texto": "grados ___ y ___",
+   "respuestas": [
+    "4",
+    "7"
+   ]
+  },
+  {
+   "id": "esc-gen-0009",
+   "nivel": 1,
+   "tipo": "opcion_multiple",
+   "enunciado": "¿Cuál es la escala de DO mayor?",
+   "explicacion": "DO mayor no lleva alteraciones.",
+   "opciones": [
+    "DO MI SOL DO",
+    "DO RE MI FA SOL LA SI",
+    "DO RE MI FA SOL LA SI DO",
+    "DO REb MI FA SOL LAb SI"
+   ],
+   "correcta": 1
+  },
+  {
+   "id": "esc-gen-0010",
+   "nivel": 1,
+   "tipo": "opcion_multiple",
+   "enunciado": "La escala empieza y termina (una octava después) en la...",
+   "explicacion": "",
+   "opciones": [
+    "dominante",
+    "subdominante",
+    "tónica",
+    "sensible"
+   ],
+   "correcta": 2
+  },
+  {
+   "id": "esc-gen-0011",
+   "nivel": 1,
+   "tipo": "verdadero_falso",
+   "enunciado": "Entre DO y RE hay un tono.",
+   "explicacion": "Sí; hay una tecla negra (DO♯/RE♭) en medio.",
+   "correcta": true
+  },
+  {
+   "id": "esc-gen-0012",
+   "nivel": 1,
+   "tipo": "verdadero_falso",
+   "enunciado": "Entre SI y DO hay un tono.",
+   "explicacion": "No: es un semitono (no hay tecla negra en medio).",
+   "correcta": false
+  },
+  {
+   "id": "esc-gen-0013",
+   "nivel": 1,
+   "tipo": "opcion_multiple",
+   "enunciado": "¿Cuántas notas distintas tiene la escala mayor antes de repetir la octava?",
+   "explicacion": "",
+   "opciones": [
+    "5",
+    "8",
+    "6",
+    "7"
+   ],
+   "correcta": 3
+  },
+  {
+   "id": "esc-gen-0014",
+   "nivel": 1,
+   "tipo": "opcion_multiple",
+   "enunciado": "La relativa menor de una escala mayor empieza en...",
+   "explicacion": "A una 3ª menor por debajo de la tónica mayor.",
+   "opciones": [
+    "el 2º grado",
+    "el 6º grado",
+    "el 5º grado",
+    "el 3º grado"
+   ],
+   "correcta": 1
+  },
+  {
+   "id": "esc-gen-0015",
+   "nivel": 1,
+   "tipo": "completar",
+   "enunciado": "La menor natural tiene la fórmula T-___-T-T-___-T-T.",
+   "explicacion": "Menor natural: T-ST-T-T-ST-T-T.",
+   "texto": "T-___-T-T-___-T-T",
+   "respuestas": [
+    "ST",
+    "ST"
+   ]
+  },
+  {
+   "id": "esc-gen-0016",
+   "nivel": 1,
+   "tipo": "opcion_multiple",
+   "enunciado": "¿Qué escala usa las 12 notas, todas a distancia de semitono?",
+   "explicacion": "",
+   "opciones": [
+    "pentatónica",
+    "diatónica",
+    "cromática",
+    "mayor"
+   ],
+   "correcta": 2
+  },
+  {
+   "id": "esc-gen-0017",
+   "nivel": 2,
+   "tipo": "opcion_multiple",
+   "enunciado": "¿Cuántas alteraciones tiene la armadura de DO mayor?",
+   "explicacion": "DO mayor lleva 0 alteraciones.",
+   "opciones": [
+    "1",
+    "3",
+    "2",
+    "0"
+   ],
+   "correcta": 3
+  },
+  {
+   "id": "esc-gen-0018",
+   "nivel": 2,
+   "tipo": "opcion_multiple",
+   "enunciado": "¿Cuántas alteraciones tiene la armadura de SOL mayor?",
+   "explicacion": "SOL mayor lleva 1 sostenidos.",
+   "opciones": [
+    "3",
+    "1",
+    "0",
+    "2"
+   ],
+   "correcta": 1
+  },
+  {
+   "id": "esc-gen-0019",
+   "nivel": 2,
+   "tipo": "opcion_multiple",
+   "enunciado": "La armadura de SOL mayor está formada por...",
+   "explicacion": "SOL mayor usa sostenidos.",
+   "opciones": [
+    "bemoles",
+    "sostenidos",
+    "ninguna"
+   ],
+   "correcta": 1
+  },
+  {
+   "id": "esc-gen-0020",
+   "nivel": 2,
+   "tipo": "opcion_multiple",
+   "enunciado": "¿Cuántas alteraciones tiene la armadura de RE mayor?",
+   "explicacion": "RE mayor lleva 2 sostenidos.",
+   "opciones": [
+    "0",
+    "2",
+    "3",
+    "1"
+   ],
+   "correcta": 1
+  },
+  {
+   "id": "esc-gen-0021",
+   "nivel": 2,
+   "tipo": "opcion_multiple",
+   "enunciado": "La armadura de RE mayor está formada por...",
+   "explicacion": "RE mayor usa sostenidos.",
+   "opciones": [
+    "bemoles",
+    "ninguna",
+    "sostenidos"
+   ],
+   "correcta": 2
+  },
+  {
+   "id": "esc-gen-0022",
+   "nivel": 2,
+   "tipo": "opcion_multiple",
+   "enunciado": "¿Cuántas alteraciones tiene la armadura de LA mayor?",
+   "explicacion": "LA mayor lleva 3 sostenidos.",
+   "opciones": [
+    "0",
+    "2",
+    "3",
+    "1"
+   ],
+   "correcta": 2
+  },
+  {
+   "id": "esc-gen-0023",
+   "nivel": 2,
+   "tipo": "opcion_multiple",
+   "enunciado": "La armadura de LA mayor está formada por...",
+   "explicacion": "LA mayor usa sostenidos.",
+   "opciones": [
+    "bemoles",
+    "sostenidos",
+    "ninguna"
+   ],
+   "correcta": 1
+  },
+  {
+   "id": "esc-gen-0024",
+   "nivel": 2,
+   "tipo": "opcion_multiple",
+   "enunciado": "¿Cuántas alteraciones tiene la armadura de MI mayor?",
+   "explicacion": "MI mayor lleva 4 sostenidos.",
+   "opciones": [
+    "4",
+    "1",
+    "2",
+    "0"
+   ],
+   "correcta": 0
+  },
+  {
+   "id": "esc-gen-0025",
+   "nivel": 2,
+   "tipo": "opcion_multiple",
+   "enunciado": "La armadura de MI mayor está formada por...",
+   "explicacion": "MI mayor usa sostenidos.",
+   "opciones": [
+    "sostenidos",
+    "ninguna",
+    "bemoles"
+   ],
+   "correcta": 0
+  },
+  {
+   "id": "esc-gen-0026",
+   "nivel": 2,
+   "tipo": "opcion_multiple",
+   "enunciado": "¿Cuántas alteraciones tiene la armadura de SI mayor?",
+   "explicacion": "SI mayor lleva 5 sostenidos.",
+   "opciones": [
+    "5",
+    "1",
+    "0",
+    "2"
+   ],
+   "correcta": 0
+  },
+  {
+   "id": "esc-gen-0027",
+   "nivel": 2,
+   "tipo": "opcion_multiple",
+   "enunciado": "La armadura de SI mayor está formada por...",
+   "explicacion": "SI mayor usa sostenidos.",
+   "opciones": [
+    "bemoles",
+    "ninguna",
+    "sostenidos"
+   ],
+   "correcta": 2
+  },
+  {
+   "id": "esc-gen-0028",
+   "nivel": 2,
+   "tipo": "opcion_multiple",
+   "enunciado": "¿Cuántas alteraciones tiene la armadura de FA♯ mayor?",
+   "explicacion": "FA♯ mayor lleva 6 sostenidos.",
+   "opciones": [
+    "1",
+    "2",
+    "6",
+    "0"
+   ],
+   "correcta": 2
+  },
+  {
+   "id": "esc-gen-0029",
+   "nivel": 2,
+   "tipo": "opcion_multiple",
+   "enunciado": "La armadura de FA♯ mayor está formada por...",
+   "explicacion": "FA♯ mayor usa sostenidos.",
+   "opciones": [
+    "sostenidos",
+    "bemoles",
+    "ninguna"
+   ],
+   "correcta": 0
+  },
+  {
+   "id": "esc-gen-0030",
+   "nivel": 2,
+   "tipo": "opcion_multiple",
+   "enunciado": "¿Cuántas alteraciones tiene la armadura de FA mayor?",
+   "explicacion": "FA mayor lleva 1 bemoles.",
+   "opciones": [
+    "1",
+    "0",
+    "3",
+    "2"
+   ],
+   "correcta": 0
+  },
+  {
+   "id": "esc-gen-0031",
+   "nivel": 2,
+   "tipo": "opcion_multiple",
+   "enunciado": "La armadura de FA mayor está formada por...",
+   "explicacion": "FA mayor usa bemoles.",
+   "opciones": [
+    "ninguna",
+    "bemoles",
+    "sostenidos"
+   ],
+   "correcta": 1
+  },
+  {
+   "id": "esc-gen-0032",
+   "nivel": 2,
+   "tipo": "opcion_multiple",
+   "enunciado": "¿Cuántas alteraciones tiene la armadura de SI♭ mayor?",
+   "explicacion": "SI♭ mayor lleva 2 bemoles.",
+   "opciones": [
+    "3",
+    "0",
+    "1",
+    "2"
+   ],
+   "correcta": 3
+  },
+  {
+   "id": "esc-gen-0033",
+   "nivel": 2,
+   "tipo": "opcion_multiple",
+   "enunciado": "La armadura de SI♭ mayor está formada por...",
+   "explicacion": "SI♭ mayor usa bemoles.",
+   "opciones": [
+    "ninguna",
+    "sostenidos",
+    "bemoles"
+   ],
+   "correcta": 2
+  },
+  {
+   "id": "esc-gen-0034",
+   "nivel": 2,
+   "tipo": "opcion_multiple",
+   "enunciado": "¿Cuántas alteraciones tiene la armadura de MI♭ mayor?",
+   "explicacion": "MI♭ mayor lleva 3 bemoles.",
+   "opciones": [
+    "3",
+    "1",
+    "2",
+    "0"
+   ],
+   "correcta": 0
+  },
+  {
+   "id": "esc-gen-0035",
+   "nivel": 2,
+   "tipo": "opcion_multiple",
+   "enunciado": "La armadura de MI♭ mayor está formada por...",
+   "explicacion": "MI♭ mayor usa bemoles.",
+   "opciones": [
+    "sostenidos",
+    "ninguna",
+    "bemoles"
+   ],
+   "correcta": 2
+  },
+  {
+   "id": "esc-gen-0036",
+   "nivel": 2,
+   "tipo": "opcion_multiple",
+   "enunciado": "¿Cuántas alteraciones tiene la armadura de LA♭ mayor?",
+   "explicacion": "LA♭ mayor lleva 4 bemoles.",
+   "opciones": [
+    "4",
+    "2",
+    "0",
+    "1"
+   ],
+   "correcta": 0
+  },
+  {
+   "id": "esc-gen-0037",
+   "nivel": 2,
+   "tipo": "opcion_multiple",
+   "enunciado": "La armadura de LA♭ mayor está formada por...",
+   "explicacion": "LA♭ mayor usa bemoles.",
+   "opciones": [
+    "bemoles",
+    "sostenidos",
+    "ninguna"
+   ],
+   "correcta": 0
+  },
+  {
+   "id": "esc-gen-0038",
+   "nivel": 2,
+   "tipo": "opcion_multiple",
+   "enunciado": "¿Cuántas alteraciones tiene la armadura de RE♭ mayor?",
+   "explicacion": "RE♭ mayor lleva 5 bemoles.",
+   "opciones": [
+    "0",
+    "1",
+    "5",
+    "2"
+   ],
+   "correcta": 2
+  },
+  {
+   "id": "esc-gen-0039",
+   "nivel": 2,
+   "tipo": "opcion_multiple",
+   "enunciado": "La armadura de RE♭ mayor está formada por...",
+   "explicacion": "RE♭ mayor usa bemoles.",
+   "opciones": [
+    "bemoles",
+    "ninguna",
+    "sostenidos"
+   ],
+   "correcta": 0
+  },
+  {
+   "id": "esc-gen-0040",
+   "nivel": 2,
+   "tipo": "opcion_multiple",
+   "enunciado": "¿Cuántas alteraciones tiene la armadura de SOL♭ mayor?",
+   "explicacion": "SOL♭ mayor lleva 6 bemoles.",
+   "opciones": [
+    "1",
+    "0",
+    "2",
+    "6"
+   ],
+   "correcta": 3
+  },
+  {
+   "id": "esc-gen-0041",
+   "nivel": 2,
+   "tipo": "opcion_multiple",
+   "enunciado": "La armadura de SOL♭ mayor está formada por...",
+   "explicacion": "SOL♭ mayor usa bemoles.",
+   "opciones": [
+    "bemoles",
+    "sostenidos",
+    "ninguna"
+   ],
+   "correcta": 0
+  },
+  {
+   "id": "esc-gen-0042",
+   "nivel": 2,
+   "tipo": "completar",
+   "enunciado": "La única nota alterada de SOL mayor es ___.",
+   "explicacion": "SOL mayor solo altera FA♯.",
+   "texto": "___",
+   "respuestas": [
+    "FA♯",
+    "F♯"
+   ]
+  },
+  {
+   "id": "esc-gen-0043",
+   "nivel": 2,
+   "tipo": "completar",
+   "enunciado": "La única nota alterada de FA mayor es ___.",
+   "explicacion": "FA mayor solo altera SI♭.",
+   "texto": "___",
+   "respuestas": [
+    "SI♭",
+    "B♭"
+   ]
+  },
+  {
+   "id": "esc-gen-0044",
+   "nivel": 2,
+   "tipo": "completar",
+   "enunciado": "La única nota alterada de RE mayor es ___.",
+   "explicacion": "RE mayor solo altera DO♯.",
+   "texto": "___",
+   "respuestas": [
+    "DO♯",
+    "C♯"
+   ]
+  },
+  {
+   "id": "esc-gen-0045",
+   "nivel": 2,
+   "tipo": "completar",
+   "enunciado": "La única nota alterada de SI♭ mayor es ___.",
+   "explicacion": "SI♭ mayor solo altera MI♭.",
+   "texto": "___",
+   "respuestas": [
+    "MI♭",
+    "E♭"
+   ]
+  },
+  {
+   "id": "esc-gen-0046",
+   "nivel": 2,
+   "tipo": "opcion_multiple",
+   "enunciado": "La escala de LA menor natural usa las mismas notas que...",
+   "explicacion": "LA menor es la relativa de DO mayor (misma armadura).",
+   "opciones": [
+    "FA♯ mayor",
+    "FA mayor",
+    "SI mayor",
+    "DO mayor"
+   ],
+   "correcta": 3
+  },
+  {
+   "id": "esc-gen-0047",
+   "nivel": 2,
+   "tipo": "opcion_multiple",
+   "enunciado": "La escala de MI menor natural usa las mismas notas que...",
+   "explicacion": "MI menor es la relativa de SOL mayor (misma armadura).",
+   "opciones": [
+    "LA mayor",
+    "LA♭ mayor",
+    "SOL mayor",
+    "RE mayor"
+   ],
+   "correcta": 2
+  },
+  {
+   "id": "esc-gen-0048",
+   "nivel": 2,
+   "tipo": "opcion_multiple",
+   "enunciado": "La escala de SI menor natural usa las mismas notas que...",
+   "explicacion": "SI menor es la relativa de RE mayor (misma armadura).",
+   "opciones": [
+    "RE mayor",
+    "LA mayor",
+    "SI mayor",
+    "MI mayor"
+   ],
+   "correcta": 0
+  },
+  {
+   "id": "esc-gen-0049",
+   "nivel": 2,
+   "tipo": "opcion_multiple",
+   "enunciado": "La escala de FA♯ menor natural usa las mismas notas que...",
+   "explicacion": "FA♯ menor es la relativa de LA mayor (misma armadura).",
+   "opciones": [
+    "LA mayor",
+    "SOL mayor",
+    "RE mayor",
+    "SI♭ mayor"
+   ],
+   "correcta": 0
+  },
+  {
+   "id": "esc-gen-0050",
+   "nivel": 2,
+   "tipo": "opcion_multiple",
+   "enunciado": "La escala de DO♯ menor natural usa las mismas notas que...",
+   "explicacion": "DO♯ menor es la relativa de MI mayor (misma armadura).",
+   "opciones": [
+    "MI mayor",
+    "RE mayor",
+    "MI♭ mayor",
+    "FA mayor"
+   ],
+   "correcta": 0
+  },
+  {
+   "id": "esc-gen-0051",
+   "nivel": 2,
+   "tipo": "opcion_multiple",
+   "enunciado": "La escala de SOL♯ menor natural usa las mismas notas que...",
+   "explicacion": "SOL♯ menor es la relativa de SI mayor (misma armadura).",
+   "opciones": [
+    "FA mayor",
+    "RE♭ mayor",
+    "SI mayor",
+    "FA♯ mayor"
+   ],
+   "correcta": 2
+  },
+  {
+   "id": "esc-gen-0052",
+   "nivel": 2,
+   "tipo": "opcion_multiple",
+   "enunciado": "La escala de RE♯ menor natural usa las mismas notas que...",
+   "explicacion": "RE♯ menor es la relativa de FA♯ mayor (misma armadura).",
+   "opciones": [
+    "SOL♭ mayor",
+    "LA mayor",
+    "FA♯ mayor",
+    "RE mayor"
+   ],
+   "correcta": 2
+  },
+  {
+   "id": "esc-gen-0053",
+   "nivel": 2,
+   "tipo": "opcion_multiple",
+   "enunciado": "La escala de RE menor natural usa las mismas notas que...",
+   "explicacion": "RE menor es la relativa de FA mayor (misma armadura).",
+   "opciones": [
+    "LA♭ mayor",
+    "MI mayor",
+    "FA mayor",
+    "RE mayor"
+   ],
+   "correcta": 2
+  },
+  {
+   "id": "esc-gen-0054",
+   "nivel": 2,
+   "tipo": "opcion_multiple",
+   "enunciado": "La escala de SOL menor natural usa las mismas notas que...",
+   "explicacion": "SOL menor es la relativa de SI♭ mayor (misma armadura).",
+   "opciones": [
+    "FA♯ mayor",
+    "SI mayor",
+    "SI♭ mayor",
+    "MI♭ mayor"
+   ],
+   "correcta": 2
+  },
+  {
+   "id": "esc-gen-0055",
+   "nivel": 2,
+   "tipo": "opcion_multiple",
+   "enunciado": "La escala de DO menor natural usa las mismas notas que...",
+   "explicacion": "DO menor es la relativa de MI♭ mayor (misma armadura).",
+   "opciones": [
+    "MI♭ mayor",
+    "RE♭ mayor",
+    "FA mayor",
+    "SI♭ mayor"
+   ],
+   "correcta": 0
+  },
+  {
+   "id": "esc-gen-0056",
+   "nivel": 2,
+   "tipo": "opcion_multiple",
+   "enunciado": "La escala de FA menor natural usa las mismas notas que...",
+   "explicacion": "FA menor es la relativa de LA♭ mayor (misma armadura).",
+   "opciones": [
+    "FA♯ mayor",
+    "SOL mayor",
+    "LA♭ mayor",
+    "FA mayor"
+   ],
+   "correcta": 2
+  },
+  {
+   "id": "esc-gen-0057",
+   "nivel": 2,
+   "tipo": "opcion_multiple",
+   "enunciado": "La escala de SI♭ menor natural usa las mismas notas que...",
+   "explicacion": "SI♭ menor es la relativa de RE♭ mayor (misma armadura).",
+   "opciones": [
+    "LA mayor",
+    "FA mayor",
+    "RE♭ mayor",
+    "SOL mayor"
+   ],
+   "correcta": 2
+  },
+  {
+   "id": "esc-gen-0058",
+   "nivel": 2,
+   "tipo": "opcion_multiple",
+   "enunciado": "La escala de MI♭ menor natural usa las mismas notas que...",
+   "explicacion": "MI♭ menor es la relativa de SOL♭ mayor (misma armadura).",
+   "opciones": [
+    "MI♭ mayor",
+    "SOL mayor",
+    "DO mayor",
+    "SOL♭ mayor"
+   ],
+   "correcta": 3
+  },
+  {
+   "id": "esc-gen-0059",
+   "nivel": 3,
+   "tipo": "opcion_multiple",
+   "enunciado": "En DO mayor, ¿qué nota es el/la 5º grado (dominante)?",
+   "explicacion": "DO mayor: DO  RE  MI  FA  SOL  LA  SI. El 5º grado es SOL.",
+   "opciones": [
+    "LA",
+    "DO",
+    "MI",
+    "SOL"
+   ],
+   "correcta": 3
+  },
+  {
+   "id": "esc-gen-0060",
+   "nivel": 3,
+   "tipo": "opcion_multiple",
+   "enunciado": "En DO mayor, ¿qué nota es el/la 3º grado (mediante)?",
+   "explicacion": "DO mayor: DO  RE  MI  FA  SOL  LA  SI. El 3º grado es MI.",
+   "opciones": [
+    "MI",
+    "RE",
+    "LA",
+    "SOL"
+   ],
+   "correcta": 0
+  },
+  {
+   "id": "esc-gen-0061",
+   "nivel": 3,
+   "tipo": "opcion_multiple",
+   "enunciado": "En SOL mayor, ¿qué nota es el/la 5º grado (dominante)?",
+   "explicacion": "SOL mayor: SOL  LA  SI  DO  RE  MI  FA♯. El 5º grado es RE.",
+   "opciones": [
+    "RE",
+    "SOL",
+    "DO",
+    "MI"
+   ],
+   "correcta": 0
+  },
+  {
+   "id": "esc-gen-0062",
+   "nivel": 3,
+   "tipo": "opcion_multiple",
+   "enunciado": "En SOL mayor, ¿qué nota es el/la 4º grado (subdominante)?",
+   "explicacion": "SOL mayor: SOL  LA  SI  DO  RE  MI  FA♯. El 4º grado es DO.",
+   "opciones": [
+    "SI",
+    "SOL",
+    "DO",
+    "RE"
+   ],
+   "correcta": 2
+  },
+  {
+   "id": "esc-gen-0063",
+   "nivel": 3,
+   "tipo": "opcion_multiple",
+   "enunciado": "En RE mayor, ¿qué nota es el/la 5º grado (dominante)?",
+   "explicacion": "RE mayor: RE  MI  FA♯  SOL  LA  SI  DO♯. El 5º grado es LA.",
+   "opciones": [
+    "SOL",
+    "LA",
+    "FA♯",
+    "DO♯"
+   ],
+   "correcta": 1
+  },
+  {
+   "id": "esc-gen-0064",
+   "nivel": 3,
+   "tipo": "opcion_multiple",
+   "enunciado": "En LA mayor, ¿qué nota es el/la 5º grado (dominante)?",
+   "explicacion": "LA mayor: LA  SI  DO♯  RE  MI  FA♯  SOL♯. El 5º grado es MI.",
+   "opciones": [
+    "DO♯",
+    "MI",
+    "FA♯",
+    "SI"
+   ],
+   "correcta": 1
+  },
+  {
+   "id": "esc-gen-0065",
+   "nivel": 3,
+   "tipo": "opcion_multiple",
+   "enunciado": "En LA mayor, ¿qué nota es el/la 6º grado (superdominante)?",
+   "explicacion": "LA mayor: LA  SI  DO♯  RE  MI  FA♯  SOL♯. El 6º grado es FA♯.",
+   "opciones": [
+    "FA♯",
+    "MI",
+    "LA",
+    "DO♯"
+   ],
+   "correcta": 0
+  },
+  {
+   "id": "esc-gen-0066",
+   "nivel": 3,
+   "tipo": "opcion_multiple",
+   "enunciado": "En MI mayor, ¿qué nota es el/la 5º grado (dominante)?",
+   "explicacion": "MI mayor: MI  FA♯  SOL♯  LA  SI  DO♯  RE♯. El 5º grado es SI.",
+   "opciones": [
+    "FA♯",
+    "SI",
+    "RE♯",
+    "SOL♯"
+   ],
+   "correcta": 1
+  },
+  {
+   "id": "esc-gen-0067",
+   "nivel": 3,
+   "tipo": "opcion_multiple",
+   "enunciado": "En MI mayor, ¿qué nota es el/la 7º grado (sensible)?",
+   "explicacion": "MI mayor: MI  FA♯  SOL♯  LA  SI  DO♯  RE♯. El 7º grado es RE♯.",
+   "opciones": [
+    "SI",
+    "RE♯",
+    "FA♯",
+    "DO♯"
+   ],
+   "correcta": 1
+  },
+  {
+   "id": "esc-gen-0068",
+   "nivel": 3,
+   "tipo": "opcion_multiple",
+   "enunciado": "En SI mayor, ¿qué nota es el/la 5º grado (dominante)?",
+   "explicacion": "SI mayor: SI  DO♯  RE♯  MI  FA♯  SOL♯  LA♯. El 5º grado es FA♯.",
+   "opciones": [
+    "DO♯",
+    "FA♯",
+    "MI",
+    "SOL♯"
+   ],
+   "correcta": 1
+  },
+  {
+   "id": "esc-gen-0069",
+   "nivel": 3,
+   "tipo": "opcion_multiple",
+   "enunciado": "En SI mayor, ¿qué nota es el/la 3º grado (mediante)?",
+   "explicacion": "SI mayor: SI  DO♯  RE♯  MI  FA♯  SOL♯  LA♯. El 3º grado es RE♯.",
+   "opciones": [
+    "FA♯",
+    "SI",
+    "RE♯",
+    "MI"
+   ],
+   "correcta": 2
+  },
+  {
+   "id": "esc-gen-0070",
+   "nivel": 3,
+   "tipo": "opcion_multiple",
+   "enunciado": "En FA♯ mayor, ¿qué nota es el/la 5º grado (dominante)?",
+   "explicacion": "FA♯ mayor: FA♯  SOL♯  LA♯  SI  DO♯  RE♯  MI♯. El 5º grado es DO♯.",
+   "opciones": [
+    "SI",
+    "LA♯",
+    "RE♯",
+    "DO♯"
+   ],
+   "correcta": 3
+  },
+  {
+   "id": "esc-gen-0071",
+   "nivel": 3,
+   "tipo": "opcion_multiple",
+   "enunciado": "En FA♯ mayor, ¿qué nota es el/la 4º grado (subdominante)?",
+   "explicacion": "FA♯ mayor: FA♯  SOL♯  LA♯  SI  DO♯  RE♯  MI♯. El 4º grado es SI.",
+   "opciones": [
+    "MI♯",
+    "SOL♯",
+    "SI",
+    "DO♯"
+   ],
+   "correcta": 2
+  },
+  {
+   "id": "esc-gen-0072",
+   "nivel": 3,
+   "tipo": "opcion_multiple",
+   "enunciado": "En FA mayor, ¿qué nota es el/la 5º grado (dominante)?",
+   "explicacion": "FA mayor: FA  SOL  LA  SI♭  DO  RE  MI. El 5º grado es DO.",
+   "opciones": [
+    "DO",
+    "RE",
+    "MI",
+    "FA"
+   ],
+   "correcta": 0
+  },
+  {
+   "id": "esc-gen-0073",
+   "nivel": 3,
+   "tipo": "opcion_multiple",
+   "enunciado": "En SI♭ mayor, ¿qué nota es el/la 5º grado (dominante)?",
+   "explicacion": "SI♭ mayor: SI♭  DO  RE  MI♭  FA  SOL  LA. El 5º grado es FA.",
+   "opciones": [
+    "LA",
+    "FA",
+    "SI♭",
+    "SOL"
+   ],
+   "correcta": 1
+  },
+  {
+   "id": "esc-gen-0074",
+   "nivel": 3,
+   "tipo": "opcion_multiple",
+   "enunciado": "En SI♭ mayor, ¿qué nota es el/la 6º grado (superdominante)?",
+   "explicacion": "SI♭ mayor: SI♭  DO  RE  MI♭  FA  SOL  LA. El 6º grado es SOL.",
+   "opciones": [
+    "LA",
+    "MI♭",
+    "SOL",
+    "DO"
+   ],
+   "correcta": 2
+  },
+  {
+   "id": "esc-gen-0075",
+   "nivel": 3,
+   "tipo": "opcion_multiple",
+   "enunciado": "En MI♭ mayor, ¿qué nota es el/la 5º grado (dominante)?",
+   "explicacion": "MI♭ mayor: MI♭  FA  SOL  LA♭  SI♭  DO  RE. El 5º grado es SI♭.",
+   "opciones": [
+    "MI♭",
+    "RE",
+    "SI♭",
+    "LA♭"
+   ],
+   "correcta": 2
+  },
+  {
+   "id": "esc-gen-0076",
+   "nivel": 3,
+   "tipo": "opcion_multiple",
+   "enunciado": "En MI♭ mayor, ¿qué nota es el/la 7º grado (sensible)?",
+   "explicacion": "MI♭ mayor: MI♭  FA  SOL  LA♭  SI♭  DO  RE. El 7º grado es RE.",
+   "opciones": [
+    "RE",
+    "LA♭",
+    "FA",
+    "MI♭"
+   ],
+   "correcta": 0
+  },
+  {
+   "id": "esc-gen-0077",
+   "nivel": 3,
+   "tipo": "opcion_multiple",
+   "enunciado": "En LA♭ mayor, ¿qué nota es el/la 5º grado (dominante)?",
+   "explicacion": "LA♭ mayor: LA♭  SI♭  DO  RE♭  MI♭  FA  SOL. El 5º grado es MI♭.",
+   "opciones": [
+    "SI♭",
+    "DO",
+    "MI♭",
+    "SOL"
+   ],
+   "correcta": 2
+  },
+  {
+   "id": "esc-gen-0078",
+   "nivel": 3,
+   "tipo": "opcion_multiple",
+   "enunciado": "En LA♭ mayor, ¿qué nota es el/la 3º grado (mediante)?",
+   "explicacion": "LA♭ mayor: LA♭  SI♭  DO  RE♭  MI♭  FA  SOL. El 3º grado es DO.",
+   "opciones": [
+    "SOL",
+    "LA♭",
+    "DO",
+    "SI♭"
+   ],
+   "correcta": 2
+  },
+  {
+   "id": "esc-gen-0079",
+   "nivel": 3,
+   "tipo": "opcion_multiple",
+   "enunciado": "En RE♭ mayor, ¿qué nota es el/la 5º grado (dominante)?",
+   "explicacion": "RE♭ mayor: RE♭  MI♭  FA  SOL♭  LA♭  SI♭  DO. El 5º grado es LA♭.",
+   "opciones": [
+    "RE♭",
+    "LA♭",
+    "MI♭",
+    "FA"
+   ],
+   "correcta": 1
+  },
+  {
+   "id": "esc-gen-0080",
+   "nivel": 3,
+   "tipo": "opcion_multiple",
+   "enunciado": "En RE♭ mayor, ¿qué nota es el/la 4º grado (subdominante)?",
+   "explicacion": "RE♭ mayor: RE♭  MI♭  FA  SOL♭  LA♭  SI♭  DO. El 4º grado es SOL♭.",
+   "opciones": [
+    "SI♭",
+    "FA",
+    "SOL♭",
+    "DO"
+   ],
+   "correcta": 2
+  },
+  {
+   "id": "esc-gen-0081",
+   "nivel": 3,
+   "tipo": "opcion_multiple",
+   "enunciado": "En SOL♭ mayor, ¿qué nota es el/la 5º grado (dominante)?",
+   "explicacion": "SOL♭ mayor: SOL♭  LA♭  SI♭  DO♭  RE♭  MI♭  FA. El 5º grado es RE♭.",
+   "opciones": [
+    "FA",
+    "RE♭",
+    "SI♭",
+    "DO♭"
+   ],
+   "correcta": 1
+  },
+  {
+   "id": "esc-gen-0082",
+   "nivel": 3,
+   "tipo": "verdadero_falso",
+   "enunciado": "¿Pertenece la nota MI a la escala de DO mayor?",
+   "explicacion": "DO mayor contiene: DO  RE  MI  FA  SOL  LA  SI.",
+   "correcta": true
+  },
+  {
+   "id": "esc-gen-0083",
+   "nivel": 3,
+   "tipo": "verdadero_falso",
+   "enunciado": "¿Pertenece la nota LA♯ a la escala de DO mayor?",
+   "explicacion": "DO mayor contiene: DO  RE  MI  FA  SOL  LA  SI.",
+   "correcta": false
+  },
+  {
+   "id": "esc-gen-0084",
+   "nivel": 3,
+   "tipo": "verdadero_falso",
+   "enunciado": "¿Pertenece la nota SOL♯ a la escala de SOL mayor?",
+   "explicacion": "SOL mayor contiene: SOL  LA  SI  DO  RE  MI  FA♯.",
+   "correcta": false
+  },
+  {
+   "id": "esc-gen-0085",
+   "nivel": 3,
+   "tipo": "verdadero_falso",
+   "enunciado": "¿Pertenece la nota FA♯ a la escala de SOL mayor?",
+   "explicacion": "SOL mayor contiene: SOL  LA  SI  DO  RE  MI  FA♯.",
+   "correcta": true
+  },
+  {
+   "id": "esc-gen-0086",
+   "nivel": 3,
+   "tipo": "verdadero_falso",
+   "enunciado": "¿Pertenece la nota RE a la escala de RE mayor?",
+   "explicacion": "RE mayor contiene: RE  MI  FA♯  SOL  LA  SI  DO♯.",
+   "correcta": true
+  },
+  {
+   "id": "esc-gen-0087",
+   "nivel": 3,
+   "tipo": "verdadero_falso",
+   "enunciado": "¿Pertenece la nota SOL a la escala de RE mayor?",
+   "explicacion": "RE mayor contiene: RE  MI  FA♯  SOL  LA  SI  DO♯.",
+   "correcta": true
+  },
+  {
+   "id": "esc-gen-0088",
+   "nivel": 3,
+   "tipo": "verdadero_falso",
+   "enunciado": "¿Pertenece la nota DO♯ a la escala de LA mayor?",
+   "explicacion": "LA mayor contiene: LA  SI  DO♯  RE  MI  FA♯  SOL♯.",
+   "correcta": true
+  },
+  {
+   "id": "esc-gen-0089",
+   "nivel": 3,
+   "tipo": "verdadero_falso",
+   "enunciado": "¿Pertenece la nota DO a la escala de LA mayor?",
+   "explicacion": "LA mayor contiene: LA  SI  DO♯  RE  MI  FA♯  SOL♯.",
+   "correcta": false
+  },
+  {
+   "id": "esc-gen-0090",
+   "nivel": 3,
+   "tipo": "verdadero_falso",
+   "enunciado": "¿Pertenece la nota RE a la escala de MI mayor?",
+   "explicacion": "MI mayor contiene: MI  FA♯  SOL♯  LA  SI  DO♯  RE♯.",
+   "correcta": false
+  },
+  {
+   "id": "esc-gen-0091",
+   "nivel": 3,
+   "tipo": "verdadero_falso",
+   "enunciado": "¿Pertenece la nota LA a la escala de MI mayor?",
+   "explicacion": "MI mayor contiene: MI  FA♯  SOL♯  LA  SI  DO♯  RE♯.",
+   "correcta": true
+  },
+  {
+   "id": "esc-gen-0092",
+   "nivel": 3,
+   "tipo": "verdadero_falso",
+   "enunciado": "¿Pertenece la nota MI a la escala de FA mayor?",
+   "explicacion": "FA mayor contiene: FA  SOL  LA  SI♭  DO  RE  MI.",
+   "correcta": true
+  },
+  {
+   "id": "esc-gen-0093",
+   "nivel": 3,
+   "tipo": "verdadero_falso",
+   "enunciado": "¿Pertenece la nota LA♯ a la escala de FA mayor?",
+   "explicacion": "FA mayor contiene: FA  SOL  LA  SI♭  DO  RE  MI.",
+   "correcta": false
+  },
+  {
+   "id": "esc-gen-0094",
+   "nivel": 3,
+   "tipo": "verdadero_falso",
+   "enunciado": "¿Pertenece la nota DO♯ a la escala de SI♭ mayor?",
+   "explicacion": "SI♭ mayor contiene: SI♭  DO  RE  MI♭  FA  SOL  LA.",
+   "correcta": false
+  },
+  {
+   "id": "esc-gen-0095",
+   "nivel": 3,
+   "tipo": "verdadero_falso",
+   "enunciado": "¿Pertenece la nota LA a la escala de SI♭ mayor?",
+   "explicacion": "SI♭ mayor contiene: SI♭  DO  RE  MI♭  FA  SOL  LA.",
+   "correcta": true
+  },
+  {
+   "id": "esc-gen-0096",
+   "nivel": 3,
+   "tipo": "verdadero_falso",
+   "enunciado": "¿Pertenece la nota LA a la escala de MI♭ mayor?",
+   "explicacion": "MI♭ mayor contiene: MI♭  FA  SOL  LA♭  SI♭  DO  RE.",
+   "correcta": false
+  },
+  {
+   "id": "esc-gen-0097",
+   "nivel": 3,
+   "tipo": "verdadero_falso",
+   "enunciado": "¿Pertenece la nota SOL a la escala de MI♭ mayor?",
+   "explicacion": "MI♭ mayor contiene: MI♭  FA  SOL  LA♭  SI♭  DO  RE.",
+   "correcta": true
+  },
+  {
+   "id": "esc-gen-0098",
+   "nivel": 3,
+   "tipo": "verdadero_falso",
+   "enunciado": "¿Pertenece la nota FA♯ a la escala de LA♭ mayor?",
+   "explicacion": "LA♭ mayor contiene: LA♭  SI♭  DO  RE♭  MI♭  FA  SOL.",
+   "correcta": false
+  },
+  {
+   "id": "esc-gen-0099",
+   "nivel": 3,
+   "tipo": "verdadero_falso",
+   "enunciado": "¿Pertenece la nota DO♯ a la escala de LA♭ mayor?",
+   "explicacion": "LA♭ mayor contiene: LA♭  SI♭  DO  RE♭  MI♭  FA  SOL.",
+   "correcta": false
+  },
+  {
+   "id": "esc-gen-0100",
+   "nivel": 3,
+   "tipo": "completar",
+   "enunciado": "Completa la escala de DO mayor.",
+   "explicacion": "DO mayor: DO  RE  MI  FA  SOL  LA  SI.",
+   "texto": "DO, RE, ___, FA, SOL, ___, SI",
+   "respuestas": [
+    "MI",
+    "LA"
+   ]
+  },
+  {
+   "id": "esc-gen-0101",
+   "nivel": 3,
+   "tipo": "completar",
+   "enunciado": "Completa la escala de SOL mayor.",
+   "explicacion": "SOL mayor: SOL  LA  SI  DO  RE  MI  FA♯.",
+   "texto": "SOL, LA, ___, DO, RE, ___, FA♯",
+   "respuestas": [
+    "SI",
+    "MI"
+   ]
+  },
+  {
+   "id": "esc-gen-0102",
+   "nivel": 3,
+   "tipo": "completar",
+   "enunciado": "Completa la escala de RE mayor.",
+   "explicacion": "RE mayor: RE  MI  FA♯  SOL  LA  SI  DO♯.",
+   "texto": "RE, MI, ___, SOL, LA, ___, DO♯",
+   "respuestas": [
+    "FA♯",
+    "SI"
+   ]
+  },
+  {
+   "id": "esc-gen-0103",
+   "nivel": 3,
+   "tipo": "completar",
+   "enunciado": "Completa la escala de LA mayor.",
+   "explicacion": "LA mayor: LA  SI  DO♯  RE  MI  FA♯  SOL♯.",
+   "texto": "LA, SI, ___, RE, MI, ___, SOL♯",
+   "respuestas": [
+    "DO♯",
+    "FA♯"
+   ]
+  },
+  {
+   "id": "esc-gen-0104",
+   "nivel": 3,
+   "tipo": "completar",
+   "enunciado": "Completa la escala de MI mayor.",
+   "explicacion": "MI mayor: MI  FA♯  SOL♯  LA  SI  DO♯  RE♯.",
+   "texto": "MI, FA♯, ___, LA, SI, ___, RE♯",
+   "respuestas": [
+    "SOL♯",
+    "DO♯"
+   ]
+  },
+  {
+   "id": "esc-gen-0105",
+   "nivel": 3,
+   "tipo": "completar",
+   "enunciado": "Completa la escala de FA mayor.",
+   "explicacion": "FA mayor: FA  SOL  LA  SI♭  DO  RE  MI.",
+   "texto": "FA, SOL, ___, SI♭, DO, ___, MI",
+   "respuestas": [
+    "LA",
+    "RE"
+   ]
+  },
+  {
+   "id": "esc-gen-0106",
+   "nivel": 3,
+   "tipo": "completar",
+   "enunciado": "Completa la escala de SI♭ mayor.",
+   "explicacion": "SI♭ mayor: SI♭  DO  RE  MI♭  FA  SOL  LA.",
+   "texto": "SI♭, DO, ___, MI♭, FA, ___, LA",
+   "respuestas": [
+    "RE",
+    "SOL"
+   ]
+  },
+  {
+   "id": "esc-gen-0107",
+   "nivel": 3,
+   "tipo": "completar",
+   "enunciado": "Completa la escala de MI♭ mayor.",
+   "explicacion": "MI♭ mayor: MI♭  FA  SOL  LA♭  SI♭  DO  RE.",
+   "texto": "MI♭, FA, ___, LA♭, SI♭, ___, RE",
+   "respuestas": [
+    "SOL",
+    "DO"
+   ]
+  },
+  {
+   "id": "esc-gen-0108",
+   "nivel": 3,
+   "tipo": "completar",
+   "enunciado": "Completa la escala de LA♭ mayor.",
+   "explicacion": "LA♭ mayor: LA♭  SI♭  DO  RE♭  MI♭  FA  SOL.",
+   "texto": "LA♭, SI♭, ___, RE♭, MI♭, ___, SOL",
+   "respuestas": [
+    "DO",
+    "FA"
+   ]
+  },
+  {
+   "id": "esc-gen-0109",
+   "nivel": 3,
+   "tipo": "opcion_multiple",
+   "enunciado": "Estas notas forman una escala mayor: SOL  LA  SI  DO  RE  MI  FA♯. ¿Cuál es?",
+   "explicacion": "Empieza y termina en SOL y sigue T-T-ST-T-T-T-ST.",
+   "opciones": [
+    "RE♭ mayor",
+    "RE mayor",
+    "SOL mayor",
+    "MI♭ mayor"
+   ],
+   "correcta": 2
+  },
+  {
+   "id": "esc-gen-0110",
+   "nivel": 3,
+   "tipo": "opcion_multiple",
+   "enunciado": "Estas notas forman una escala mayor: RE  MI  FA♯  SOL  LA  SI  DO♯. ¿Cuál es?",
+   "explicacion": "Empieza y termina en RE y sigue T-T-ST-T-T-T-ST.",
+   "opciones": [
+    "SOL♭ mayor",
+    "RE mayor",
+    "DO mayor",
+    "SI mayor"
+   ],
+   "correcta": 1
+  },
+  {
+   "id": "esc-gen-0111",
+   "nivel": 3,
+   "tipo": "opcion_multiple",
+   "enunciado": "Estas notas forman una escala mayor: LA  SI  DO♯  RE  MI  FA♯  SOL♯. ¿Cuál es?",
+   "explicacion": "Empieza y termina en LA y sigue T-T-ST-T-T-T-ST.",
+   "opciones": [
+    "RE♭ mayor",
+    "FA mayor",
+    "LA mayor",
+    "SI mayor"
+   ],
+   "correcta": 2
+  },
+  {
+   "id": "esc-gen-0112",
+   "nivel": 3,
+   "tipo": "opcion_multiple",
+   "enunciado": "Estas notas forman una escala mayor: FA  SOL  LA  SI♭  DO  RE  MI. ¿Cuál es?",
+   "explicacion": "Empieza y termina en FA y sigue T-T-ST-T-T-T-ST.",
+   "opciones": [
+    "SOL♭ mayor",
+    "SOL mayor",
+    "FA mayor",
+    "SI mayor"
+   ],
+   "correcta": 2
+  },
+  {
+   "id": "esc-gen-0113",
+   "nivel": 3,
+   "tipo": "opcion_multiple",
+   "enunciado": "Estas notas forman una escala mayor: SI♭  DO  RE  MI♭  FA  SOL  LA. ¿Cuál es?",
+   "explicacion": "Empieza y termina en SI♭ y sigue T-T-ST-T-T-T-ST.",
+   "opciones": [
+    "FA♯ mayor",
+    "MI mayor",
+    "SOL mayor",
+    "SI♭ mayor"
+   ],
+   "correcta": 3
+  },
+  {
+   "id": "esc-gen-0114",
+   "nivel": 3,
+   "tipo": "opcion_multiple",
+   "enunciado": "Estas notas forman una escala mayor: MI♭  FA  SOL  LA♭  SI♭  DO  RE. ¿Cuál es?",
+   "explicacion": "Empieza y termina en MI♭ y sigue T-T-ST-T-T-T-ST.",
+   "opciones": [
+    "SOL mayor",
+    "LA♭ mayor",
+    "MI♭ mayor",
+    "MI mayor"
+   ],
+   "correcta": 2
+  },
+  {
+   "id": "esc-gen-0115",
+   "nivel": 4,
+   "tipo": "opcion_multiple",
+   "enunciado": "¿Cuál es la nota característica del modo dórico?",
+   "explicacion": "El modo dórico es menor natural con la 6ª mayor.",
+   "opciones": [
+    "la 4ª aumentada (#4)",
+    "la 7ª menor (b7)",
+    "la 2ª menor (b2)",
+    "la 6ª mayor"
+   ],
+   "correcta": 3
+  },
+  {
+   "id": "esc-gen-0116",
+   "nivel": 4,
+   "tipo": "opcion_multiple",
+   "enunciado": "¿Desde qué grado de la escala mayor se obtiene el modo dórico?",
+   "explicacion": "El modo dórico sale de tocar la escala mayor empezando por su 2º grado.",
+   "opciones": [
+    "2º",
+    "1º",
+    "4º",
+    "3º"
+   ],
+   "correcta": 0
+  },
+  {
+   "id": "esc-gen-0117",
+   "nivel": 4,
+   "tipo": "opcion_multiple",
+   "enunciado": "¿Cuál es la nota característica del modo frigio?",
+   "explicacion": "El modo frigio es menor natural con la 2ª bemol.",
+   "opciones": [
+    "la 6ª mayor",
+    "la 2ª menor (b2)",
+    "la 7ª menor (b7)",
+    "la 4ª aumentada (#4)"
+   ],
+   "correcta": 1
+  },
+  {
+   "id": "esc-gen-0118",
+   "nivel": 4,
+   "tipo": "opcion_multiple",
+   "enunciado": "¿Desde qué grado de la escala mayor se obtiene el modo frigio?",
+   "explicacion": "El modo frigio sale de tocar la escala mayor empezando por su 3º grado.",
+   "opciones": [
+    "1º",
+    "4º",
+    "2º",
+    "3º"
+   ],
+   "correcta": 3
+  },
+  {
+   "id": "esc-gen-0119",
+   "nivel": 4,
+   "tipo": "opcion_multiple",
+   "enunciado": "¿Cuál es la nota característica del modo lidio?",
+   "explicacion": "El modo lidio es mayor con la 4ª aumentada.",
+   "opciones": [
+    "la 2ª menor (b2)",
+    "la 6ª mayor",
+    "la 7ª menor (b7)",
+    "la 4ª aumentada (#4)"
+   ],
+   "correcta": 3
+  },
+  {
+   "id": "esc-gen-0120",
+   "nivel": 4,
+   "tipo": "opcion_multiple",
+   "enunciado": "¿Desde qué grado de la escala mayor se obtiene el modo lidio?",
+   "explicacion": "El modo lidio sale de tocar la escala mayor empezando por su 4º grado.",
+   "opciones": [
+    "1º",
+    "2º",
+    "3º",
+    "4º"
+   ],
+   "correcta": 3
+  },
+  {
+   "id": "esc-gen-0121",
+   "nivel": 4,
+   "tipo": "opcion_multiple",
+   "enunciado": "¿Cuál es la nota característica del modo mixolidio?",
+   "explicacion": "El modo mixolidio es mayor con la 7ª bemol.",
+   "opciones": [
+    "la 7ª menor (b7)",
+    "la 6ª mayor",
+    "la 4ª aumentada (#4)",
+    "la 2ª menor (b2)"
+   ],
+   "correcta": 0
+  },
+  {
+   "id": "esc-gen-0122",
+   "nivel": 4,
+   "tipo": "opcion_multiple",
+   "enunciado": "¿Desde qué grado de la escala mayor se obtiene el modo mixolidio?",
+   "explicacion": "El modo mixolidio sale de tocar la escala mayor empezando por su 5º grado.",
+   "opciones": [
+    "5º",
+    "2º",
+    "3º",
+    "1º"
+   ],
+   "correcta": 0
+  },
+  {
+   "id": "esc-gen-0123",
+   "nivel": 4,
+   "tipo": "opcion_multiple",
+   "enunciado": "¿Cuál es la nota característica del modo locrio?",
+   "explicacion": "El modo locrio es muy inestable: 2ª y 5ª bemoles.",
+   "opciones": [
+    "la 5ª disminuida (b5)",
+    "la 2ª menor (b2)",
+    "la 4ª aumentada (#4)",
+    "la 6ª mayor"
+   ],
+   "correcta": 0
+  },
+  {
+   "id": "esc-gen-0124",
+   "nivel": 4,
+   "tipo": "opcion_multiple",
+   "enunciado": "¿Desde qué grado de la escala mayor se obtiene el modo locrio?",
+   "explicacion": "El modo locrio sale de tocar la escala mayor empezando por su 7º grado.",
+   "opciones": [
+    "2º",
+    "3º",
+    "1º",
+    "7º"
+   ],
+   "correcta": 3
+  },
+  {
+   "id": "esc-gen-0125",
+   "nivel": 4,
+   "tipo": "verdadero_falso",
+   "enunciado": "El modo eólico es idéntico a la escala menor natural.",
+   "explicacion": "Sí: el 6º modo griego (eólico) coincide con la menor natural.",
+   "correcta": true
+  },
+  {
+   "id": "esc-gen-0126",
+   "nivel": 4,
+   "tipo": "completar",
+   "enunciado": "La escala menor armónica se diferencia de la natural en que sube el ___ grado.",
+   "explicacion": "Sube el 7º grado para crear sensible y poder hacer una cadencia fuerte (V7-i).",
+   "texto": "el ___ grado",
+   "respuestas": [
+    "7",
+    "séptimo",
+    "septimo"
+   ]
+  },
+  {
+   "id": "esc-gen-0127",
+   "nivel": 4,
+   "tipo": "completar",
+   "enunciado": "Al ascender, la escala menor melódica sube los grados ___ y ___.",
+   "explicacion": "Sube el 6º y el 7º; al descender (versión clásica) vuelve a la menor natural.",
+   "texto": "grados ___ y ___",
+   "respuestas": [
+    "6",
+    "7"
+   ]
+  },
+  {
+   "id": "esc-gen-0128",
+   "nivel": 4,
+   "tipo": "opcion_multiple",
+   "enunciado": "¿Qué modo se obtiene tocando la escala mayor desde su 5º grado?",
+   "explicacion": "Desde el 5º grado sale el mixolidio (mayor con 7ª menor). Es la escala del acorde de dominante.",
+   "opciones": [
+    "dórico",
+    "lidio",
+    "frigio",
+    "mixolidio"
+   ],
+   "correcta": 3
+  },
+  {
+   "id": "esc-gen-0129",
+   "nivel": 4,
+   "tipo": "opcion_multiple",
+   "enunciado": "¿Qué modo se obtiene tocando la escala mayor desde su 2º grado?",
+   "explicacion": "Desde el 2º grado sale el dórico.",
+   "opciones": [
+    "lidio",
+    "frigio",
+    "dórico",
+    "eólico"
+   ],
+   "correcta": 2
+  },
+  {
+   "id": "esc-gen-0130",
+   "nivel": 4,
+   "tipo": "opcion_multiple",
+   "enunciado": "¿Qué modo se obtiene tocando la escala mayor desde su 3º grado?",
+   "explicacion": "Desde el 3º grado sale el frigio.",
+   "opciones": [
+    "eólico",
+    "dórico",
+    "lidio",
+    "frigio"
+   ],
+   "correcta": 3
+  },
+  {
+   "id": "esc-gen-0131",
+   "nivel": 4,
+   "tipo": "opcion_multiple",
+   "enunciado": "¿Qué modo se obtiene tocando la escala mayor desde su 4º grado?",
+   "explicacion": "Desde el 4º grado sale el lidio.",
+   "opciones": [
+    "lidio",
+    "dórico",
+    "frigio",
+    "eólico"
+   ],
+   "correcta": 0
+  },
+  {
+   "id": "esc-gen-0132",
+   "nivel": 4,
+   "tipo": "opcion_multiple",
+   "enunciado": "¿Qué modo se obtiene tocando la escala mayor desde su 6º grado?",
+   "explicacion": "Desde el 6º grado sale el eólico.",
+   "opciones": [
+    "dórico",
+    "eólico",
+    "lidio",
+    "frigio"
+   ],
+   "correcta": 1
+  },
+  {
+   "id": "esc-gen-0133",
+   "nivel": 4,
+   "tipo": "opcion_multiple",
+   "enunciado": "¿Qué modo se obtiene tocando la escala mayor desde su 7º grado?",
+   "explicacion": "Desde el 7º grado sale el locrio.",
+   "opciones": [
+    "frigio",
+    "locrio",
+    "lidio",
+    "dórico"
+   ],
+   "correcta": 1
+  },
+  {
+   "id": "esc-gen-0134",
+   "nivel": 4,
+   "tipo": "opcion_multiple",
+   "enunciado": "RE dórico usa las mismas notas que...",
+   "explicacion": "RE es el 2º grado de DO mayor.",
+   "opciones": [
+    "DO mayor",
+    "SOL mayor",
+    "FA mayor",
+    "RE mayor"
+   ],
+   "correcta": 0
+  },
+  {
+   "id": "esc-gen-0135",
+   "nivel": 4,
+   "tipo": "opcion_multiple",
+   "enunciado": "MI frigio usa las mismas notas que...",
+   "explicacion": "MI es el 3er grado de DO mayor.",
+   "opciones": [
+    "MI mayor",
+    "LA mayor",
+    "SOL mayor",
+    "DO mayor"
+   ],
+   "correcta": 3
+  },
+  {
+   "id": "esc-gen-0136",
+   "nivel": 4,
+   "tipo": "verdadero_falso",
+   "enunciado": "La menor armónica tiene un salto de 2ª aumentada entre los grados 6 y 7.",
+   "explicacion": "Sí: por eso suena \"oriental\".",
+   "correcta": true
+  },
+  {
+   "id": "esc-gen-0137",
+   "nivel": 4,
+   "tipo": "opcion_multiple",
+   "enunciado": "Estas notas forman una escala mayor: DO  RE  MI  FA  SOL  LA  SI. ¿Cuál es?",
+   "explicacion": "Empiezan y terminan en DO y siguen la fórmula T-T-ST-T-T-T-ST: DO mayor.",
+   "opciones": [
+    "RE mayor",
+    "RE♭ mayor",
+    "DO mayor",
+    "SI mayor"
+   ],
+   "correcta": 2
+  },
+  {
+   "id": "esc-gen-0138",
+   "nivel": 4,
+   "tipo": "opcion_multiple",
+   "enunciado": "Estas notas forman una escala mayor: SOL  LA  SI  DO  RE  MI  FA♯. ¿Cuál es?",
+   "explicacion": "Empiezan y terminan en SOL y siguen la fórmula T-T-ST-T-T-T-ST: SOL mayor.",
+   "opciones": [
+    "RE mayor",
+    "SOL mayor",
+    "FA mayor",
+    "RE♭ mayor"
+   ],
+   "correcta": 1
+  },
+  {
+   "id": "esc-gen-0139",
+   "nivel": 4,
+   "tipo": "opcion_multiple",
+   "enunciado": "Estas notas forman una escala mayor: RE  MI  FA♯  SOL  LA  SI  DO♯. ¿Cuál es?",
+   "explicacion": "Empiezan y terminan en RE y siguen la fórmula T-T-ST-T-T-T-ST: RE mayor.",
+   "opciones": [
+    "SOL♭ mayor",
+    "SI mayor",
+    "RE mayor",
+    "DO mayor"
+   ],
+   "correcta": 2
+  },
+  {
+   "id": "esc-gen-0140",
+   "nivel": 4,
+   "tipo": "opcion_multiple",
+   "enunciado": "Estas notas forman una escala mayor: LA  SI  DO♯  RE  MI  FA♯  SOL♯. ¿Cuál es?",
+   "explicacion": "Empiezan y terminan en LA y siguen la fórmula T-T-ST-T-T-T-ST: LA mayor.",
+   "opciones": [
+    "LA mayor",
+    "DO mayor",
+    "SI mayor",
+    "SI♭ mayor"
+   ],
+   "correcta": 0
+  },
+  {
+   "id": "esc-gen-0141",
+   "nivel": 4,
+   "tipo": "opcion_multiple",
+   "enunciado": "Estas notas forman una escala mayor: MI  FA♯  SOL♯  LA  SI  DO♯  RE♯. ¿Cuál es?",
+   "explicacion": "Empiezan y terminan en MI y siguen la fórmula T-T-ST-T-T-T-ST: MI mayor.",
+   "opciones": [
+    "FA♯ mayor",
+    "LA mayor",
+    "MI♭ mayor",
+    "MI mayor"
+   ],
+   "correcta": 3
+  },
+  {
+   "id": "esc-gen-0142",
+   "nivel": 4,
+   "tipo": "opcion_multiple",
+   "enunciado": "Estas notas forman una escala mayor: SI  DO♯  RE♯  MI  FA♯  SOL♯  LA♯. ¿Cuál es?",
+   "explicacion": "Empiezan y terminan en SI y siguen la fórmula T-T-ST-T-T-T-ST: SI mayor.",
+   "opciones": [
+    "DO mayor",
+    "SI mayor",
+    "FA♯ mayor",
+    "RE mayor"
+   ],
+   "correcta": 1
+  },
+  {
+   "id": "esc-gen-0143",
+   "nivel": 4,
+   "tipo": "opcion_multiple",
+   "enunciado": "Estas notas forman una escala mayor: FA♯  SOL♯  LA♯  SI  DO♯  RE♯  MI♯. ¿Cuál es?",
+   "explicacion": "Empiezan y terminan en FA♯ y siguen la fórmula T-T-ST-T-T-T-ST: FA♯ mayor.",
+   "opciones": [
+    "MI♭ mayor",
+    "MI mayor",
+    "FA♯ mayor",
+    "SI♭ mayor"
+   ],
+   "correcta": 2
+  },
+  {
+   "id": "esc-gen-0144",
+   "nivel": 4,
+   "tipo": "opcion_multiple",
+   "enunciado": "Estas notas forman una escala mayor: FA  SOL  LA  SI♭  DO  RE  MI. ¿Cuál es?",
+   "explicacion": "Empiezan y terminan en FA y siguen la fórmula T-T-ST-T-T-T-ST: FA mayor.",
+   "opciones": [
+    "MI mayor",
+    "FA mayor",
+    "SOL♭ mayor",
+    "SOL mayor"
+   ],
+   "correcta": 1
+  },
+  {
+   "id": "esc-gen-0145",
+   "nivel": 4,
+   "tipo": "opcion_multiple",
+   "enunciado": "Estas notas forman una escala mayor: SI♭  DO  RE  MI♭  FA  SOL  LA. ¿Cuál es?",
+   "explicacion": "Empiezan y terminan en SI♭ y siguen la fórmula T-T-ST-T-T-T-ST: SI♭ mayor.",
+   "opciones": [
+    "FA♯ mayor",
+    "SI♭ mayor",
+    "MI mayor",
+    "DO mayor"
+   ],
+   "correcta": 1
+  },
+  {
+   "id": "esc-gen-0146",
+   "nivel": 4,
+   "tipo": "opcion_multiple",
+   "enunciado": "Estas notas forman una escala mayor: MI♭  FA  SOL  LA♭  SI♭  DO  RE. ¿Cuál es?",
+   "explicacion": "Empiezan y terminan en MI♭ y siguen la fórmula T-T-ST-T-T-T-ST: MI♭ mayor.",
+   "opciones": [
+    "MI♭ mayor",
+    "SI♭ mayor",
+    "LA♭ mayor",
+    "SOL mayor"
+   ],
+   "correcta": 0
+  },
+  {
+   "id": "esc-gen-0147",
+   "nivel": 4,
+   "tipo": "opcion_multiple",
+   "enunciado": "Estas notas forman una escala mayor: LA♭  SI♭  DO  RE♭  MI♭  FA  SOL. ¿Cuál es?",
+   "explicacion": "Empiezan y terminan en LA♭ y siguen la fórmula T-T-ST-T-T-T-ST: LA♭ mayor.",
+   "opciones": [
+    "SI mayor",
+    "LA♭ mayor",
+    "RE mayor",
+    "FA mayor"
+   ],
+   "correcta": 1
+  },
+  {
+   "id": "esc-gen-0148",
+   "nivel": 4,
+   "tipo": "opcion_multiple",
+   "enunciado": "Estas notas forman una escala mayor: RE♭  MI♭  FA  SOL♭  LA♭  SI♭  DO. ¿Cuál es?",
+   "explicacion": "Empiezan y terminan en RE♭ y siguen la fórmula T-T-ST-T-T-T-ST: RE♭ mayor.",
+   "opciones": [
+    "FA♯ mayor",
+    "RE♭ mayor",
+    "SI♭ mayor",
+    "DO mayor"
+   ],
+   "correcta": 1
+  },
+  {
+   "id": "esc-gen-0149",
+   "nivel": 4,
+   "tipo": "opcion_multiple",
+   "enunciado": "Estas notas forman una escala mayor: SOL♭  LA♭  SI♭  DO♭  RE♭  MI♭  FA. ¿Cuál es?",
+   "explicacion": "Empiezan y terminan en SOL♭ y siguen la fórmula T-T-ST-T-T-T-ST: SOL♭ mayor.",
+   "opciones": [
+    "LA♭ mayor",
+    "MI♭ mayor",
+    "LA mayor",
+    "SOL♭ mayor"
+   ],
+   "correcta": 3
+  },
+  {
+   "id": "esc-gen-0150",
+   "nivel": 5,
+   "tipo": "completar",
+   "enunciado": "Completa la pentatónica mayor de DO (escala mayor sin 4ª ni 7ª).",
+   "explicacion": "Pentatónica mayor de DO: DO  RE  MI  SOL  LA.",
+   "texto": "DO, RE, ___, SOL, ___",
+   "respuestas": [
+    "MI",
+    "LA"
+   ]
+  },
+  {
+   "id": "esc-gen-0151",
+   "nivel": 5,
+   "tipo": "completar",
+   "enunciado": "Completa la pentatónica mayor de SOL (escala mayor sin 4ª ni 7ª).",
+   "explicacion": "Pentatónica mayor de SOL: SOL  LA  SI  RE  MI.",
+   "texto": "SOL, LA, ___, RE, ___",
+   "respuestas": [
+    "SI",
+    "MI"
+   ]
+  },
+  {
+   "id": "esc-gen-0152",
+   "nivel": 5,
+   "tipo": "completar",
+   "enunciado": "Completa la pentatónica mayor de RE (escala mayor sin 4ª ni 7ª).",
+   "explicacion": "Pentatónica mayor de RE: RE  MI  FA♯  LA  SI.",
+   "texto": "RE, MI, ___, LA, ___",
+   "respuestas": [
+    "FA♯",
+    "SI"
+   ]
+  },
+  {
+   "id": "esc-gen-0153",
+   "nivel": 5,
+   "tipo": "completar",
+   "enunciado": "Completa la pentatónica mayor de LA (escala mayor sin 4ª ni 7ª).",
+   "explicacion": "Pentatónica mayor de LA: LA  SI  DO♯  MI  FA♯.",
+   "texto": "LA, SI, ___, MI, ___",
+   "respuestas": [
+    "DO♯",
+    "FA♯"
+   ]
+  },
+  {
+   "id": "esc-gen-0154",
+   "nivel": 5,
+   "tipo": "completar",
+   "enunciado": "Completa la pentatónica mayor de MI (escala mayor sin 4ª ni 7ª).",
+   "explicacion": "Pentatónica mayor de MI: MI  FA♯  SOL♯  SI  DO♯.",
+   "texto": "MI, FA♯, ___, SI, ___",
+   "respuestas": [
+    "SOL♯",
+    "DO♯"
+   ]
+  },
+  {
+   "id": "esc-gen-0155",
+   "nivel": 5,
+   "tipo": "completar",
+   "enunciado": "Completa la pentatónica mayor de SI (escala mayor sin 4ª ni 7ª).",
+   "explicacion": "Pentatónica mayor de SI: SI  DO♯  RE♯  FA♯  SOL♯.",
+   "texto": "SI, DO♯, ___, FA♯, ___",
+   "respuestas": [
+    "RE♯",
+    "SOL♯"
+   ]
+  },
+  {
+   "id": "esc-gen-0156",
+   "nivel": 5,
+   "tipo": "completar",
+   "enunciado": "Completa la pentatónica mayor de FA♯ (escala mayor sin 4ª ni 7ª).",
+   "explicacion": "Pentatónica mayor de FA♯: FA♯  SOL♯  LA♯  DO♯  RE♯.",
+   "texto": "FA♯, SOL♯, ___, DO♯, ___",
+   "respuestas": [
+    "LA♯",
+    "RE♯"
+   ]
+  },
+  {
+   "id": "esc-gen-0157",
+   "nivel": 5,
+   "tipo": "completar",
+   "enunciado": "Completa la pentatónica mayor de FA (escala mayor sin 4ª ni 7ª).",
+   "explicacion": "Pentatónica mayor de FA: FA  SOL  LA  DO  RE.",
+   "texto": "FA, SOL, ___, DO, ___",
+   "respuestas": [
+    "LA",
+    "RE"
+   ]
+  },
+  {
+   "id": "esc-gen-0158",
+   "nivel": 5,
+   "tipo": "completar",
+   "enunciado": "Completa la pentatónica mayor de SI♭ (escala mayor sin 4ª ni 7ª).",
+   "explicacion": "Pentatónica mayor de SI♭: SI♭  DO  RE  FA  SOL.",
+   "texto": "SI♭, DO, ___, FA, ___",
+   "respuestas": [
+    "RE",
+    "SOL"
+   ]
+  },
+  {
+   "id": "esc-gen-0159",
+   "nivel": 5,
+   "tipo": "completar",
+   "enunciado": "Completa la pentatónica mayor de MI♭ (escala mayor sin 4ª ni 7ª).",
+   "explicacion": "Pentatónica mayor de MI♭: MI♭  FA  SOL  SI♭  DO.",
+   "texto": "MI♭, FA, ___, SI♭, ___",
+   "respuestas": [
+    "SOL",
+    "DO"
+   ]
+  },
+  {
+   "id": "esc-gen-0160",
+   "nivel": 5,
+   "tipo": "completar",
+   "enunciado": "Completa la pentatónica mayor de LA♭ (escala mayor sin 4ª ni 7ª).",
+   "explicacion": "Pentatónica mayor de LA♭: LA♭  SI♭  DO  MI♭  FA.",
+   "texto": "LA♭, SI♭, ___, MI♭, ___",
+   "respuestas": [
+    "DO",
+    "FA"
+   ]
+  },
+  {
+   "id": "esc-gen-0161",
+   "nivel": 5,
+   "tipo": "completar",
+   "enunciado": "Completa la pentatónica mayor de RE♭ (escala mayor sin 4ª ni 7ª).",
+   "explicacion": "Pentatónica mayor de RE♭: RE♭  MI♭  FA  LA♭  SI♭.",
+   "texto": "RE♭, MI♭, ___, LA♭, ___",
+   "respuestas": [
+    "FA",
+    "SI♭"
+   ]
+  },
+  {
+   "id": "esc-gen-0162",
+   "nivel": 5,
+   "tipo": "completar",
+   "enunciado": "Completa la pentatónica mayor de SOL♭ (escala mayor sin 4ª ni 7ª).",
+   "explicacion": "Pentatónica mayor de SOL♭: SOL♭  LA♭  SI♭  RE♭  MI♭.",
+   "texto": "SOL♭, LA♭, ___, RE♭, ___",
+   "respuestas": [
+    "SI♭",
+    "MI♭"
+   ]
+  },
+  {
+   "id": "esc-gen-0163",
+   "nivel": 5,
+   "tipo": "opcion_multiple",
+   "enunciado": "La pentatónica menor de LA usa las mismas notas que la pentatónica mayor de...",
+   "explicacion": "LA pentatónica menor = DO pentatónica mayor (son relativas).",
+   "opciones": [
+    "FA♯ mayor",
+    "RE♭ mayor",
+    "LA mayor",
+    "DO mayor"
+   ],
+   "correcta": 3
+  },
+  {
+   "id": "esc-gen-0164",
+   "nivel": 5,
+   "tipo": "opcion_multiple",
+   "enunciado": "La pentatónica menor de MI usa las mismas notas que la pentatónica mayor de...",
+   "explicacion": "MI pentatónica menor = SOL pentatónica mayor (son relativas).",
+   "opciones": [
+    "SOL mayor",
+    "DO mayor",
+    "RE♭ mayor",
+    "MI♭ mayor"
+   ],
+   "correcta": 0
+  },
+  {
+   "id": "esc-gen-0165",
+   "nivel": 5,
+   "tipo": "opcion_multiple",
+   "enunciado": "La pentatónica menor de SI usa las mismas notas que la pentatónica mayor de...",
+   "explicacion": "SI pentatónica menor = RE pentatónica mayor (son relativas).",
+   "opciones": [
+    "DO mayor",
+    "SOL mayor",
+    "SI♭ mayor",
+    "RE mayor"
+   ],
+   "correcta": 3
+  },
+  {
+   "id": "esc-gen-0166",
+   "nivel": 5,
+   "tipo": "opcion_multiple",
+   "enunciado": "La pentatónica menor de FA♯ usa las mismas notas que la pentatónica mayor de...",
+   "explicacion": "FA♯ pentatónica menor = LA pentatónica mayor (son relativas).",
+   "opciones": [
+    "SI♭ mayor",
+    "SI mayor",
+    "SOL♭ mayor",
+    "LA mayor"
+   ],
+   "correcta": 3
+  },
+  {
+   "id": "esc-gen-0167",
+   "nivel": 5,
+   "tipo": "opcion_multiple",
+   "enunciado": "La pentatónica menor de DO♯ usa las mismas notas que la pentatónica mayor de...",
+   "explicacion": "DO♯ pentatónica menor = MI pentatónica mayor (son relativas).",
+   "opciones": [
+    "MI mayor",
+    "LA mayor",
+    "SOL♭ mayor",
+    "RE♭ mayor"
+   ],
+   "correcta": 0
+  },
+  {
+   "id": "esc-gen-0168",
+   "nivel": 5,
+   "tipo": "opcion_multiple",
+   "enunciado": "La pentatónica menor de SOL♯ usa las mismas notas que la pentatónica mayor de...",
+   "explicacion": "SOL♯ pentatónica menor = SI pentatónica mayor (son relativas).",
+   "opciones": [
+    "SOL mayor",
+    "MI mayor",
+    "SI♭ mayor",
+    "SI mayor"
+   ],
+   "correcta": 3
+  },
+  {
+   "id": "esc-gen-0169",
+   "nivel": 5,
+   "tipo": "opcion_multiple",
+   "enunciado": "La pentatónica menor de RE♯ usa las mismas notas que la pentatónica mayor de...",
+   "explicacion": "RE♯ pentatónica menor = FA♯ pentatónica mayor (son relativas).",
+   "opciones": [
+    "FA♯ mayor",
+    "RE mayor",
+    "SOL mayor",
+    "LA♭ mayor"
+   ],
+   "correcta": 0
+  },
+  {
+   "id": "esc-gen-0170",
+   "nivel": 5,
+   "tipo": "opcion_multiple",
+   "enunciado": "La pentatónica menor de RE usa las mismas notas que la pentatónica mayor de...",
+   "explicacion": "RE pentatónica menor = FA pentatónica mayor (son relativas).",
+   "opciones": [
+    "SOL♭ mayor",
+    "RE mayor",
+    "LA♭ mayor",
+    "FA mayor"
+   ],
+   "correcta": 3
+  },
+  {
+   "id": "esc-gen-0171",
+   "nivel": 5,
+   "tipo": "opcion_multiple",
+   "enunciado": "La pentatónica menor de SOL usa las mismas notas que la pentatónica mayor de...",
+   "explicacion": "SOL pentatónica menor = SI♭ pentatónica mayor (son relativas).",
+   "opciones": [
+    "SI♭ mayor",
+    "SOL mayor",
+    "MI mayor",
+    "FA mayor"
+   ],
+   "correcta": 0
+  },
+  {
+   "id": "esc-gen-0172",
+   "nivel": 5,
+   "tipo": "opcion_multiple",
+   "enunciado": "La pentatónica menor de DO usa las mismas notas que la pentatónica mayor de...",
+   "explicacion": "DO pentatónica menor = MI♭ pentatónica mayor (son relativas).",
+   "opciones": [
+    "MI♭ mayor",
+    "SI♭ mayor",
+    "MI mayor",
+    "SOL♭ mayor"
+   ],
+   "correcta": 0
+  },
+  {
+   "id": "esc-gen-0173",
+   "nivel": 5,
+   "tipo": "opcion_multiple",
+   "enunciado": "La pentatónica menor de FA usa las mismas notas que la pentatónica mayor de...",
+   "explicacion": "FA pentatónica menor = LA♭ pentatónica mayor (son relativas).",
+   "opciones": [
+    "LA mayor",
+    "SOL mayor",
+    "LA♭ mayor",
+    "SI♭ mayor"
+   ],
+   "correcta": 2
+  },
+  {
+   "id": "esc-gen-0174",
+   "nivel": 5,
+   "tipo": "opcion_multiple",
+   "enunciado": "La pentatónica menor de SI♭ usa las mismas notas que la pentatónica mayor de...",
+   "explicacion": "SI♭ pentatónica menor = RE♭ pentatónica mayor (son relativas).",
+   "opciones": [
+    "FA mayor",
+    "DO mayor",
+    "MI mayor",
+    "RE♭ mayor"
+   ],
+   "correcta": 3
+  },
+  {
+   "id": "esc-gen-0175",
+   "nivel": 5,
+   "tipo": "opcion_multiple",
+   "enunciado": "La pentatónica menor de MI♭ usa las mismas notas que la pentatónica mayor de...",
+   "explicacion": "MI♭ pentatónica menor = SOL♭ pentatónica mayor (son relativas).",
+   "opciones": [
+    "LA mayor",
+    "FA♯ mayor",
+    "SOL♭ mayor",
+    "MI mayor"
+   ],
+   "correcta": 2
+  },
+  {
+   "id": "esc-gen-0176",
+   "nivel": 5,
+   "tipo": "opcion_multiple",
+   "enunciado": "¿Qué nota añade la escala de blues a la pentatónica menor?",
+   "explicacion": "La \"blue note\": la 5ª bemol (b5), que roza con la 5ª justa y da el color del blues.",
+   "opciones": [
+    "la 5ª bemol (b5)",
+    "la 7ª mayor",
+    "la 6ª mayor",
+    "la 2ª mayor"
+   ],
+   "correcta": 0
+  },
+  {
+   "id": "esc-gen-0177",
+   "nivel": 5,
+   "tipo": "verdadero_falso",
+   "enunciado": "Sobre un acorde de dominante (por ejemplo G7) encaja bien la escala mixolidia de su tónica.",
+   "explicacion": "Sí: el mixolidio es la escala natural del acorde 7 (dominante).",
+   "correcta": true
+  },
+  {
+   "id": "esc-gen-0178",
+   "nivel": 5,
+   "tipo": "opcion_multiple",
+   "enunciado": "Para mejorar de verdad con las escalas, lo más útil es...",
+   "explicacion": "Aplicarlas: hacer variaciones de melodías y pequeños solos escritos, no solo memorizarlas.",
+   "opciones": [
+    "evitar tocarlas hasta dominarlas",
+    "memorizarlas todas antes de tocar",
+    "usarlas para armar frases y variaciones",
+    "estudiar solo su nombre"
+   ],
+   "correcta": 2
+  },
+  {
+   "id": "esc-gen-0179",
+   "nivel": 5,
+   "tipo": "opcion_multiple",
+   "enunciado": "Para un solo de blues o rock, la escala más segura para empezar es...",
+   "explicacion": "Evita las notas que más chocan.",
+   "opciones": [
+    "el modo locrio",
+    "la escala cromática",
+    "la escala de tonos enteros",
+    "la pentatónica menor"
+   ],
+   "correcta": 3
+  },
+  {
+   "id": "esc-gen-0180",
+   "nivel": 5,
+   "tipo": "opcion_multiple",
+   "enunciado": "LA pentatónica menor usa las mismas notas que...",
+   "explicacion": "LA y DO son relativas.",
+   "opciones": [
+    "DO pentatónica mayor",
+    "FA pentatónica mayor",
+    "RE pentatónica mayor",
+    "SOL pentatónica mayor"
+   ],
+   "correcta": 0
+  },
+  {
+   "id": "esc-gen-0181",
+   "nivel": 5,
+   "tipo": "opcion_multiple",
+   "enunciado": "¿Cuántas notas tiene la escala de tonos enteros?",
+   "explicacion": "",
+   "opciones": [
+    "5 notas",
+    "7 notas",
+    "6 notas",
+    "8 notas"
+   ],
+   "correcta": 2
+  },
+  {
+   "id": "esc-gen-0182",
+   "nivel": 5,
+   "tipo": "opcion_multiple",
+   "enunciado": "¿Cuántas notas tiene la escala disminuida?",
+   "explicacion": "Alterna tono y semitono.",
+   "opciones": [
+    "12 notas",
+    "7 notas",
+    "6 notas",
+    "8 notas"
+   ],
+   "correcta": 3
+  },
+  {
+   "id": "esc-gen-0183",
+   "nivel": 5,
+   "tipo": "verdadero_falso",
+   "enunciado": "La escala alterada sirve para tocar sobre un acorde de dominante muy tenso (7alt).",
+   "explicacion": "Sí: contiene b9, #9, #11 y b13.",
+   "correcta": true
+  },
+  {
+   "id": "esc-gen-0184",
+   "nivel": 5,
+   "tipo": "opcion_multiple",
+   "enunciado": "La escala base para improvisar sobre G7 es...",
+   "explicacion": "G mixolidio.",
+   "opciones": [
+    "el lidio",
+    "el mixolidio",
+    "el jónico",
+    "el dórico"
+   ],
+   "correcta": 1
+  }
+ ]
+}
