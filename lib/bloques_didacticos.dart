@@ -104,233 +104,262 @@ class _VisorBloquesState extends State<VisorBloques> {
   }
 
   Widget _bloque(Map<String, dynamic> b) {
-    final acento = Theme.of(context).colorScheme.primary;
     switch (b['tipo'] as String? ?? '') {
       case 'texto':
-        final s = b['texto'] as String? ?? '';
-        if (s.startsWith('## ')) {
-          return Padding(
-            padding: const EdgeInsets.only(top: 14, bottom: 4),
-            child: Text(s.substring(3),
-                style: Theme.of(context)
-                    .textTheme
-                    .titleMedium
-                    ?.copyWith(fontWeight: FontWeight.w800)),
-          );
-        }
-        return Padding(
-          padding: const EdgeInsets.only(bottom: 12),
-          child: RicoTexto(s),
-        );
-
+        return _bloqueTexto(b);
       case 'clave':
-        return Container(
-          width: double.infinity,
-          margin: const EdgeInsets.only(bottom: 12),
-          padding: const EdgeInsets.all(12),
-          decoration: BoxDecoration(
-            color: context.pal.aviso.withValues(alpha: 0.12),
-            borderRadius: BorderRadius.circular(10),
-            border:
-                Border.all(color: context.pal.aviso.withValues(alpha: 0.5)),
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                children: [
-                  Icon(Icons.lightbulb, size: 16, color: context.pal.aviso),
-                  const SizedBox(width: 6),
-                  Expanded(
-                    child: Text(b['titulo'] as String? ?? '',
-                        style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            color: context.pal.aviso)),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 6),
-              RicoTexto(b['texto'] as String? ?? '', size: 13),
-            ],
-          ),
-        );
-
+        return _bloqueClave(b);
       case 'lista':
-        final items =
-            (b['items'] as List? ?? const []).map((x) => x as String).toList();
-        return Padding(
-          padding: const EdgeInsets.only(bottom: 12),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              for (final it in items)
-                Padding(
-                  padding: const EdgeInsets.only(bottom: 6),
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text('•  ', style: TextStyle(color: context.pal.acento)),
-                      Expanded(child: RicoTexto(it, size: 13.5)),
-                    ],
-                  ),
-                ),
-            ],
-          ),
-        );
-
+        return _bloqueLista(b);
       case 'tabla':
-        final filas = (b['filas'] as List? ?? const [])
-            .map((r) => (r as List).map((x) => '$x').toList())
-            .toList();
-        return Container(
-          margin: const EdgeInsets.only(bottom: 12),
-          decoration: BoxDecoration(
-            border: Border.all(color: context.pal.borde),
-            borderRadius: BorderRadius.circular(10),
-          ),
-          clipBehavior: Clip.antiAlias,
-          child: Column(
-            children: [
-              if ((b['titulo'] as String? ?? '').isNotEmpty)
-                Container(
-                  width: double.infinity,
-                  color: context.pal.superficieAlt,
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                  child: Text(b['titulo'] as String,
-                      style: const TextStyle(
-                          fontWeight: FontWeight.bold, fontSize: 13)),
-                ),
-              for (var i = 0; i < filas.length; i++)
-                Container(
-                  decoration: BoxDecoration(
-                    color: i.isEven
-                        ? Colors.transparent
-                        : context.pal.superficieAlt.withValues(alpha: 0.5),
-                    border: i == 0
-                        ? null
-                        : Border(
-                            top: BorderSide(color: context.pal.borde)),
-                  ),
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Expanded(
-                        flex: 4,
-                        child: RicoTexto(filas[i].isNotEmpty ? filas[i][0] : '',
-                            size: 12.5),
-                      ),
-                      const SizedBox(width: 10),
-                      Expanded(
-                        flex: 5,
-                        child: RicoTexto(
-                            filas[i].length > 1 ? filas[i][1] : '',
-                            size: 12.5),
-                      ),
-                    ],
-                  ),
-                ),
-            ],
-          ),
-        );
-
+        return _bloqueTabla(b);
       case 'pasos':
-        final pasos = (b['pasos'] as List? ?? const [])
-            .map((x) => '$x')
-            .toList();
-        return Container(
-          margin: const EdgeInsets.only(bottom: 12),
-          padding: const EdgeInsets.all(12),
-          decoration: BoxDecoration(
-            color: context.pal.superficieAlt,
-            borderRadius: BorderRadius.circular(10),
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              if ((b['titulo'] as String? ?? '').isNotEmpty) ...[
-                Text(b['titulo'] as String,
-                    style: const TextStyle(
-                        fontWeight: FontWeight.bold, fontSize: 12.5)),
-                const SizedBox(height: 8),
-              ],
-              Wrap(
-                spacing: 6,
-                runSpacing: 6,
-                crossAxisAlignment: WrapCrossAlignment.center,
-                children: [
-                  for (var i = 0; i < pasos.length; i++) ...[
-                    if (i > 0)
-                      Icon(Icons.arrow_forward,
-                          size: 13, color: context.pal.textoTenue),
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 9, vertical: 5),
-                      decoration: BoxDecoration(
-                        color: (pasos[i].toUpperCase().startsWith('ST') ||
-                                pasos[i] == '½')
-                            ? context.pal.acento.withValues(alpha: 0.22)
-                            : context.pal.acento.withValues(alpha: 0.08),
-                        borderRadius: BorderRadius.circular(7),
-                        border: Border.all(
-                            color: context.pal.acento.withValues(alpha: 0.4)),
-                      ),
-                      child: Text(pasos[i],
-                          style: TextStyle(
-                              fontSize: 12,
-                              fontWeight: FontWeight.w700,
-                              color: context.pal.texto)),
-                    ),
-                  ],
-                ],
-              ),
-              const SizedBox(height: 6),
-              Text('T = tono · ST = semitono',
-                  style:
-                      TextStyle(fontSize: 10.5, color: context.pal.textoTenue)),
-            ],
-          ),
-        );
-
+        return _bloquePasos(b);
       case 'diagrama':
-        return DiagramaAnimado(
-          b['nombre'] as String? ?? '',
-          alto: (b['alto'] as num?)?.toDouble() ?? 200,
-          pie: b['pie'] as String?,
-        );
-
+        return _bloqueDiagrama(b);
       case 'audio':
-        return _tarjeta(
-          titulo: b['titulo'] as String? ?? 'Escucha este ejemplo',
-          hijo: null,
-          onPlay: () => _tocarWav(b['archivo'] as String? ?? ''),
-        );
-
+        return _bloqueAudio(b);
       case 'escala':
-        final idx = (b['tonicaIdx'] as num?)?.toInt() ?? 0;
-        final pasos = (b['pasos'] as List? ?? const [])
-            .map((x) => (x as num).toInt())
-            .toList();
-        final midis = midisDeEscala(idx, pasos);
-        return _tarjeta(
-          titulo: b['titulo'] as String? ?? b['nota'] as String? ?? 'Ejemplo',
-          hijo: Pentagrama(midis: midis, color: acento),
-          onPlay: () => _tocarSecuencia(midis),
-        );
-
+        return _bloqueEscala(b);
       case 'nota':
-        final midi = (b['midi'] as num?)?.toInt() ?? 60;
-        return _tarjeta(
-          titulo: b['titulo'] as String? ?? b['nota'] as String? ?? 'Ejemplo',
-          hijo: Pentagrama(midis: [midi], color: acento),
-          onPlay: () => _tocarSecuencia([midi]),
-        );
-
+        return _bloqueNota(b);
       default:
         return const SizedBox.shrink();
     }
+  }
+
+  /// 'texto' -> {texto}. Un prefijo "## " lo convierte en subtítulo de sección.
+  Widget _bloqueTexto(Map<String, dynamic> b) {
+    final s = b['texto'] as String? ?? '';
+    if (s.startsWith('## ')) {
+      return Padding(
+        padding: const EdgeInsets.only(top: 14, bottom: 4),
+        child: Text(s.substring(3),
+            style: Theme.of(context)
+                .textTheme
+                .titleMedium
+                ?.copyWith(fontWeight: FontWeight.w800)),
+      );
+    }
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 12),
+      child: RicoTexto(s),
+    );
+  }
+
+  /// 'clave' -> {titulo, texto}. Recuadro destacado para una idea clave.
+  Widget _bloqueClave(Map<String, dynamic> b) {
+    return Container(
+      width: double.infinity,
+      margin: const EdgeInsets.only(bottom: 12),
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: context.pal.aviso.withValues(alpha: 0.12),
+        borderRadius: BorderRadius.circular(10),
+        border: Border.all(color: context.pal.aviso.withValues(alpha: 0.5)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Icon(Icons.lightbulb, size: 16, color: context.pal.aviso),
+              const SizedBox(width: 6),
+              Expanded(
+                child: Text(b['titulo'] as String? ?? '',
+                    style: TextStyle(
+                        fontWeight: FontWeight.bold, color: context.pal.aviso)),
+              ),
+            ],
+          ),
+          const SizedBox(height: 6),
+          RicoTexto(b['texto'] as String? ?? '', size: 13),
+        ],
+      ),
+    );
+  }
+
+  /// 'lista' -> {items:[...]}. Viñetas, cada ítem admite **negrita**.
+  Widget _bloqueLista(Map<String, dynamic> b) {
+    final items =
+        (b['items'] as List? ?? const []).map((x) => x as String).toList();
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 12),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          for (final it in items)
+            Padding(
+              padding: const EdgeInsets.only(bottom: 6),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text('•  ', style: TextStyle(color: context.pal.acento)),
+                  Expanded(child: RicoTexto(it, size: 13.5)),
+                ],
+              ),
+            ),
+        ],
+      ),
+    );
+  }
+
+  /// 'tabla' -> {titulo?, filas:[[izq,der], ...]}.
+  Widget _bloqueTabla(Map<String, dynamic> b) {
+    final filas = (b['filas'] as List? ?? const [])
+        .map((r) => (r as List).map((x) => '$x').toList())
+        .toList();
+    return Container(
+      margin: const EdgeInsets.only(bottom: 12),
+      decoration: BoxDecoration(
+        border: Border.all(color: context.pal.borde),
+        borderRadius: BorderRadius.circular(10),
+      ),
+      clipBehavior: Clip.antiAlias,
+      child: Column(
+        children: [
+          if ((b['titulo'] as String? ?? '').isNotEmpty)
+            Container(
+              width: double.infinity,
+              color: context.pal.superficieAlt,
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+              child: Text(b['titulo'] as String,
+                  style: const TextStyle(
+                      fontWeight: FontWeight.bold, fontSize: 13)),
+            ),
+          for (var i = 0; i < filas.length; i++) _filaTabla(filas[i], i),
+        ],
+      ),
+    );
+  }
+
+  Widget _filaTabla(List<String> fila, int i) {
+    return Container(
+      decoration: BoxDecoration(
+        color: i.isEven
+            ? Colors.transparent
+            : context.pal.superficieAlt.withValues(alpha: 0.5),
+        border:
+            i == 0 ? null : Border(top: BorderSide(color: context.pal.borde)),
+      ),
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Expanded(
+            flex: 4,
+            child: RicoTexto(fila.isNotEmpty ? fila[0] : '', size: 12.5),
+          ),
+          const SizedBox(width: 10),
+          Expanded(
+            flex: 5,
+            child: RicoTexto(fila.length > 1 ? fila[1] : '', size: 12.5),
+          ),
+        ],
+      ),
+    );
+  }
+
+  /// 'pasos' -> {titulo?, pasos:['T','T','ST', ...]}. Patrón tono/semitono.
+  Widget _bloquePasos(Map<String, dynamic> b) {
+    final pasos =
+        (b['pasos'] as List? ?? const []).map((x) => '$x').toList();
+    return Container(
+      margin: const EdgeInsets.only(bottom: 12),
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: context.pal.superficieAlt,
+        borderRadius: BorderRadius.circular(10),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          if ((b['titulo'] as String? ?? '').isNotEmpty) ...[
+            Text(b['titulo'] as String,
+                style: const TextStyle(
+                    fontWeight: FontWeight.bold, fontSize: 12.5)),
+            const SizedBox(height: 8),
+          ],
+          Wrap(
+            spacing: 6,
+            runSpacing: 6,
+            crossAxisAlignment: WrapCrossAlignment.center,
+            children: [
+              for (var i = 0; i < pasos.length; i++) ...[
+                if (i > 0)
+                  Icon(Icons.arrow_forward,
+                      size: 13, color: context.pal.textoTenue),
+                _chipPaso(pasos[i]),
+              ],
+            ],
+          ),
+          const SizedBox(height: 6),
+          Text('T = tono · ST = semitono',
+              style: TextStyle(fontSize: 10.5, color: context.pal.textoTenue)),
+        ],
+      ),
+    );
+  }
+
+  Widget _chipPaso(String paso) {
+    final esSemitono = paso.toUpperCase().startsWith('ST') || paso == '½';
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 5),
+      decoration: BoxDecoration(
+        color: context.pal.acento.withValues(alpha: esSemitono ? 0.22 : 0.08),
+        borderRadius: BorderRadius.circular(7),
+        border: Border.all(color: context.pal.acento.withValues(alpha: 0.4)),
+      ),
+      child: Text(paso,
+          style: TextStyle(
+              fontSize: 12,
+              fontWeight: FontWeight.w700,
+              color: context.pal.texto)),
+    );
+  }
+
+  /// 'diagrama' -> {nombre, alto?, pie?}.
+  Widget _bloqueDiagrama(Map<String, dynamic> b) {
+    return DiagramaAnimado(
+      b['nombre'] as String? ?? '',
+      alto: (b['alto'] as num?)?.toDouble() ?? 200,
+      pie: b['pie'] as String?,
+    );
+  }
+
+  /// 'audio' -> {archivo, titulo?}. Un wav de assets/audio.
+  Widget _bloqueAudio(Map<String, dynamic> b) {
+    return _tarjeta(
+      titulo: b['titulo'] as String? ?? 'Escucha este ejemplo',
+      hijo: null,
+      onPlay: () => _tocarWav(b['archivo'] as String? ?? ''),
+    );
+  }
+
+  /// 'escala' -> {tonicaIdx, pasos:[int], titulo?}. Pentagrama + escuchar.
+  Widget _bloqueEscala(Map<String, dynamic> b) {
+    final acento = Theme.of(context).colorScheme.primary;
+    final idx = (b['tonicaIdx'] as num?)?.toInt() ?? 0;
+    final pasos = (b['pasos'] as List? ?? const [])
+        .map((x) => (x as num).toInt())
+        .toList();
+    final midis = midisDeEscala(idx, pasos);
+    return _tarjeta(
+      titulo: b['titulo'] as String? ?? b['nota'] as String? ?? 'Ejemplo',
+      hijo: Pentagrama(midis: midis, color: acento),
+      onPlay: () => _tocarSecuencia(midis),
+    );
+  }
+
+  /// 'nota' -> {midi, titulo?}. Una nota + escuchar.
+  Widget _bloqueNota(Map<String, dynamic> b) {
+    final acento = Theme.of(context).colorScheme.primary;
+    final midi = (b['midi'] as num?)?.toInt() ?? 60;
+    return _tarjeta(
+      titulo: b['titulo'] as String? ?? b['nota'] as String? ?? 'Ejemplo',
+      hijo: Pentagrama(midis: [midi], color: acento),
+      onPlay: () => _tocarSecuencia([midi]),
+    );
   }
 
   Widget _tarjeta({
